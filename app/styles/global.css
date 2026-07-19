@@ -1,3 +1,13 @@
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--family-display);
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+#root {
+  min-height: 100vh;
+}
+
 /* Hide an element visually without hiding it from screen readers. */
 .sr-only {
   position: absolute;
