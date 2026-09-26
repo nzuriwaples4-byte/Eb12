@@ -4,6 +4,12 @@ import type { Route } from "./+types/root";
 import colorSchemeApi from "@dazl/color-scheme/client?url";
 import { ErrorBoundary as ErrorBoundaryRoot } from "~/components/error-boundary/error-boundary";
 
+// Fonts are bundled (not Google Fonts) so the Steam build works offline
+import "@fontsource/bebas-neue/400.css";
+import "@fontsource/chivo/400.css";
+import "@fontsource/chivo/700.css";
+import "@fontsource/chivo/900.css";
+import "@fontsource/chivo/400-italic.css";
 import "./styles/reset.css";
 import "./styles/global.css";
 import "./styles/theme.css";
@@ -15,16 +21,6 @@ export const links: Route.LinksFunction = () => [
     rel: "icon",
     href: favicon,
     type: "image/svg+xml",
-  },
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Chivo:ital,wght@0,300;0,400;0,700;0,900;1,400&display=swap",
   },
 ];
 

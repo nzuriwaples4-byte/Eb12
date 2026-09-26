@@ -1,0 +1,55 @@
+.btn {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-3) var(--space-5);
+  border: none;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+  background: rgba(16, 20, 31, 0.78);
+  color: var(--color-text);
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition:
+    transform 0.12s,
+    background 0.12s;
+}
+
+.btn[data-variant="primary"] {
+  background: linear-gradient(90deg, var(--color-primary-dark), var(--color-primary));
+  color: var(--color-text-inverse);
+}
+
+.btn:hover:not(:disabled),
+.btn:focus-visible {
+  transform: translateX(8px);
+  background: var(--color-surface-raised);
+  outline: none;
+  box-shadow: inset 4px 0 0 var(--color-primary);
+}
+
+.btn[data-variant="primary"]:hover,
+.btn[data-variant="primary"]:focus-visible {
+  background: linear-gradient(90deg, var(--color-primary), #8ff0ff);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.label {
+  font-family: var(--family-display);
+  font-size: var(--text-xl);
+  letter-spacing: 0.05em;
+}
+
+.hint {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+}

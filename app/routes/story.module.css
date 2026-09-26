@@ -1,0 +1,142 @@
+.page {
+  min-height: 100vh;
+  padding: var(--space-6) 6vw var(--space-10);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(58, 215, 255, 0.12), transparent 50%),
+    radial-gradient(circle at 90% 100%, rgba(255, 138, 58, 0.1), transparent 50%), var(--color-bg);
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.header h1 {
+  font-size: var(--text-4xl);
+}
+
+.back {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  align-self: center;
+}
+
+.book {
+  color: var(--color-accent);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: var(--text-sm);
+}
+
+.stars {
+  margin-left: auto;
+  font-family: var(--family-display);
+  font-size: var(--text-2xl);
+  color: #ffd24a;
+}
+
+.list {
+  list-style: none;
+  display: grid;
+  gap: var(--space-4);
+  padding: 0;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  gap: var(--space-5);
+  align-items: stretch;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border-left: 5px solid var(--accent);
+  color: var(--color-text);
+  text-decoration: none;
+  transition:
+    transform 0.15s,
+    background 0.15s;
+}
+
+a.card:hover,
+a.card:focus-visible {
+  transform: translateX(8px);
+  background: var(--color-surface-raised);
+}
+
+li[data-locked="true"] .card {
+  opacity: 0.45;
+}
+
+.portrait {
+  width: 120px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  flex: none;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+}
+
+.num {
+  font-size: var(--text-xs);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.info h2 {
+  font-size: var(--text-2xl);
+}
+
+.meta {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.logline {
+  max-width: 70ch;
+  line-height: 1.5;
+}
+
+.obj {
+  font-size: var(--text-sm);
+  color: #ffd24a;
+}
+
+.done,
+.lock {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-4);
+  font-family: var(--family-display);
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.teaser {
+  margin-top: var(--space-8);
+  padding: var(--space-6);
+  border: 1px dashed var(--color-accent);
+  text-align: center;
+}
+
+.teaser span {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+}
+
+.teaser h2 {
+  font-size: var(--text-3xl);
+}

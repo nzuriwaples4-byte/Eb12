@@ -1,0 +1,65 @@
+.card {
+  width: min(560px, 92vw);
+  padding: var(--space-6);
+  background: rgba(8, 10, 16, 0.92);
+  border-top: 4px solid var(--accent);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: 12vh;
+}
+
+.head {
+  font-size: var(--text-3xl);
+  color: var(--accent);
+}
+
+.score {
+  font-family: var(--family-display);
+  font-size: var(--text-2xl);
+  letter-spacing: 0.04em;
+}
+
+.score span {
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+}
+
+.objective {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.objective[data-met="true"] {
+  color: #ffd24a;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.table td,
+.table th {
+  padding: 4px 0;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.table tbody th {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.table td {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}

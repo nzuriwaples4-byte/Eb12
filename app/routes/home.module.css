@@ -1,7 +1,81 @@
 .home {
+  position: relative;
   min-height: 100vh;
+  overflow: hidden;
+  background: radial-gradient(circle at 70% 30%, #1b2a4a, #030408 70%);
+}
+
+.art {
+  position: absolute;
+  inset: 0;
+  opacity: 0.85;
+  animation: zoom 40s ease-in-out infinite alternate;
+}
+
+@keyframes zoom {
+  to {
+    transform: scale(1.08);
+  }
+}
+
+.glow {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(3, 4, 8, 0.96) 0%, rgba(3, 4, 8, 0.75) 38%, transparent 70%),
+    linear-gradient(0deg, rgba(3, 4, 8, 0.8), transparent 40%);
+}
+
+.panel {
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 8vh 6vw;
+  max-width: 560px;
+}
+
+.kicker {
+  font-size: var(--text-sm);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+.logo {
+  font-size: clamp(4rem, 10vw, 8.5rem);
+  white-space: nowrap;
+  line-height: 0.82;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.logo span {
+  color: var(--color-primary);
+  text-shadow:
+    0 0 30px var(--color-primary-glow),
+    0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.sub {
+  font-family: var(--family-display);
+  font-size: var(--text-xl);
+  letter-spacing: 0.12em;
+  color: var(--color-accent);
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  max-width: 420px;
+}
+
+.foot {
+  margin-top: var(--space-5);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
 }
