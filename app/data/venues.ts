@@ -1,4 +1,5 @@
-export type VenueTheme = "harbor" | "cage" | "neon" | "park" | "crown" | "subway" | "gym" | "spillway" | "glass";
+export type VenueTheme =
+  "harbor" | "cage" | "neon" | "park" | "crown" | "subway" | "gym" | "spillway" | "glass" | "arena";
 
 export interface Venue {
   id: string;

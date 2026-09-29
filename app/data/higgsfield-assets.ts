@@ -135,7 +135,7 @@ export const HIGGSFIELD_ASSETS = {
     id: "titan-portrait",
     kind: "image",
     local: "/assets/higgsfield/titan-portrait.png",
-    remote: `${CDN}/hf_PENDING_a7cdab91-5bb6-4c26-be77-67ced1eef694.png`,
+    remote: `${CDN}/hf_20260929_230526_a7cdab91-5bb6-4c26-be77-67ced1eef694.png`,
     job: "a7cdab91-5bb6-4c26-be77-67ced1eef694",
     model: "soul_2",
     prompt: "Titan, 7-foot-1 teal #55, flooded drainage tunnel.",

@@ -70,6 +70,8 @@ export interface Baller {
   taunts: string[];
   /** Accent color used by the UI */
   accent: string;
+  /** Generated EBL player (not in the story roster) */
+  ebl?: boolean;
 }
 
 export const BALLERS: Baller[] = [
@@ -499,8 +501,11 @@ export const BALLERS: Baller[] = [
   },
 ];
 
+/** Generated players (EBL stars) registered at runtime */
+export const EXTRA_BALLERS: Baller[] = [];
+
 export function getBaller(id: string): Baller {
-  return BALLERS.find((b) => b.id === id) ?? BALLERS[0];
+  return BALLERS.find((b) => b.id === id) ?? EXTRA_BALLERS.find((b) => b.id === id) ?? BALLERS[0];
 }
 
 /** Overall rating, shown on select screens */

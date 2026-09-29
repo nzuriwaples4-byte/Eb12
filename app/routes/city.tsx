@@ -6,6 +6,7 @@ import { CHAPTERS } from "~/data/story";
 import { getVenue } from "~/data/venues";
 import { getAudio } from "~/game/audio";
 import type { City, Poi, Resident } from "~/game/city";
+import { PLACES } from "~/game/city-world";
 import { kairoLook, useProgress } from "~/hooks/use-progress";
 import { useSettings } from "~/hooks/use-settings";
 import type { Route } from "./+types/city";
@@ -16,10 +17,10 @@ export function meta({}: Route.MetaArgs) {
 }
 
 const COURTS: { ballerId: string; venueId: string; x: number; z: number }[] = [
-  { ballerId: "deuce", venueId: "pier-9", x: 18, z: 18 },
-  { ballerId: "brick", venueId: "the-cage", x: -18, z: 18 },
-  { ballerId: "silk", venueId: "neon-alley", x: -18, z: -18 },
-  { ballerId: "queen", venueId: "queensway", x: 18, z: -18 },
+  { ballerId: "deuce", venueId: "pier-9", ...PLACES.courts[3] },
+  { ballerId: "brick", venueId: "the-cage", ...PLACES.courts[2] },
+  { ballerId: "silk", venueId: "neon-alley", ...PLACES.courts[0] },
+  { ballerId: "queen", venueId: "queensway", ...PLACES.courts[1] },
 ];
 
 export default function CityRoute() {
@@ -59,8 +60,8 @@ export default function CityRoute() {
         kind: "story",
         label: "Story",
         action: `Chapter ${next.number}: ${next.title}`,
-        x: -7,
-        z: 9,
+        x: PLACES.story.x,
+        z: PLACES.story.z,
         r: 3,
         color: "#ffc93a",
       },
@@ -69,8 +70,8 @@ export default function CityRoute() {
         kind: "shop",
         label: "Kicks & Gear",
         action: "Shop for shoes & gear",
-        x: -40,
-        z: -24,
+        x: PLACES.shop.x,
+        z: PLACES.shop.z,
         r: 5,
         color: "#d6ff3a",
       },
@@ -79,8 +80,8 @@ export default function CityRoute() {
         kind: "crib",
         label: "Harbor Loft",
         action: "Enter the Crib",
-        x: 40,
-        z: 16,
+        x: PLACES.crib.x,
+        z: PLACES.crib.z,
         r: 5,
         color: "#3ad7ff",
       },
@@ -89,8 +90,8 @@ export default function CityRoute() {
         kind: "arena",
         label: "EBL Arena",
         action: leagueOpen ? "Play in the EBL" : "EBL (beat Book One to unlock)",
-        x: 18,
-        z: -44,
+        x: PLACES.arena.x,
+        z: PLACES.arena.z,
         r: 6,
         color: "#b88cff",
       },
@@ -99,8 +100,8 @@ export default function CityRoute() {
         kind: "online",
         label: "Rec Center",
         action: "Co-op & Online",
-        x: -40,
-        z: 20,
+        x: PLACES.rec.x,
+        z: PLACES.rec.z,
         r: 5,
         color: "#ff8a3a",
       },
@@ -109,8 +110,8 @@ export default function CityRoute() {
         kind: "roster",
         label: "Hall of Fame",
         action: "View the roster",
-        x: 40,
-        z: -16,
+        x: PLACES.fame.x,
+        z: PLACES.fame.z,
         r: 5,
         color: "#e8ecf4",
       },
@@ -120,7 +121,7 @@ export default function CityRoute() {
 
   const residents: Resident[] = COURTS.map((c) => {
     const inward = Math.atan2(-c.x, -c.z);
-    return { ballerId: c.ballerId, x: c.x * 0.78, z: c.z * 0.78, yaw: inward };
+    return { ballerId: c.ballerId, x: c.x - Math.sign(c.x) * 4.5, z: c.z, yaw: inward };
   });
 
   const onInteract = (p: Poi) => {

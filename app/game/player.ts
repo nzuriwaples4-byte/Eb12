@@ -71,6 +71,8 @@ export class Player {
   private blend = 1;
   private velLocal = new THREE.Vector2();
   glow = 0;
+  /** Height of the surface under the player (curbs, park, courts in the city) */
+  groundY = 0;
   glowColor = new THREE.Color("#ffffff");
 
   constructor(
@@ -212,7 +214,7 @@ export class Player {
 
     // Place the character
     const root = this.body.root;
-    root.position.set(this.pos.x, this.y, this.pos.z);
+    root.position.set(this.pos.x, this.y + this.groundY, this.pos.z);
     root.rotation.y = this.yaw;
     root.updateMatrixWorld(true);
     this.body.poser.apply(this.pose);
