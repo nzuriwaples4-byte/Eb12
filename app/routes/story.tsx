@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { AssetImage } from "~/components/asset-image/asset-image";
 import { getBaller } from "~/data/characters";
-import { BOOK, CHAPTERS, EPILOGUE_TEASER, STORY_TITLE } from "~/data/story";
+import { BOOKS, CHAPTERS, EPILOGUE_TEASER, bookOf } from "~/data/story";
 import { getVenue } from "~/data/venues";
 import { useProgress } from "~/hooks/use-progress";
 import { useSettings } from "~/hooks/use-settings";
@@ -23,8 +23,8 @@ export default function Story() {
           ← Menu
         </Link>
         <div>
-          <p className={styles.book}>{BOOK}</p>
-          <h1>{STORY_TITLE}</h1>
+          <p className={styles.book}>Story Mode</p>
+          <h1>Kairo's Story</h1>
         </div>
         <p className={styles.stars}>
           ★ {Object.values(progress.stars).filter(Boolean).length}/{CHAPTERS.length}
@@ -64,6 +64,12 @@ export default function Story() {
           );
           return (
             <li key={c.id} style={{ "--accent": o.accent } as React.CSSProperties} data-locked={!unlocked}>
+              {(i === 0 || bookOf(CHAPTERS[i - 1]) !== bookOf(c)) && (
+                <h2 className={styles.bookHead}>
+                  {BOOKS.find((b) => b.number === bookOf(c))?.name}:{" "}
+                  <span>{BOOKS.find((b) => b.number === bookOf(c))?.title}</span>
+                </h2>
+              )}
               {unlocked ? (
                 <Link to={`/story/${c.id}`} className={styles.card}>
                   {inner}

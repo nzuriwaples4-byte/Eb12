@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { AssetImage } from "~/components/asset-image/asset-image";
 import { GameView } from "~/components/game-view/game-view";
 import { MenuButton } from "~/components/menu-button/menu-button";
@@ -8,7 +8,8 @@ import { BALLERS, getBaller, overall } from "~/data/characters";
 import { CHAPTERS } from "~/data/story";
 import { VENUES } from "~/data/venues";
 import type { MatchResult } from "~/game/types";
-import { unlockedBallers, useProgress } from "~/hooks/use-progress";
+import { PAYOUT } from "~/data/gear";
+import { kairoLook, unlockedBallers, useProgress } from "~/hooks/use-progress";
 import { useSettings } from "~/hooks/use-settings";
 import type { Route } from "./+types/play";
 import styles from "./play.module.css";
@@ -25,12 +26,13 @@ export default function Play() {
   const [settings] = useSettings();
   const navigate = useNavigate();
   const unlocked = settings.unlockAll ? new Set(BALLERS.map((b) => b.id)) : unlockedBallers(progress, CHAPTERS);
+  const [params] = useSearchParams();
   const [me, setMe] = useState("kairo");
-  const [opp, setOpp] = useState("deuce");
-  const [venue, setVenue] = useState(VENUES[0].id);
+  const [opp, setOpp] = useState(params.get("opp") ?? "deuce");
+  const [venue, setVenue] = useState(params.get("venue") ?? VENUES[0].id);
   const [target, setTarget] = useState(11);
-  const [diff, setDiff] = useState(settings.difficulty);
-  const [playing, setPlaying] = useState(false);
+  const [diff, setDiff] = useState(params.get("diff") ? Number(params.get("diff")) : settings.difficulty);
+  const [playing, setPlaying] = useState(params.get("auto") === "1");
   const [result, setResult] = useState<MatchResult | null>(null);
   const [runId, setRunId] = useState(0);
 
@@ -47,6 +49,7 @@ export default function Play() {
           useHiggsfield: settings.useHiggsfield,
           shadows: settings.shadows,
           cameraShake: settings.cameraShake,
+          playerLook: me === "kairo" ? (kairoLook(progress) ?? undefined) : undefined,
         }}
         onFinish={(r) => {
           setResult(r);
@@ -57,6 +60,7 @@ export default function Play() {
           }));
         }}
         onQuit={() => {
+          if (params.get("from") === "city") navigate("/city");
           setPlaying(false);
           setResult(null);
         }}
@@ -86,7 +90,9 @@ export default function Play() {
                   >
                     Change matchup
                   </MenuButton>
-                  <MenuButton onClick={() => navigate("/")}>Main menu</MenuButton>
+                  <MenuButton onClick={() => navigate(params.get("from") === "city" ? "/city" : "/")}>
+                    {params.get("from") === "city" ? "Back to the city" : "Main menu"}
+                  </MenuButton>
                 </>
               }
             />

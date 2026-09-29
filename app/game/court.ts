@@ -134,6 +134,26 @@ function floorTexture(v: Venue) {
   return tex;
 }
 
+/** Night windows texture for skyscrapers (shared with the city hub) */
+export function windowTexture(lit = 0.45) {
+  const c = document.createElement("canvas");
+  c.width = 64;
+  c.height = 128;
+  const g = c.getContext("2d")!;
+  g.fillStyle = "#0b0e1a";
+  g.fillRect(0, 0, 64, 128);
+  for (let y = 4; y < 128; y += 8)
+    for (let x = 4; x < 64; x += 8)
+      if (Math.random() < lit) {
+        g.fillStyle = Math.random() < 0.8 ? "#ffd98a" : "#9fd7ff";
+        g.fillRect(x, y, 4, 5);
+      }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+
 function mat(color: string, roughness = 0.6, metalness = 0, emissive?: string, ei = 1) {
   const m = new THREE.MeshStandardMaterial({ color, roughness, metalness });
   if (emissive) {
@@ -650,6 +670,195 @@ export function buildCourt(v: Venue, opts: { shadows: boolean }): CourtScene {
       apron.visible = false;
       break;
     }
+    case "subway": {
+      // Abandoned station: tiled walls, platform edges, tracks, pillars, flickering tubes
+      const tile = new THREE.MeshStandardMaterial({ color: "#c9c2a8", roughness: 0.5 });
+      const tileC = document.createElement("canvas");
+      tileC.width = tileC.height = 64;
+      const tg = tileC.getContext("2d")!;
+      tg.fillStyle = "#d8d0b4";
+      tg.fillRect(0, 0, 64, 64);
+      tg.strokeStyle = "#8a826c";
+      tg.lineWidth = 2;
+      for (let i = 0; i <= 64; i += 16) {
+        tg.beginPath();
+        tg.moveTo(i, 0);
+        tg.lineTo(i, 64);
+        tg.moveTo(0, i);
+        tg.lineTo(64, i);
+        tg.stroke();
+      }
+      tile.map = new THREE.CanvasTexture(tileC);
+      tile.map.wrapS = tile.map.wrapT = THREE.RepeatWrapping;
+      tile.map.repeat.set(24, 5);
+      tile.map.colorSpace = THREE.SRGBColorSpace;
+      box(COURT.halfWidth * 2 + 12, 7, 1, tile, 0, 3.5, -3.5, group);
+      box(1, 7, 26, tile, -COURT.halfWidth - 5, 3.5, 6, group);
+      box(1, 7, 26, tile, COURT.halfWidth + 5, 3.5, 6, group);
+      box(COURT.halfWidth * 2 + 12, 0.6, 26, mat("#1a1712", 0.9), 0, 7.2, 6, group);
+      // Track bed along one side (sunken)
+      box(3, 0.3, 26, mat("#15120e", 1), COURT.halfWidth + 3, -0.2, 6, group);
+      for (const dx of [-0.6, 0.6])
+        box(0.1, 0.12, 26, mat("#6a6058", 0.4, 0.8), COURT.halfWidth + 3 + dx, 0.0, 6, group);
+      box(0.5, 0.05, 26, mat("#e6c200", 0.6), COURT.halfWidth + 1.3, 0.02, 6, group);
+      const pill = mat("#3a4a3a", 0.6, 0.3);
+      for (const z of [-1, 5, 11]) {
+        box(0.6, 7, 0.6, pill, -COURT.halfWidth - 1.6, 3.5, z, group);
+        box(0.6, 7, 0.6, pill, COURT.halfWidth + 1.6, 3.5, z, group);
+      }
+      const signL = textSign("LINE 0", "#a6ff3a", 5, 1.4);
+      signL.position.set(0, 5.5, -2.95);
+      group.add(signL);
+      // Flickering fluorescent tubes
+      const tubes: THREE.PointLight[] = [];
+      for (const z of [2, 8]) {
+        const tube = new THREE.PointLight("#fff4d0", 14, 14, 1.8);
+        tube.position.set(0, 6.5, z);
+        group.add(tube);
+        tubes.push(tube);
+        box(3, 0.1, 0.2, mat("#fff", 0.2, 0, "#fff4d0", 4), 0, 6.8, z, group);
+      }
+      extras.push((t) => {
+        tubes[0].intensity = Math.sin(t * 37) > 0.93 ? 2 : 14;
+      });
+      apron.material = mat("#24201a", 0.95);
+      break;
+    }
+    case "gym": {
+      // Pro training facility: hardwood, padded walls, banners, overhead lights
+      const wall = mat("#1b2a55", 0.7);
+      box(COURT.halfWidth * 2 + 8, 10, 1, wall, 0, 5, -3, group);
+      box(1, 10, 26, wall, -COURT.halfWidth - 4, 5, 6, group);
+      box(1, 10, 26, wall, COURT.halfWidth + 4, 5, 6, group);
+      box(COURT.halfWidth * 2 + 8, 0.5, 26, mat("#222630", 0.8), 0, 10, 6, group);
+      const lightM = mat("#fff", 0.2, 0, "#ffffff", 3);
+      for (let x = -4; x <= 4; x += 4) for (let z = 1; z <= 12; z += 5.5) box(1.6, 0.1, 0.8, lightM, x, 9.7, z, group);
+      const banner1 = textSign("THE COMBINE", "#6fa8ff", 7, 1.6);
+      banner1.position.set(0, 7.5, -2.45);
+      group.add(banner1);
+      const banner2 = textSign("KANE PERFORMANCE", "#ffffff", 8, 1.2);
+      banner2.position.set(-COURT.halfWidth - 3.45, 6.5, 6);
+      banner2.rotation.y = Math.PI / 2;
+      group.add(banner2);
+      // Scout table
+      box(5, 0.9, 0.9, mat("#11151f", 0.4), COURT.halfWidth + 2, 0.45, 10, group);
+      apron.material = mat("#8a6a44", 0.6);
+      break;
+    }
+    case "spillway": {
+      // Concrete storm drain: curved walls, shallow reflective water, green emergency lights
+      const conc = mat("#3d4644", 0.9);
+      const tunnel = new THREE.Mesh(new THREE.CylinderGeometry(14, 14, 34, 32, 1, true, Math.PI * 0.5, Math.PI), conc);
+      tunnel.rotation.x = Math.PI / 2;
+      tunnel.rotation.z = Math.PI / 2;
+      tunnel.position.set(0, 1, 6);
+      (tunnel.material as THREE.MeshStandardMaterial).side = THREE.BackSide;
+      group.add(tunnel);
+      const water = new THREE.Mesh(
+        new THREE.PlaneGeometry(40, 40),
+        new THREE.MeshStandardMaterial({
+          color: "#0b3a33",
+          roughness: 0.05,
+          metalness: 0.6,
+          transparent: true,
+          opacity: 0.5,
+        }),
+      );
+      water.rotation.x = -Math.PI / 2;
+      water.position.set(0, 0.015, 6);
+      group.add(water);
+      for (const [x, z] of [
+        [-9, 0],
+        [9, 4],
+        [-9, 10],
+        [9, 13],
+      ]) {
+        const l = new THREE.PointLight("#3dffb0", 16, 14, 1.8);
+        l.position.set(x, 4, z);
+        group.add(l);
+        dimmables.push({ light: l, base: l.intensity });
+        box(0.4, 0.3, 0.4, mat("#0f0", 0.3, 0, "#3dffb0", 4), x * 1.05, 4, z, group);
+      }
+      const grate = textSign("DRAIN 4", "#2de0c8", 4, 1.2);
+      grate.position.set(0, 6, -4);
+      group.add(grate);
+      // Dripping water streaks
+      const dripGeo = new THREE.BufferGeometry();
+      const N = 500;
+      const pts = new Float32Array(N * 3);
+      for (let i = 0; i < N; i++) {
+        pts[i * 3] = (Math.random() - 0.5) * 20;
+        pts[i * 3 + 1] = Math.random() * 12;
+        pts[i * 3 + 2] = Math.random() * 20 - 3;
+      }
+      dripGeo.setAttribute("position", new THREE.BufferAttribute(pts, 3));
+      group.add(
+        new THREE.Points(
+          dripGeo,
+          new THREE.PointsMaterial({ color: "#9ffff0", size: 0.04, transparent: true, opacity: 0.5 }),
+        ),
+      );
+      extras.push((_t, dt) => {
+        const p = dripGeo.attributes.position as THREE.BufferAttribute;
+        for (let i = 0; i < N; i++) {
+          let y = p.getY(i) - dt * 9;
+          if (y < 0) y += 12;
+          p.setY(i, y);
+        }
+        p.needsUpdate = true;
+      });
+      apron.material = mat("#1c2422", 0.95);
+      break;
+    }
+    case "glass": {
+      // The Architect's arena: glass walls over a night city, neon grid, VIP box
+      const glassM = new THREE.MeshPhysicalMaterial({
+        color: "#b8a0c8",
+        roughness: 0.05,
+        transmission: 0.8,
+        transparent: true,
+        opacity: 0.25,
+      });
+      for (const [x, z, ry, w] of [
+        [0, -3, 0, COURT.halfWidth * 2 + 8],
+        [-COURT.halfWidth - 4, 6, Math.PI / 2, 22],
+        [COURT.halfWidth + 4, 6, Math.PI / 2, 22],
+      ] as const) {
+        const g = new THREE.Mesh(new THREE.PlaneGeometry(w, 9), glassM);
+        g.position.set(x, 4.5, z);
+        g.rotation.y = ry;
+        group.add(g);
+      }
+      const frameM = mat("#2a1a24", 0.3, 0.8);
+      for (let x = -COURT.halfWidth - 4; x <= COURT.halfWidth + 4; x += 3.8)
+        box(0.12, 9, 0.12, frameM, x, 4.5, -3, group);
+      // Neon grid lines in the ceiling
+      const neon = mat("#ff3a6e", 0.3, 0, "#ff3a6e", 3);
+      for (let z = -2; z <= 14; z += 4) box(COURT.halfWidth * 2 + 8, 0.05, 0.05, neon, 0, 9, z, group);
+      const vip = textSign("KANE", "#ff3a6e", 5, 1.4);
+      vip.position.set(0, 7.5, -2.9);
+      group.add(vip);
+      apron.material = mat("#0a0a0e", 0.2, 0.4);
+      const win = windowTexture(0.5);
+      for (let i = 0; i < 40; i++) {
+        const a = (i / 40) * Math.PI * 2;
+        const r = 50 + Math.random() * 30;
+        const h = 30 + Math.random() * 50;
+        const w = 5 + Math.random() * 8;
+        const b = new THREE.Mesh(
+          new THREE.BoxGeometry(w, h, w),
+          new THREE.MeshStandardMaterial({
+            color: "#0b0e1a",
+            emissive: "#ffffff",
+            emissiveMap: win,
+            emissiveIntensity: 0.8,
+          }),
+        );
+        b.position.set(Math.cos(a) * r, h / 2 - 70, Math.sin(a) * r + 6);
+        group.add(b);
+      }
+      break;
+    }
     case "crown": {
       // Rooftop edge, gold railing, skyline
       const rail = mat("#c9a24a", 0.3, 0.9);
@@ -660,24 +869,7 @@ export function buildCourt(v: Venue, opts: { shadows: boolean }): CourtScene {
       apron.material = new THREE.MeshStandardMaterial({ color: "#05060c", roughness: 1 });
       apron.position.y = -40;
       // Skyline with lit windows
-      const winTex = (() => {
-        const c = document.createElement("canvas");
-        c.width = 64;
-        c.height = 128;
-        const g = c.getContext("2d")!;
-        g.fillStyle = "#0b0e1a";
-        g.fillRect(0, 0, 64, 128);
-        for (let y = 4; y < 128; y += 8)
-          for (let x = 4; x < 64; x += 8)
-            if (Math.random() < 0.45) {
-              g.fillStyle = Math.random() < 0.8 ? "#ffd98a" : "#9fd7ff";
-              g.fillRect(x, y, 4, 5);
-            }
-        const t = new THREE.CanvasTexture(c);
-        t.colorSpace = THREE.SRGBColorSpace;
-        t.wrapS = t.wrapT = THREE.RepeatWrapping;
-        return t;
-      })();
+      const winTex = windowTexture();
       for (let i = 0; i < 46; i++) {
         const a = (i / 46) * Math.PI * 2;
         const r = 45 + Math.random() * 25;

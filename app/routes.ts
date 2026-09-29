@@ -6,6 +6,7 @@ const devRoutes = import.meta.env.DEV
 
 export default [
   index("routes/home.tsx"),
+  route("city", "routes/city.tsx"),
   route("story", "routes/story.tsx"),
   route("story/:chapterId", "routes/story-chapter.tsx"),
   route("play", "routes/play.tsx"),

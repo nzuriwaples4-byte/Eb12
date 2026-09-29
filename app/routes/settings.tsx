@@ -70,7 +70,7 @@ export default function Settings() {
             className={styles.danger}
             onClick={() => {
               if (confirm("Reset all story progress?"))
-                setProgress(() => ({ beaten: [], stars: {}, best: {}, wins: 0, losses: 0, seenIntro: false }));
+                setProgress((p) => ({ ...p, beaten: [], stars: {}, best: {}, wins: 0, losses: 0, seenIntro: false }));
             }}
           >
             Reset progress

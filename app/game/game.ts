@@ -96,9 +96,10 @@ export class Game {
 
   private async init() {
     const bodies: Body[] = [];
+    if (this.config.playerLook) this.baller[0] = { ...this.baller[0], look: this.config.playerLook };
     for (const [i, b] of this.baller.entries()) {
       let body: Body | null = null;
-      if (this.config.useHiggsfield && b.model) {
+      if (this.config.useHiggsfield && b.model && !(i === 0 && this.config.playerLook)) {
         this.loadingText = `Loading ${b.nickname} (Higgsfield 3D model)…`;
         this.pushHud();
         body = await Promise.race([

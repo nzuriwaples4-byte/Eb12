@@ -12,6 +12,8 @@ export interface MatchConfig {
   useHiggsfield: boolean;
   shadows: boolean;
   cameraShake: boolean;
+  /** Custom look for player 0 (purchased gear). Uses the procedural body. */
+  playerLook?: import("~/data/characters").Look;
   /** Attract / screenshot mode: both sides AI */
   cpuVsCpu?: boolean;
 }

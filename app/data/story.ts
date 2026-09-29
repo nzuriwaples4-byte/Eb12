@@ -1,6 +1,20 @@
 import type { AssetId } from "./higgsfield-assets";
 
-export type SpeakerId = "kairo" | "nia" | "deuce" | "brick" | "silk" | "queen" | "monarch" | "narrator" | "announcer";
+export type SpeakerId =
+  | "kairo"
+  | "nia"
+  | "deuce"
+  | "brick"
+  | "silk"
+  | "queen"
+  | "monarch"
+  | "ricochet"
+  | "metronome"
+  | "titan"
+  | "echo"
+  | "architect"
+  | "narrator"
+  | "announcer";
 
 export interface Speaker {
   name: string;
@@ -16,6 +30,11 @@ export const SPEAKERS: Record<SpeakerId, Speaker> = {
   silk: { name: "Silk", portrait: "silk-portrait", accent: "#b46bff" },
   queen: { name: "Queen", portrait: "queen-portrait", accent: "#2bd67b" },
   monarch: { name: "Monarch", portrait: "monarch-portrait", accent: "#ffc93a" },
+  ricochet: { name: "Ricochet", portrait: "ricochet-portrait", accent: "#a6ff3a" },
+  metronome: { name: "Metronome", portrait: "metronome-portrait", accent: "#6fa8ff" },
+  titan: { name: "Titan", portrait: "titan-portrait", accent: "#2de0c8" },
+  echo: { name: "Echo", portrait: "echo-portrait", accent: "#e8ecf4" },
+  architect: { name: "The Architect", portrait: "architect-portrait", accent: "#ff3a6e" },
   narrator: { name: "", accent: "#c9d3e8" },
   announcer: { name: "Announcer", accent: "#ff5a5a" },
 };
@@ -35,6 +54,8 @@ export interface Objective {
 
 export interface Chapter {
   id: string;
+  /** 1 = The Rebound, 2 = The Undercity */
+  book?: number;
   number: number;
   title: string;
   logline: string;
@@ -51,6 +72,11 @@ export interface Chapter {
 
 export const STORY_TITLE = "The Rebound";
 export const BOOK = "Book One";
+
+export const BOOKS = [
+  { number: 1, name: "Book One", title: "The Rebound" },
+  { number: 2, name: "Book Two", title: "The Undercity" },
+];
 
 export const CHAPTERS: Chapter[] = [
   {
@@ -272,12 +298,228 @@ export const CHAPTERS: Chapter[] = [
       { who: "monarch", text: "Again." },
     ],
   },
+  {
+    id: "ch6",
+    book: 2,
+    number: 6,
+    title: "Line 0",
+    logline: "The Architect's invitation leads under the city, to a subway station that was never finished.",
+    venueId: "line-0",
+    opponentId: "ricochet",
+    target: 15,
+    difficulty: 1,
+    objective: { kind: "dunks", count: 3, label: "Throw down 3 dunks (try off the glass: U, then J)" },
+    intro: [
+      { who: "narrator", text: "Three weeks later. Two days before the Pro Combine." },
+      {
+        who: "nia",
+        text: "The address from the Architect's text is a subway entrance that's been bricked up since the eighties.",
+      },
+      {
+        who: "monarch",
+        text: "Line 0. They ran out of money before the trains ever did. Somebody finished it anyway.",
+      },
+      { who: "kairo", text: "You coming down with us?" },
+      { who: "monarch", text: "I can't. If he sees me, this turns into something else. Go. Keep your eyes open." },
+      {
+        who: "narrator",
+        text: "Line 0. The Undercity. The platform is packed, and the court has been painted right over the tracks.",
+      },
+      { who: "ricochet", text: "Ohhh, the Crown kid! Welcome to the basement, superstar." },
+      { who: "ricochet", text: "Down here the backboard is your friend. Watch." },
+      { who: "kairo", text: "Who runs this place?" },
+      {
+        who: "ricochet",
+        text: "Same guy who runs everything. Beat me and you'll get an elevator ride up. Lose and you ride the stairs home.",
+      },
+    ],
+    win: [
+      { who: "ricochet", text: "Okay, okay! You can FLY, Crown kid." },
+      {
+        who: "ricochet",
+        text: "Real talk, though. Everybody down here signed something. Contracts, NDAs, 'development deals'. Nobody gets out clean.",
+      },
+      { who: "nia", text: "Signed with who?" },
+      { who: "ricochet", text: "Kane Performance. The Combine. It's all him." },
+    ],
+    lose: [{ who: "ricochet", text: "Stairs are that way, superstar!" }],
+  },
+  {
+    id: "ch7",
+    book: 2,
+    number: 7,
+    title: "Tempo",
+    logline: "At the Pro Combine, the top-ranked prospect has never made a mistake. The scouts are watching.",
+    venueId: "the-combine",
+    opponentId: "metronome",
+    target: 15,
+    difficulty: 1,
+    objective: { kind: "perfect", count: 3, label: "Hit 3 PERFECT releases" },
+    intro: [
+      {
+        who: "narrator",
+        text: "Kane Performance Center. The Pro Combine. Forty scouts, three hundred prospects, one invitation.",
+      },
+      { who: "nia", text: "Your name's not on the list. Wait. Somebody added it this morning, in red." },
+      {
+        who: "metronome",
+        text: "You're the streetball kid. 00. Your release is point-one-four seconds late on step-backs.",
+      },
+      { who: "kairo", text: "You measured my jumper?" },
+      { who: "metronome", text: "He did. Mr. Kane has a file on everyone. Yours is thick." },
+      { who: "metronome", text: "First to 15. Every scout in the building is watching. Don't be late." },
+      { who: "nia", text: "She never misses a beat, Kai. So hit yours: release at the top of the meter, every time." },
+    ],
+    win: [
+      { who: "metronome", text: "...You changed tempo mid-possession. Nobody does that." },
+      {
+        who: "metronome",
+        text: "Listen. Kane doesn't want players, he wants products. He's buying out contracts and burying them in the Undercity until they'll sign anything.",
+      },
+      { who: "metronome", text: "Titan was a pro. Look at the Spillway. You'll see." },
+      { who: "kairo", text: "Why tell me this?" },
+      {
+        who: "metronome",
+        text: "Because you're the first person who beat me, and I'd like to be more than his masterpiece.",
+      },
+    ],
+    lose: [{ who: "metronome", text: "Off-beat. Again." }],
+  },
+  {
+    id: "ch8",
+    book: 2,
+    number: 8,
+    title: "High Water",
+    logline: "Storm Drain No. 4 floods when it rains, and it's raining. Titan guards the only way deeper.",
+    venueId: "the-spillway",
+    opponentId: "titan",
+    target: 15,
+    difficulty: 1,
+    objective: { kind: "ankles", count: 2, label: "Break Titan's ankles twice" },
+    intro: [
+      { who: "narrator", text: "The Spillway. The water is up to the three-point line and it's still raining." },
+      { who: "titan", text: "Go home, little man. Nothing down here but water and bad contracts." },
+      { who: "kairo", text: "Metronome said you were a pro." },
+      {
+        who: "titan",
+        text: "Three seasons. Then Kane bought my deal and told the league I was injured. I'm not injured.",
+      },
+      { who: "titan", text: "Every month he sends me a new contract with smaller numbers. I haven't signed one yet." },
+      {
+        who: "titan",
+        text: "You want the elevator to the top of his tower? It's behind me. Nobody has scored inside on me in a year.",
+      },
+      {
+        who: "nia",
+        text: "He's seven-one. Don't challenge him at the rim. Make him move his feet: crossover, crossover, GO.",
+      },
+    ],
+    win: [
+      { who: "titan", text: "...Ha. You made a seven-footer dance in a flood." },
+      { who: "titan", text: "The elevator key is yours. But be careful. There's one more game before the tower." },
+      { who: "titan", text: "Someone who plays exactly like you." },
+    ],
+    lose: [{ who: "titan", text: "Closed. Come back when it stops raining." }],
+  },
+  {
+    id: "ch9",
+    book: 2,
+    number: 9,
+    title: "Feedback",
+    logline:
+      "Pier 9 at midnight. A masked player knows every one of Kairo's moves, because he learned them next to him.",
+    venueId: "pier-9",
+    opponentId: "echo",
+    target: 15,
+    difficulty: 2,
+    objective: { kind: "margin", count: 3, label: "Win by 3 or more" },
+    intro: [
+      { who: "narrator", text: "Pier 9. Midnight. Right where it all started. Fog is rolling off the water." },
+      { who: "nia", text: "Kai... that guy is wearing your number." },
+      { who: "echo", text: "Static." },
+      { who: "kairo", text: "Who are you?" },
+      {
+        who: "echo",
+        text: "Somebody who was on the court the day you got the scholarship. And in the parking lot when I didn't.",
+      },
+      { who: "kairo", text: "...Dante?" },
+      {
+        who: "echo",
+        text: "Kane found me the week after. Two years of film on you. Every crossover, every jumper, every dunk. I can do all of it.",
+      },
+      { who: "echo", text: "Beat me and the tower is yours. Lose and I'm the one who wears 00." },
+      { who: "nia", text: "He knows your moves, so don't play like the old you. Mix it up!" },
+    ],
+    win: [
+      { who: "echo", text: "...I had every move you've ever made." },
+      { who: "kairo", text: "You had every move I've made. I'm still making new ones." },
+      { who: "echo", text: "Dante. Call me Dante." },
+      { who: "echo", text: "Kane Tower, 101st floor. He'll be waiting on his own court, and he doesn't lose there." },
+      { who: "kairo", text: "Come with us." },
+      { who: "echo", text: "Yeah. I think I will." },
+    ],
+    lose: [{ who: "echo", text: "Lights out, Static." }],
+  },
+  {
+    id: "ch10",
+    book: 2,
+    number: 10,
+    title: "The Architect",
+    logline: "The 101st floor of Kane Tower. The man who owns the game plays for everything.",
+    venueId: "glass-house",
+    opponentId: "architect",
+    target: 21,
+    difficulty: 2,
+    objective: { kind: "special", count: 1, label: "Hit LIGHTS OUT on the Architect" },
+    intro: [
+      { who: "narrator", text: "Kane Tower. 101st floor. A glass court above the whole city." },
+      { who: "architect", text: "Kairo Vance. You've cost me a gatekeeper, a masterpiece, a center and a mirror." },
+      {
+        who: "architect",
+        text: "Sign with Kane Performance and all of it goes away. Shoe deal, draft guarantee, your sister's tuition. One pen stroke.",
+      },
+      { who: "kairo", text: "And Titan's contract? Metronome's? Dante's?" },
+      { who: "architect", text: "Investments. Some of them haven't matured yet." },
+      { who: "monarch", text: "They're people, Victor." },
+      {
+        who: "architect",
+        text: "Marcus. Twenty years and you're still sentimental. I discovered you, and when you wouldn't sign, I buried you. It was business.",
+      },
+      {
+        who: "monarch",
+        text: "Then let's make it basketball. One game. Kairo wins, and every Undercity contract gets torn up.",
+      },
+      { who: "architect", text: "And when he loses, he signs. Deal. I still have a jumper, boy. First to 21." },
+      { who: "nia", text: "Everything, Kai. For all of them." },
+      { who: "kairo", text: "Lights out." },
+    ],
+    win: [
+      { who: "narrator", text: "The final shot hung over the city for a long time. Then it fell." },
+      { who: "architect", text: "...A deal is a deal." },
+      {
+        who: "narrator",
+        text: "Every Undercity contract was torn up on the 101st floor. Titan, Metronome, Ricochet and Dante were free agents by sunrise.",
+      },
+      { who: "metronome", text: "Scouts are calling. Every one of them." },
+      {
+        who: "monarch",
+        text: "Not scouts, kid. A league. The Elite Basketball League just offered you a rookie deal.",
+      },
+      { who: "kairo", text: "The EBL?" },
+      { who: "nia", text: "Kai. You're going PRO." },
+    ],
+    lose: [{ who: "architect", text: "The pen is on the table whenever you're ready." }],
+  },
 ];
 
 export const EPILOGUE_TEASER = {
-  title: "Book Two: The Undercity",
-  text: "Kairo took the crown, and now someone wants to take everything else. The Crown Circuit was only the beginning.",
+  title: "Book Three: Rookie Season",
+  text: "The Undercity is free and Kairo is going pro. Play his rookie season in the EBL now, in League mode.",
 };
+
+export function bookOf(c: Chapter) {
+  return c.book ?? 1;
+}
 
 export function getChapter(id: string): Chapter | undefined {
   return CHAPTERS.find((c) => c.id === id);

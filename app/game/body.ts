@@ -391,6 +391,17 @@ export function buildProceduralBody(baller: Baller): Body {
       cuff.rotation.x = Math.PI / 2 - 0.4;
       break;
     }
+    case "braids": {
+      cap(1.05, Math.PI * 0.55);
+      // One long braid down the back
+      const braidGeo = new THREE.SphereGeometry(headSize * 0.16, 8, 6);
+      for (let i = 0; i < 7; i++) {
+        const b = addMesh(head, braidGeo, hair);
+        b.position.set(0, hc.y + headSize * (0.2 - i * 0.28), -headSize * (0.95 + Math.min(i, 2) * 0.05));
+        b.scale.set(1, 1.3, 0.9);
+      }
+      break;
+    }
     case "fade":
     default: {
       cap(1.03, Math.PI * 0.48);
@@ -415,6 +426,24 @@ export function buildProceduralBody(baller: Baller): Body {
     beard.position.copy(hc);
     beard.rotation.y = 0;
     beard.scale.set(0.95, 1.05, 1.02);
+  }
+  if (look.mask) {
+    const mask = addMesh(
+      head,
+      new THREE.SphereGeometry(headSize * 0.95, 20, 10, Math.PI * 0.18, Math.PI * 0.64, Math.PI * 0.3, Math.PI * 0.26),
+      mat(look.mask, 0.25, 0.3),
+    );
+    mask.position.copy(hc);
+    mask.scale.set(0.95, 1.02, 1.05);
+    for (const s of [1, -1]) {
+      const slit = addMesh(
+        head,
+        new THREE.CapsuleGeometry(headSize * 0.05, headSize * 0.18, 3, 6),
+        mat("#0a0c10", 0.2),
+      );
+      slit.position.set(s * headSize * 0.32, hc.y + headSize * 0.12, headSize * 0.92);
+      slit.rotation.z = Math.PI / 2 + s * 0.15;
+    }
   }
   if (look.chain) {
     const chain = addMesh(chest, new THREE.TorusGeometry(0.06 * H, 0.004 * H, 6, 24), gold);
