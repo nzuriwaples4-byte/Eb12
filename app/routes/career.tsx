@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { AttributeBuilder } from "~/components/attribute-builder/attribute-builder";
 import { AssetImage } from "~/components/asset-image/asset-image";
 import { Blueprint } from "~/components/blueprint/blueprint";
@@ -96,8 +96,22 @@ function standings(c: Career) {
   );
 }
 
+/** Runs an action once after mount (used for campus → career shortcuts) */
+function RunOnce({ run }: { run(): void }) {
+  const done = useRef(false);
+  useEffect(() => {
+    if (done.current) return;
+    done.current = true;
+    run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
+}
+
 export default function CareerRoute() {
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const go = params.get("go");
   const [career, setCareer] = useCareer();
   const [, setProgress] = useProgress();
   const [settings] = useSettings();
@@ -133,7 +147,7 @@ export default function CareerRoute() {
       }
     : null;
   const names = c.me ? { me: c.me.name.split(" ")[0] } : undefined;
-  // In the pros, Dre shows up in his EBL uniform in every scene
+  // In the pros, Zay shows up in his EBL uniform in every scene
   const proEra = (c.stage === "pro" || offseason || c.flags.includes("retired")) && !!dreTeam;
   if (proEra) dreEbl(dreTeam!, season);
   const staged = (st: ReturnType<typeof sceneSet>): ReturnType<typeof sceneSet> =>
@@ -710,7 +724,7 @@ export default function CareerRoute() {
       const opp = getTeam(oppId);
       const rivalry = dreTeam && opp.id === dreTeam.id;
       next = {
-        label: `${c.playoff.round === 0 ? "EBL Semifinal" : "EBL FINALS"} vs ${rivalry ? "Dre Cole & the " : ""}${opp.city} ${opp.name}`,
+        label: `${c.playoff.round === 0 ? "EBL Semifinal" : "EBL FINALS"} vs ${rivalry ? "Zay Carter & the " : ""}${opp.city} ${opp.name}`,
         oppId: rivalry ? dreEbl(opp, season).id : opp.starId,
         venueId: team.venueId,
         target: 21,
@@ -722,13 +736,38 @@ export default function CareerRoute() {
       const rivalry = dreTeam && opp.id === dreTeam.id;
       next = {
         label: rivalry
-          ? `Week ${c.week + 1} · RIVALRY WEEK: ${home ? "vs" : "@"} Dre Cole & the ${opp.city} ${opp.name}`
+          ? `Week ${c.week + 1} · RIVALRY WEEK: ${home ? "vs" : "@"} Zay Carter & the ${opp.city} ${opp.name}`
           : `Week ${c.week + 1}: ${home ? "vs" : "@"} ${opp.city} ${opp.name}`,
         oppId: rivalry ? dreEbl(opp, season).id : opp.starId,
         venueId: home ? team.venueId : opp.venueId,
         target: 21,
       };
     }
+  }
+
+  /** Tip off the next game (rivalry games get a face-off first) */
+  function playNext() {
+    const n = next!;
+    if (n.oppId.startsWith("rival-dre")) {
+      // Beef at center court first, then tip-off
+      const key = c.stage === "hs" ? "hsPregame" : c.stage === "pro" ? "eblPregame" : "collegePregame";
+      setRunId((r) => r + 1);
+      setResult(null);
+      scene(
+        "Face-Off",
+        key === "eblPregame" ? eblPregame(ctx!) : SCENES[key](ctx!),
+        undefined,
+        undefined,
+        key === "eblPregame" ? `eblPregame:${n.venueId}` : key,
+        {
+          kind: "game",
+          oppId: n.oppId,
+          venueId: n.venueId,
+          label: n.label,
+          target: n.target,
+        },
+      );
+    } else startGame(n.oppId, n.venueId, n.label, n.target);
   }
 
   const activity = (kind: "practice" | "date" | "endorse" | "press" | "rest" | "studio") => {
@@ -748,7 +787,7 @@ export default function CareerRoute() {
       ]);
     } else if (kind === "date") {
       const lines = DATES[Math.min(c.love, DATES.length - 1)](ctx!);
-      scene("Date with Imani", lines, done, undefined, `date${Math.min(c.love, DATES.length - 1)}`);
+      scene("Date with Jaailyah", lines, done, undefined, `date${Math.min(c.love, DATES.length - 1)}`);
     } else if (kind === "endorse") {
       const pay = 250 + c.fans * 8;
       setProgress((p) => ({ ...p, crowns: (p.crowns ?? 0) + pay }));
@@ -828,6 +867,17 @@ export default function CareerRoute() {
 
   return (
     <main className={styles.page} style={{ "--team": jersey[0], "--team2": jersey[1] } as React.CSSProperties}>
+      {go && !overlay && (
+        <RunOnce
+          run={() => {
+            setParams({}, { replace: true });
+            if (go === "build") setOverlay({ kind: "builder" });
+            else if (go === "practice") activity("practice");
+            else if (go === "date") activity("date");
+            else if (go === "game" && next) playNext();
+          }}
+        />
+      )}
       <header className={styles.header}>
         <Link to="/" className={styles.back}>
           ← Menu
@@ -869,35 +919,14 @@ export default function CareerRoute() {
                   </p>
                 </div>
               </div>
-              <MenuButton
-                variant="primary"
-                onClick={() => {
-                  const n = next!;
-                  if (n.oppId.startsWith("rival-dre")) {
-                    // Beef at center court first, then tip-off
-                    const key = c.stage === "hs" ? "hsPregame" : c.stage === "pro" ? "eblPregame" : "collegePregame";
-                    setRunId((r) => r + 1);
-                    setResult(null);
-                    scene(
-                      "Face-Off",
-                      key === "eblPregame" ? eblPregame(ctx!) : SCENES[key](ctx!),
-                      undefined,
-                      undefined,
-                      key === "eblPregame" ? `eblPregame:${n.venueId}` : key,
-                      {
-                        kind: "game",
-                        oppId: n.oppId,
-                        venueId: n.venueId,
-                        label: n.label,
-                        target: n.target,
-                      },
-                    );
-                  } else startGame(n.oppId, n.venueId, n.label, n.target);
-                }}
-                autoFocus
-              >
+              <MenuButton variant="primary" onClick={playNext} autoFocus>
                 Play game
               </MenuButton>
+              {c.stage === "hs" && (
+                <MenuButton onClick={() => navigate("/campus")} hint="Explore Harbor Heights High before the game">
+                  Walk the campus
+                </MenuButton>
+              )}
             </>
           ) : c.stage === "college-pick" ? (
             <div className={styles.offers}>
@@ -938,7 +967,7 @@ export default function CareerRoute() {
           ) : (
             <div className={styles.acts}>
               <button onClick={() => activity("practice")}>🏀 Extra practice</button>
-              <button onClick={() => activity("date")}>💬 Hang out with Imani</button>
+              <button onClick={() => activity("date")}>💬 Hang out with Jaailyah</button>
               {(c.stage === "college" || c.stage === "pro") && (c.rapStep ?? 0) < RAP_QUEST.length && (
                 <button onClick={() => activity("studio")}>
                   🎙 Side quest: Mic Check {(c.rapStep ?? 0) + 1}/{RAP_QUEST.length}
@@ -958,7 +987,7 @@ export default function CareerRoute() {
             </span>
             {(c.stage === "college" || c.stage === "pro" || c.stage === "done" || offseason) && (
               <span>
-                Imani <b>{"♥".repeat(Math.min(5, c.love)) || "—"}</b>
+                Jaailyah <b>{"♥".repeat(Math.min(5, c.love)) || "—"}</b>
                 {c.flags.includes("married")
                   ? " (married)"
                   : c.flags.includes("engaged")

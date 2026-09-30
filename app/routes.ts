@@ -14,6 +14,7 @@ export default [
   index("routes/home.tsx"),
   route("city", "routes/city.tsx"),
   route("career", "routes/career.tsx"),
+  route("campus", "routes/campus.tsx"),
   route("owner", "routes/owner.tsx"),
   route("story", "routes/story.tsx"),
   route("story/:chapterId", "routes/story-chapter.tsx"),

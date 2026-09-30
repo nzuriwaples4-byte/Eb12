@@ -5,7 +5,7 @@ import type { Line } from "./story";
 
 /**
  * Life after the rookie year: offseasons, contracts, awards, a rivalry with
- * Dre that follows you through the league, the Imani storyline (moving in,
+ * Zay that follows you through the league, the Jaailyah storyline (moving in,
  * the proposal, the wedding) and a Hall of Fame ending.
  */
 
@@ -52,7 +52,7 @@ export function awardsFor(season: number, w: number, result: SeasonResult, allSt
   return out;
 }
 
-/** Dre Cole in his EBL uniform. He gets better every year too. */
+/** Zay Carter in his EBL uniform. He gets better every year too. */
 export function dreEbl(team: EblTeam, season: number): Baller {
   const lvl = (v: number) => Math.min(97, v + 18 + season * 2);
   const b: Baller = {
@@ -79,7 +79,7 @@ export function dreEbl(team: EblTeam, season: number): Baller {
   return b;
 }
 
-/** Dre goes one pick before you (or right after, if you went first) */
+/** Zay goes one pick before you (or right after, if you went first) */
 export function dreTeamFor(pick: number, myTeamId?: string) {
   const order = [...EBL_TEAMS].sort((a, b) => a.rating - b.rating);
   const t = order[pick >= 2 ? pick - 2 : 1];
@@ -97,7 +97,7 @@ export function seasonIntro(c: SceneCtx): Line[] {
   const dre = c.dreTeam;
   const by: Record<number, Line[]> = {
     2: [
-      { who: "narrator", text: `Year two. Nobody calls you "rookie" anymore, except Imani, on purpose.` },
+      { who: "narrator", text: `Year two. Nobody calls you "rookie" anymore, except Jaailyah, on purpose.` },
       {
         who: "coach",
         text: `Last year you were a surprise. This year every team in the EBL has a folder on you. Get better.`,
@@ -118,7 +118,7 @@ export function seasonIntro(c: SceneCtx): Line[] {
     ],
     5: [
       { who: "narrator", text: "Season five. Half the league grew up watching your high-school mixtape." },
-      { who: "teammate", text: "Vet! Can you show me that step-back? The one you hit on Dre in the conference final?" },
+      { who: "teammate", text: "Vet! Can you show me that step-back? The one you hit on Zay in the conference final?" },
     ],
   };
   const late: Line[] = [
@@ -222,7 +222,7 @@ export const SEASON_EVENTS: SeasonEvent[] = [
         text: "Because this one counts more.",
         choices: [
           {
-            text: "(Kneel) Imani Cole. Marry me?",
+            text: "(Kneel) Jaailyah Carter. Marry me?",
             effect: { love: 2, fans: 8, flag: "engaged" },
             reply: [
               { who: "imani", text: "...Yes. YES. Get up, you'll ruin your knees, we need those." },
@@ -255,7 +255,7 @@ export const SEASON_EVENTS: SeasonEvent[] = [
       },
       {
         who: "dre",
-        text: "And he's the only guy I'd ever trust with my sister. Don't make me regret it. To the Coles!",
+        text: "And he's the only guy I'd ever trust with my sister. Don't make me regret it. To the Carters!",
       },
       { who: "mom", text: "I'm not crying. The wind is crying. On the roof." },
       { who: "imani", text: "I got a photographer for today, so for once I'm in the picture." },

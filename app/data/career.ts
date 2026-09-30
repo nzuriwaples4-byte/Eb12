@@ -6,7 +6,7 @@ import { VENUES, type Venue } from "./venues";
 /**
  * EBL Career ("Road to the League"): create your own baller and play
  * High School → College → EBL Draft → Rookie Season, with a life off the
- * court (Imani, press, endorsements, money) along the way.
+ * court (Jaailyah, press, endorsements, money) along the way.
  */
 
 export type Archetype = "slasher" | "sniper" | "floor-general" | "lockdown" | "big";
@@ -317,15 +317,25 @@ function amateur(
 }
 
 /**
- * Dre Cole: Imani's big brother and your rival from the first day of high
+ * Zay Carter: Jaailyah's big brother and your rival from the first day of high
  * school to the EBL. Same face at every stop, different jersey.
  */
-export const DRE = amateur("rival-dre", "Dre Cole", "DRE", "Northgate High", "#e8742a", 62, 1.98, "twists", "#5a3625");
+export const DRE = amateur(
+  "rival-dre",
+  "Zay Carter",
+  "ZAY",
+  "Northgate High",
+  "#e8742a",
+  62,
+  1.98,
+  "twists",
+  "#5a3625",
+);
 const DRE_COLLEGE: Record<string, Baller> = {
   "silver-lake": amateur(
     "rival-dre-sls",
-    "Dre Cole",
-    "DRE",
+    "Zay Carter",
+    "ZAY",
     "Silver Lake State",
     "#b8c4d6",
     73,
@@ -333,10 +343,20 @@ const DRE_COLLEGE: Record<string, Baller> = {
     "twists",
     "#5a3625",
   ),
-  bayline: amateur("rival-dre-bay", "Dre Cole", "DRE", "Gulf Coast College", "#00b4d8", 73, 1.98, "twists", "#5a3625"),
+  bayline: amateur(
+    "rival-dre-bay",
+    "Zay Carter",
+    "ZAY",
+    "Gulf Coast College",
+    "#00b4d8",
+    73,
+    1.98,
+    "twists",
+    "#5a3625",
+  ),
 };
 
-/** Where Dre signs: wherever you didn't */
+/** Where Zay signs: wherever you didn't */
 export function dreCollege(myCollegeId?: string) {
   return COLLEGES.find((x) => x.id === (myCollegeId === "silver-lake" ? "bayline" : "silver-lake"))!;
 }
@@ -350,7 +370,7 @@ export const HS_GAMES = [
     opp: amateur("hs-stjude", "Connor Walsh", "WALSH", "St. Jude Academy", "#1d2f5a", 56, 1.93, "shaved", "#e2b894"),
     label: "Rivalry game vs St. Jude",
   },
-  { opp: DRE, label: "City Championship vs Dre Cole & Northgate" },
+  { opp: DRE, label: "City Championship vs Zay Carter & Northgate" },
 ];
 
 export function collegeGamesFor(myCollegeId?: string) {
@@ -361,7 +381,7 @@ export function collegeGamesFor(myCollegeId?: string) {
       label: "Conference opener vs NorCal Redwood U",
     },
     {
-      opp: amateur("co-2", "Isaiah Stone", "STONE", "Colorado Summit A&M", "#7a1f2b", 68, 2.06, "braids", "#3e2519"),
+      opp: amateur("co-2", "Marcus Stone", "STONE", "Colorado Summit A&M", "#7a1f2b", 68, 2.06, "braids", "#3e2519"),
       label: "Top-10 matchup vs Colorado Summit A&M",
     },
     {
@@ -378,7 +398,7 @@ export function collegeGamesFor(myCollegeId?: string) {
       ),
       label: "Charity exhibition vs Kairo 'Static' Vance",
     },
-    { opp: DRE_COLLEGE[dc.id], label: `Conference championship vs Dre Cole & ${dc.name}` },
+    { opp: DRE_COLLEGE[dc.id], label: `Conference championship vs Zay Carter & ${dc.name}` },
   ];
 }
 export const COLLEGE_GAMES = collegeGamesFor();
@@ -446,7 +466,7 @@ export interface SceneCtx {
   love: number;
   /** EBL season number (1 = rookie year) */
   season?: number;
-  /** The team Dre Cole plays for in the EBL */
+  /** The team Zay Carter plays for in the EBL */
   dreTeam?: EblTeam;
   flags?: string[];
 }
@@ -470,7 +490,7 @@ export const SCENES = {
       who: "narrator",
       text: "Courtside, a girl with a camera is shooting warmups for the school paper. She lowers it when you walk by.",
     },
-    { who: "imani", text: "You're the new starter? I'm Imani. Smile for once, it's for the yearbook." },
+    { who: "imani", text: "You're the new starter? I'm Jaailyah. Smile for once, it's for the yearbook." },
     {
       who: "imani",
       text: "Fair warning: my brother plays for Northgate. He says you're overrated.",
@@ -490,7 +510,7 @@ export const SCENES = {
     { who: "narrator", text: "After practice, a tall kid in an orange Northgate hoodie is waiting by your car." },
     {
       who: "dre",
-      text: "Dre Cole. Imani's brother. Northgate's best player, and the only reason anybody watches the City Championship.",
+      text: "Zay Carter. Jaailyah's brother. Northgate's best player, and the only reason anybody watches the City Championship.",
     },
     { who: "dre", text: "Stay away from my sister. And bring your best in March. I'm taking your scholarship." },
     {
@@ -515,7 +535,7 @@ export const SCENES = {
               {
                 text: "Friday. The diner on 4th.",
                 effect: { love: 1 },
-                reply: [{ who: "imani", text: "It's a date. Don't tell Dre." }],
+                reply: [{ who: "imani", text: "It's a date. Don't tell Zay." }],
               },
               {
                 text: "Put it on my tab.",
@@ -536,7 +556,7 @@ export const SCENES = {
             text: "Anything to say?",
             choices: [
               { text: "Bring your whole family. Oh wait.", effect: { fans: 6, love: -1 } },
-              { text: "Respect, Dre. See you on the court.", effect: { chemistry: 4, flag: "dre-respect" } },
+              { text: "Respect, Zay. See you on the court.", effect: { chemistry: 4, flag: "dre-respect" } },
             ],
           },
         ],
@@ -562,14 +582,14 @@ export const SCENES = {
           { who: "hscoach", text: "Shake it off. The offers will still come. Maybe not all of them." },
         ]
       : [{ who: "hscoach", text: "Shake it off. Film tomorrow. We learn and we go again." }],
-  /** Face-off at center court before the big games against Dre */
+  /** Face-off at center court before the big games against Zay */
   hsPregame: (c: SceneCtx): Line[] => [
     {
       who: "narrator",
       text: "City Championship. Northgate vs Harbor Heights. The gym is so packed they opened the stage doors.",
     },
     { who: "dre", text: "Look at you. Mouthguard and everything. You remembered it for once?" },
-    { who: "me", text: "Remembered it just for you, Dre. Figured you'd want something to look at while I score." },
+    { who: "me", text: "Remembered it just for you, Zay. Figured you'd want something to look at while I score." },
     {
       who: "dre",
       text: "You took my sister to a diner and now you think you run this city. Tonight I take your scholarship AND your seat at Thanksgiving.",
@@ -593,13 +613,13 @@ export const SCENES = {
     { who: "imani", text: "Both of you. Shake hands. The ref is literally waiting." },
     {
       who: "narrator",
-      text: `Neither of them shakes. First to 11. ${c.me.name.split(" ")[0]} vs Dre Cole for the city.`,
+      text: `Neither of them shakes. First to 11. ${c.me.name.split(" ")[0]} vs Zay Carter for the city.`,
     },
   ],
   collegePregame: (c: SceneCtx): Line[] => [
     {
       who: "narrator",
-      text: `Conference championship. ${c.college!.short} vs ${dreCollege(c.college?.id).short}. National TV. Dre is already at center court, waiting.`,
+      text: `Conference championship. ${c.college!.short} vs ${dreCollege(c.college?.id).short}. National TV. Zay is already at center court, waiting.`,
     },
     { who: "dre", text: "Round two. Last time was a fluke and everybody knows it." },
     { who: "me", text: "Fluke? I've got the photo on my wall. Your sister took it." },
@@ -610,7 +630,7 @@ export const SCENES = {
       choices: [
         { text: "Been ready since the diner.", effect: { fans: 6 } },
         {
-          text: "Respect, Dre. Let's give them a show.",
+          text: "Respect, Zay. Let's give them a show.",
           effect: { chemistry: 4, flag: "dre-respect" },
           reply: [{ who: "dre", text: "...Yeah. Let's give them a show." }],
         },
@@ -651,7 +671,7 @@ export const SCENES = {
     },
     {
       who: "imani",
-      text: `Oh, and Dre signed with ${dreCollege(c.college?.id).name}. Same conference. He circled your game on his calendar in red.`,
+      text: `Oh, and Zay signed with ${dreCollege(c.college?.id).name}. Same conference. He circled your game on his calendar in red.`,
     },
     ...(c.college!.id === "kane-university"
       ? ([
@@ -681,7 +701,7 @@ export const SCENES = {
         [
           {
             who: "narrator",
-            text: `Conference champions. Dre Cole sits on the ${dreCollege(c.college?.id).short} bench with a towel over his head.`,
+            text: `Conference champions. Zay Carter sits on the ${dreCollege(c.college?.id).short} bench with a towel over his head.`,
           },
           {
             who: "dre",
@@ -710,13 +730,13 @@ export const SCENES = {
     { who: "narrator", text: "EBL Draft Night. Meridian Grand Theater." },
     { who: "mom", text: "I bought a new dress for this. If they don't call your name, I'm walking on stage myself." },
     { who: "narrator", text: "The first picks go by. Kairo Vance goes early to a big ovation." },
-    { who: "commish", text: `With pick number ${Math.max(1, c.pick - 1)}... Dre Cole!` },
+    { who: "commish", text: `With pick number ${Math.max(1, c.pick - 1)}... Zay Carter!` },
     { who: "dre", text: "Hey. You're next. Don't trip on the stairs, future brother-in-law." },
     { who: "commish", text: `With pick number ${c.pick}, the ${c.team!.city} ${c.team!.name} select...` },
     { who: "commish", text: `${c.me.name}!` },
     {
       who: "narrator",
-      text: "Your mom is crying. The theater is shaking. Imani is in the photo pit, and she doesn't lower her camera once.",
+      text: "Your mom is crying. The theater is shaking. Jaailyah is in the photo pit, and she doesn't lower her camera once.",
     },
     {
       who: "reporter",
@@ -790,7 +810,7 @@ export const LIFE_EVENTS: { id: string; when(c: SceneCtx, week: number): boolean
     lines: () => [
       {
         who: "narrator",
-        text: "Sunday dinner at the Coles'. Dre is already at the table, wearing his EBL warmup jacket indoors.",
+        text: "Sunday dinner at the Carters'. Zay is already at the table, wearing his EBL warmup jacket indoors.",
       },
       { who: "dre", text: "Rookie of the Year race is between you and me. Just so everyone at this table knows." },
       { who: "imani", text: "Can we have ONE dinner without a box score?" },
@@ -799,7 +819,7 @@ export const LIFE_EVENTS: { id: string; when(c: SceneCtx, week: number): boolean
         text: "One-on-one after dessert. Loser does the dishes.",
         choices: [
           {
-            text: "Get the dish soap, Dre.",
+            text: "Get the dish soap, Zay.",
             effect: { fans: 3 },
             reply: [{ who: "dre", text: "Big talk from a man who's never seen my step-back." }],
           },

@@ -3,6 +3,7 @@ import { getBaller, type Baller, type Look } from "~/data/characters";
 import { assetSources, type AssetId } from "~/data/higgsfield-assets";
 import { makeBallMesh } from "./ball-mesh";
 import { blobShadow, buildProceduralBody, loadHiggsfieldBody, type Body } from "./body";
+import { buildCampusWorld } from "./campus-world";
 import { buildNycWorld, buildSpecialLots, groundHeight, GRID, PARK, PLACES, type CityWorld } from "./city-world";
 import { clamp, damp, dampAngle, pick, rand } from "./math";
 import { Player } from "./player";
@@ -15,7 +16,7 @@ import { createRenderer, environmentFor, fitToParent, skyTexture } from "./stage
  * stays data-driven.
  */
 
-export type PoiKind = "court" | "story" | "shop" | "crib" | "arena" | "online" | "roster";
+export type PoiKind = "court" | "story" | "shop" | "crib" | "arena" | "online" | "roster" | "door";
 
 export interface Poi {
   id: string;
@@ -36,6 +37,8 @@ export interface Resident {
   z: number;
   /** Facing (radians) */
   yaw: number;
+  /** Stands and talks instead of dribbling */
+  noBall?: boolean;
 }
 
 export interface CityOptions {
@@ -45,6 +48,8 @@ export interface CityOptions {
   pois: Poi[];
   residents: Resident[];
   spawn?: { x: number; z: number; yaw: number };
+  /** Which map to build: New York (default) or the Harbor Heights campus */
+  world?: "nyc" | "campus";
 }
 
 export interface CityCallbacks {
@@ -168,7 +173,8 @@ export class City {
   private renderer: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(55, 16 / 9, 0.1, 600);
-  private world!: CityWorld;
+  private world!: CityWorld &
+    Partial<{ ground(x: number, z: number): number; bound: number; greens: Box2[]; name: string }>;
   private me!: Player;
   private ball = makeBallMesh();
   private walkers: Walker[] = [];
@@ -202,10 +208,13 @@ export class City {
     this.renderer.toneMappingExposure = 0.9;
     this.scene.environment = environmentFor(this.renderer);
     this.scene.environmentIntensity = 0.5;
-    this.world = buildNycWorld(this.scene, { shadows: opts.shadows });
+    this.world =
+      opts.world === "campus"
+        ? buildCampusWorld(this.scene, { shadows: opts.shadows })
+        : buildNycWorld(this.scene, { shadows: opts.shadows });
     this.colliders = this.world.colliders;
     this.circles = this.world.circles;
-    buildSpecialLots(this.scene);
+    if (opts.world !== "campus") buildSpecialLots(this.scene);
     this.buildPois();
     this.spawnPeople();
     void this.spawnMe(opts.look);
@@ -223,7 +232,7 @@ export class City {
     for (const p of this.opts.pois) {
       if (p.kind === "court") this.buildMiniCourt(p);
       else if (p.kind === "story") this.buildKiosk(p);
-      else this.buildStorefront(p);
+      else if (p.kind !== "door") this.buildStorefront(p);
       // Floating marker ring + beacon
       const g = new THREE.Group();
       const ringM = new THREE.MeshBasicMaterial({
@@ -562,11 +571,13 @@ export class City {
       const p = new Player(1, b, body);
       p.pos.set(r.x, 0, r.z);
       p.yaw = r.yaw;
-      p.hasBall = true;
-      const ball = makeBallMesh();
-      ball.name = "resident-ball";
-      this.scene.add(ball);
-      (p as Player & { ballMesh?: THREE.Mesh }).ballMesh = ball;
+      if (!r.noBall) {
+        p.hasBall = true;
+        const ball = makeBallMesh();
+        ball.name = "resident-ball";
+        this.scene.add(ball);
+        (p as Player & { ballMesh?: THREE.Mesh }).ballMesh = ball;
+      }
       this.residents.push(p);
     }
   }
@@ -695,7 +706,7 @@ export class City {
     me.pos.z += me.vel.z * dt;
     this.collide(me.pos);
     if (Math.hypot(me.vel.x, me.vel.z) > 0.3) me.yaw = dampAngle(me.yaw, Math.atan2(me.vel.x, me.vel.z), 10, dt);
-    me.groundY = damp(me.groundY, groundHeight(me.pos.x, me.pos.z), 20, dt);
+    me.groundY = damp(me.groundY, this.ground(me.pos.x, me.pos.z), 20, dt);
     me.animate(dt, this.t, false);
     me.ballWorld(this.ball.position);
 
@@ -726,14 +737,14 @@ export class City {
       p.pos.x += p.vel.x * dt;
       p.pos.z += p.vel.z * dt;
       if (Math.hypot(p.vel.x, p.vel.z) > 0.2) p.yaw = dampAngle(p.yaw, Math.atan2(p.vel.x, p.vel.z), 6, dt);
-      p.groundY = groundHeight(p.pos.x, p.pos.z);
+      p.groundY = this.ground(p.pos.x, p.pos.z);
       p.animate(dt, this.t, false);
     }
     // Residents idle-dribble and turn to face Kairo when he walks up
     for (const r of this.residents) {
       const d = Math.hypot(r.pos.x - me.pos.x, r.pos.z - me.pos.z);
       if (d < 7) r.faceTowards(me.pos.x, me.pos.z, dt, 4);
-      r.groundY = groundHeight(r.pos.x, r.pos.z);
+      r.groundY = this.ground(r.pos.x, r.pos.z);
       r.animate(dt, this.t, false);
       const bm = (r as Player & { ballMesh?: THREE.Mesh }).ballMesh;
       if (bm) r.ballWorld(bm.position);
@@ -753,7 +764,13 @@ export class City {
       this.near = best;
       this.cb.prompt(best);
     }
-    const zone = best ? best.label : Math.hypot(me.pos.x, me.pos.z) < 8 ? "Crown Plaza" : "New York City";
+    const zone = best
+      ? best.label
+      : this.world.name
+        ? this.world.name
+        : Math.hypot(me.pos.x, me.pos.z) < 8
+          ? "Crown Plaza"
+          : "New York City";
     if (zone !== this.zoneName) {
       this.zoneName = zone;
       this.cb.zone(zone);
@@ -801,10 +818,15 @@ export class City {
     this.drawMinimap();
   }
 
+  private ground(x: number, z: number) {
+    return this.world.ground ? this.world.ground(x, z) : groundHeight(x, z);
+  }
+
   private collide(p: THREE.Vector3) {
     const R = 0.4;
-    p.x = clamp(p.x, -GRID.bound, GRID.bound);
-    p.z = clamp(p.z, -GRID.bound, GRID.bound);
+    const bound = this.world.bound ?? GRID.bound;
+    p.x = clamp(p.x, -bound, bound);
+    p.z = clamp(p.z, -bound, bound);
     for (const b of this.colliders) {
       if (p.x > b.minX - R && p.x < b.maxX + R && p.z > b.minZ - R && p.z < b.maxZ + R) {
         const dl = p.x - (b.minX - R);
@@ -851,7 +873,8 @@ export class City {
       g.fillRect(mx(l.minX), mz(l.minZ), (l.maxX - l.minX) * scale, (l.maxZ - l.minZ) * scale);
     }
     g.fillStyle = "#3f6b36";
-    g.fillRect(mx(PARK.minX), mz(PARK.minZ), (PARK.maxX - PARK.minX) * scale, (PARK.maxZ - PARK.minZ) * scale);
+    for (const gr of this.world.greens ?? [PARK])
+      g.fillRect(mx(gr.minX), mz(gr.minZ), (gr.maxX - gr.minX) * scale, (gr.maxZ - gr.minZ) * scale);
     for (const p of this.opts.pois) {
       g.fillStyle = p.color;
       g.beginPath();

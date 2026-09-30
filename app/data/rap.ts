@@ -2,7 +2,7 @@ import type { SceneCtx } from "./career";
 import type { Line } from "./story";
 
 /**
- * "Mic Check": the rapper side quest. Record in Nova's studio, answer Dre's
+ * "Mic Check": the rapper side quest. Record in Nova's studio, answer Zay's
  * diss track, drop a mixtape, and headline a show at the Crown. Each step
  * is a scene + a rhythm take in the booth.
  */
@@ -83,7 +83,7 @@ export const RAP_QUEST: RapStep[] = [
       title: "Dishes",
       bpm: 94,
       bars: [
-        "Dre talk",
+        "Zay talk",
         "at the",
         "dinner",
         "table,",
@@ -104,7 +104,7 @@ export const RAP_QUEST: RapStep[] = [
     intro: () => [
       {
         who: "narrator",
-        text: "Your phone explodes. Dre Cole just dropped a song called 'Overrated'. It has your name in the first line.",
+        text: "Your phone explodes. Zay Carter just dropped a song called 'Overrated'. It has your name in the first line.",
       },
       { who: "dre", text: "Stick to basketball. Actually, stick to losing to me. You're used to it." },
       { who: "imani", text: "I am NOT getting in the middle of this. ...Make it good though." },
@@ -120,7 +120,7 @@ export const RAP_QUEST: RapStep[] = [
             { who: "dre", text: "...The Sunday dinner line was cold. Truce? Mom says we're both banned from the aux." },
           ]
         : [
-            { who: "narrator", text: "'Dishes' does fine. Dre's track does better. The comments are brutal." },
+            { who: "narrator", text: "'Dishes' does fine. Zay's track does better. The comments are brutal." },
             { who: "dre", text: "Stick to hoops, brother-in-law. Love you though." },
           ],
   },
@@ -136,7 +136,7 @@ export const RAP_QUEST: RapStep[] = [
         "Mama",
         "crying",
         "front row,",
-        "Imani",
+        "Jaailyah",
         "got the",
         "lens and she",
         "won't let go.",
@@ -195,7 +195,7 @@ export const RAP_QUEST: RapStep[] = [
         "might own.",
         "Crown on,",
         "crowd loud,",
-        "Dre in",
+        "Zay in",
         "the front",
         "row, now",
         "say it",

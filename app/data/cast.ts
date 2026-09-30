@@ -48,7 +48,7 @@ function castMember(
 }
 
 castMember("cast-nia", "Nia", 1.66, "#6b4430", "braids", "#1a120c", "#e0a82a", "#2b3a55", { earrings: true });
-castMember("cast-imani", "Imani", 1.72, "#5a3625", "afro-puff", "#140e0a", "#e8dcc8", "#3b5a8a", {
+castMember("cast-imani", "Jaailyah", 1.72, "#5a3625", "afro-puff", "#140e0a", "#e8dcc8", "#3b5a8a", {
   earrings: true,
   hairTip: undefined,
 });

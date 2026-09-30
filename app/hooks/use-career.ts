@@ -45,7 +45,7 @@ export interface Career {
   history?: SeasonRecord[];
   /** Per-game salary (₵) */
   salary?: number;
-  /** The team Dre Cole plays for */
+  /** The team Zay Carter plays for */
   dreTeamId?: string;
 }
 
