@@ -32,8 +32,24 @@ function floorTexture(v: Venue) {
 
   g.fillStyle = v.floor;
   g.fillRect(0, 0, c.width, c.height);
+  const indoor = v.theme === "school" || v.theme === "arena" || v.theme === "gym";
+  if (indoor) {
+    // Maple hardwood: plank seams and per-board tint
+    for (let x = 0; x < c.width; x += 0.08 * PX) {
+      for (let y = -Math.random() * 200; y < c.height;) {
+        const len = (1.5 + Math.random() * 2.5) * PX;
+        g.fillStyle = `rgba(${Math.random() < 0.5 ? "90,50,20" : "255,230,190"},${Math.random() * 0.12})`;
+        g.fillRect(x, y, 0.08 * PX, len);
+        g.fillStyle = "rgba(60,30,10,0.25)";
+        g.fillRect(x, y + len - 1, 0.08 * PX, 1);
+        y += len;
+      }
+      g.fillStyle = "rgba(60,30,10,0.2)";
+      g.fillRect(x, 0, 1, c.height);
+    }
+  }
   // Concrete / asphalt grain
-  for (let i = 0; i < 60000; i++) {
+  for (let i = 0; i < (indoor ? 8000 : 60000); i++) {
     const a = Math.random() * 0.08;
     g.fillStyle = Math.random() < 0.5 ? `rgba(0,0,0,${a})` : `rgba(255,255,255,${a * 0.6})`;
     g.fillRect(Math.random() * c.width, Math.random() * c.height, 2, 2);
@@ -41,7 +57,7 @@ function floorTexture(v: Venue) {
   // Cracks
   g.strokeStyle = "rgba(0,0,0,0.25)";
   g.lineWidth = 2;
-  for (let i = 0; i < 14; i++) {
+  for (let i = 0; i < (indoor ? 0 : 14); i++) {
     let x = Math.random() * c.width;
     let y = Math.random() * c.height;
     g.beginPath();
@@ -97,41 +113,102 @@ function floorTexture(v: Venue) {
   g.arc(tx(0), tz(COURT.rimZ), 1.25 * PX, 0, Math.PI);
   g.stroke();
 
-  // Center logo: a crown
-  g.save();
-  g.translate(tx(0), tz(COURT.checkZ + 2.2));
-  g.globalAlpha = 0.5;
-  g.fillStyle = v.line;
-  g.beginPath();
-  const s = 0.9 * PX;
-  g.moveTo(-s, s * 0.5);
-  g.lineTo(-s, -s * 0.4);
-  g.lineTo(-s * 0.5, s * 0.05);
-  g.lineTo(0, -s * 0.6);
-  g.lineTo(s * 0.5, s * 0.05);
-  g.lineTo(s, -s * 0.4);
-  g.lineTo(s, s * 0.5);
-  g.closePath();
-  g.fill();
-  g.font = `900 ${0.5 * PX}px 'Bebas Neue', Impact, sans-serif`;
-  g.textAlign = "center";
-  g.fillText("CONCRETE CROWN", 0, s * 1.3);
-  g.restore();
+  if (indoor) {
+    // Team name along the baseline + mascot medallion at half court
+    const team = v.district.replace("Home of the ", "").toUpperCase();
+    g.save();
+    g.font = `900 ${0.9 * PX}px 'Bebas Neue', Impact, sans-serif`;
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillStyle = v.paintAlt;
+    g.strokeStyle = v.theme === "school" ? "#6a4424" : "#ffffff";
+    g.lineWidth = 0.05 * PX;
+    g.translate(tx(0), tz(-0.75));
+    g.rotate(Math.PI);
+    g.fillText(team, 0, 0);
+    g.strokeText(team, 0, 0);
+    g.restore();
+    g.save();
+    g.translate(tx(0), tz(COURT.length));
+    g.fillStyle = v.paintAlt;
+    g.beginPath();
+    g.arc(0, 0, 1.75 * PX, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = "#ffffff";
+    g.font = `900 ${1.3 * PX}px 'Bebas Neue', Impact, sans-serif`;
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.rotate(Math.PI);
+    g.fillText(
+      team
+        .split(" ")
+        .map((w) => w[0])
+        .join("")
+        .slice(0, 3),
+      0,
+      0.9 * PX,
+    );
+    g.restore();
+  } else {
+    // Center logo: a crown
+    g.save();
+    g.translate(tx(0), tz(COURT.checkZ + 2.2));
+    g.globalAlpha = 0.5;
+    g.fillStyle = v.line;
+    g.beginPath();
+    const s = 0.9 * PX;
+    g.moveTo(-s, s * 0.5);
+    g.lineTo(-s, -s * 0.4);
+    g.lineTo(-s * 0.5, s * 0.05);
+    g.lineTo(0, -s * 0.6);
+    g.lineTo(s * 0.5, s * 0.05);
+    g.lineTo(s, -s * 0.4);
+    g.lineTo(s, s * 0.5);
+    g.closePath();
+    g.fill();
+    g.font = `900 ${0.5 * PX}px 'Bebas Neue', Impact, sans-serif`;
+    g.textAlign = "center";
+    g.fillText("CONCRETE CROWN", 0, s * 1.3);
+    g.restore();
 
-  // Graffiti tag near the corner
-  g.save();
-  g.translate(tx(-5.5), tz(10.5));
-  g.rotate(-0.3);
-  g.font = `italic 900 ${0.9 * PX}px Impact, sans-serif`;
-  g.globalAlpha = 0.35;
-  g.fillStyle = v.accent;
-  g.fillText(v.name.toUpperCase(), 0, 0);
-  g.restore();
+    // Graffiti tag near the corner
+    g.save();
+    g.translate(tx(-5.5), tz(10.5));
+    g.rotate(-0.3);
+    g.font = `italic 900 ${0.9 * PX}px Impact, sans-serif`;
+    g.globalAlpha = 0.35;
+    g.fillStyle = v.accent;
+    g.fillText(v.name.toUpperCase(), 0, 0);
+    g.restore();
+  }
 
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 8;
   return tex;
+}
+
+function brickTexture() {
+  const c = document.createElement("canvas");
+  c.width = 256;
+  c.height = 256;
+  const g = c.getContext("2d")!;
+  g.fillStyle = "#6e6258";
+  g.fillRect(0, 0, 256, 256);
+  const bw = 64;
+  const bh = 24;
+  for (let row = 0; row * bh < 256; row++) {
+    for (let col = -1; col * bw < 256; col++) {
+      const x = col * bw + (row % 2 ? bw / 2 : 0);
+      const tint = 110 + Math.random() * 40;
+      g.fillStyle = `rgb(${tint + 40},${tint * 0.55},${tint * 0.42})`;
+      g.fillRect(x + 2, row * bh + 2, bw - 4, bh - 4);
+    }
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
 }
 
 /** Night windows texture for skyscrapers (shared with the city hub) */
@@ -342,13 +419,37 @@ function makeCrowd(v: Venue, group: THREE.Group) {
       x = (Math.random() - 0.5) * 13;
       z = COURT.length + 2.2 + Math.random() * 2;
     }
+    let y = 0;
+    if (v.theme === "arena") {
+      // Fans sit in the tiered stands, wearing the home colors more often
+      const tier = Math.floor(Math.random() * 8);
+      const off = 2.2 + tier * 1.1;
+      y = 0.95 + tier * 0.9 - 0.5;
+      if (r < 0.35) x = -COURT.halfWidth - off;
+      else if (r < 0.7) x = COURT.halfWidth + off;
+      else z = COURT.length + off;
+      z = r < 0.7 ? -8 + Math.random() * 28 : z;
+      if (r >= 0.7) x = (Math.random() - 0.5) * (COURT.halfWidth * 2 + off * 2);
+    }
+    if (v.theme === "school") {
+      // Pull-out bleachers along both sidelines
+      const tier = Math.floor(Math.random() * 5);
+      const off = 2.4 + tier * 0.8;
+      y = tier * 0.45 + 0.1;
+      x = (r < 0.5 ? -1 : 1) * (COURT.halfWidth + off);
+      z = -1 + Math.random() * 15;
+    }
     const face = Math.atan2(-x, 6 - z);
     q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), face);
     const s = 0.9 + Math.random() * 0.25;
-    m.compose(new THREE.Vector3(x, 0, z), q, new THREE.Vector3(s, s, s));
+    m.compose(new THREE.Vector3(x, y, z), q, new THREE.Vector3(s, s, s));
     mesh.setMatrixAt(i, m);
     base.push(m.clone());
-    mesh.setColorAt(i, new THREE.Color(Math.random() < 0.2 ? skins[i % skins.length] : palette[i % palette.length]));
+    const home = (v.theme === "arena" || v.theme === "school") && Math.random() < 0.45 ? v.accent : null;
+    mesh.setColorAt(
+      i,
+      new THREE.Color(home ?? (Math.random() < 0.2 ? skins[i % skins.length] : palette[i % palette.length])),
+    );
   }
   mesh.instanceColor!.needsUpdate = true;
   group.add(mesh);
@@ -857,6 +958,177 @@ export function buildCourt(v: Venue, opts: { shadows: boolean }): CourtScene {
         b.position.set(Math.cos(a) * r, h / 2 - 70, Math.sin(a) * r + 6);
         group.add(b);
       }
+      break;
+    }
+    case "school": {
+      // High-school gym: brick walls, painted wainscot, banners, bleachers,
+      // cheer squad on the baseline, scoreboard and exit signs
+      const W = COURT.halfWidth + 7;
+      const brick = brickTexture();
+      const brickM = new THREE.MeshStandardMaterial({ map: brick, roughness: 0.9 });
+      const back = box(W * 2, 12, 0.6, brickM, 0, 6, -4.5, group);
+      brick.repeat.set(26, 9);
+      const sideBrick = brick.clone();
+      sideBrick.repeat.set(24, 9);
+      sideBrick.needsUpdate = true;
+      const sideM = new THREE.MeshStandardMaterial({ map: sideBrick, roughness: 0.9 });
+      box(0.6, 12, 32, sideM, -W, 6, 10, group);
+      box(0.6, 12, 32, sideM, W, 6, 10, group);
+      back.receiveShadow = true;
+      // Painted lower wall + trim
+      const band = mat(v.paintAlt, 0.7);
+      box(W * 2, 2.4, 0.1, band, 0, 1.2, -4.15, group);
+      box(W * 2, 0.25, 0.12, mat("#6a4424", 0.6), 0, 2.5, -4.12, group);
+      for (const x of [-W + 0.35, W - 0.35]) box(0.1, 2.4, 32, band, x, 1.2, 10, group);
+      // Wall pads under the hoop + exit doors
+      box(8, 2, 0.3, mat("#15161b", 0.8), 0, 1, -4.0, group);
+      for (const x of [-9, 9]) {
+        box(2.2, 2.6, 0.2, mat("#1a1b20", 0.6), x, 1.3, -4.05, group);
+        box(0.8, 0.3, 0.1, mat("#300", 0.3, 0, "#ff2a2a", 3), x, 3, -4.0, group);
+      }
+      // Big mascot on the back wall
+      const mascot = textSign(v.district.replace("Home of the ", "").toUpperCase(), v.paintAlt, 11, 2.6);
+      mascot.position.set(0, 8.3, -4.1);
+      group.add(mascot);
+      // Championship banners
+      const bannerTex = (top: string, mid: string) => {
+        const c = document.createElement("canvas");
+        c.width = 128;
+        c.height = 256;
+        const g = c.getContext("2d")!;
+        g.fillStyle = v.paintAlt;
+        g.beginPath();
+        g.moveTo(0, 0);
+        g.lineTo(128, 0);
+        g.lineTo(128, 210);
+        g.lineTo(64, 256);
+        g.lineTo(0, 210);
+        g.fill();
+        g.fillStyle = "#12203a";
+        g.textAlign = "center";
+        g.font = "900 22px 'Bebas Neue', Impact, sans-serif";
+        g.fillText(top, 64, 40);
+        g.font = "900 30px 'Bebas Neue', Impact, sans-serif";
+        g.fillText(mid, 64, 110);
+        g.font = "700 16px sans-serif";
+        g.fillText("VARSITY BOYS", 64, 160);
+        const t = new THREE.CanvasTexture(c);
+        t.colorSpace = THREE.SRGBColorSpace;
+        return new THREE.MeshStandardMaterial({ map: t, transparent: true, side: THREE.DoubleSide, roughness: 0.9 });
+      };
+      const titles = [
+        ["STATE", "CHAMPS"],
+        ["CITY", "CHAMPS"],
+        ["REGIONAL", "CHAMPS"],
+        ["STATE", "FINALS"],
+        ["CITY", "CHAMPS"],
+      ];
+      titles.forEach(([a, b], i) => {
+        const pl = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 2.8), bannerTex(a, b));
+        pl.position.set(W - 0.4, 8.2, 2 + i * 2.6);
+        pl.rotation.y = -Math.PI / 2;
+        group.add(pl);
+        const pr = pl.clone();
+        pr.position.x = -W + 0.4;
+        pr.rotation.y = Math.PI / 2;
+        group.add(pr);
+      });
+      // Scoreboard
+      const sb = new THREE.Group();
+      box(4.2, 2, 0.4, mat("#0d0f14", 0.4, 0.5), 0, 0, 0, sb);
+      const digits = textSign("HOME 00  VISITOR 00", "#ff9a2a", 4, 1);
+      digits.position.set(0, 0.2, 0.22);
+      sb.add(digits);
+      sb.position.set(-7, 7.2, -4.1);
+      group.add(sb);
+      // Bleachers
+      const seat = mat("#8a6a44", 0.7);
+      for (let tier = 0; tier < 5; tier++) {
+        const off = 2.4 + tier * 0.8;
+        for (const sx of [-1, 1])
+          box(0.8, 0.12 + tier * 0.45, 17, seat, sx * (COURT.halfWidth + off), (0.12 + tier * 0.45) / 2, 6.5, group);
+      }
+      // Cheer squad along the back wall
+      const cheerBody = new THREE.CapsuleGeometry(0.17, 0.9, 4, 8);
+      cheerBody.translate(0, 0.75, 0);
+      const cheerHead = new THREE.SphereGeometry(0.12, 10, 8);
+      cheerHead.translate(0, 1.5, 0);
+      const cheerArms = new THREE.BoxGeometry(0.7, 0.08, 0.08);
+      cheerArms.rotateZ(Math.PI / 2 - 0.4);
+      cheerArms.translate(0, 1.7, 0);
+      const skins = ["#6b4430", "#e2b894", "#a86f4c", "#4a2d20", "#c68c63"];
+      const cheerers: THREE.Group[] = [];
+      for (let i = 0; i < 12; i++) {
+        const x = -8.5 + i * 1.55;
+        if (Math.abs(x) < 4.2) continue; // leave the hoop clear
+        const cg = new THREE.Group();
+        const uni = mat(i % 2 ? "#f2f4f8" : v.paintAlt, 0.6);
+        const bm = new THREE.Mesh(cheerBody, uni);
+        const hm = new THREE.Mesh(cheerHead, mat(skins[i % skins.length], 0.6));
+        const am = new THREE.Mesh(cheerArms, mat(skins[i % skins.length], 0.6));
+        bm.castShadow = true;
+        cg.add(bm, hm, am);
+        cg.position.set(x, 0, -3.3);
+        group.add(cg);
+        cheerers.push(cg);
+      }
+      extras.push((t) => {
+        cheerers.forEach((cg, i) => {
+          cg.position.y = Math.max(0, Math.sin(t * 5 + i * 0.7)) * 0.12;
+          cg.children[2].rotation.z = Math.sin(t * 4 + i) * 0.5;
+        });
+      });
+      // Ceiling + light panels
+      box(W * 2, 0.4, 34, mat("#2a2320", 0.9), 0, 12, 10, group);
+      const lightM = mat("#fff", 0.2, 0, "#ffffff", 3);
+      for (let x = -6; x <= 6; x += 4) for (let z = 0; z <= 14; z += 4.5) box(1.8, 0.1, 0.9, lightM, x, 11.7, z, group);
+      apron.material = mat("#b8905c", 0.5);
+      break;
+    }
+    case "arena": {
+      // Indoor pro arena: tiered stands, jumbotron, rafters, team banners
+      const seatM = mat("#1c2130", 0.8);
+      for (let tier = 0; tier < 8; tier++) {
+        const y = 0.5 + tier * 0.9;
+        const off = 2.2 + tier * 1.1;
+        box(1.2, 0.9, 30, seatM, -COURT.halfWidth - off, y, 6, group);
+        box(1.2, 0.9, 30, seatM, COURT.halfWidth + off, y, 6, group);
+        box(COURT.halfWidth * 2 + off * 2, 0.9, 1.2, seatM, 0, y, COURT.length + off, group);
+      }
+      box(COURT.halfWidth * 2 + 30, 1, 1, mat("#0c0e14", 0.9), 0, 14, -8, group);
+      const roofM = mat("#0a0b10", 0.9);
+      box(COURT.halfWidth * 2 + 30, 0.5, 40, roofM, 0, 18, 6, group);
+      // Jumbotron over center court
+      const jumbo = new THREE.Group();
+      const shell = new THREE.Mesh(new THREE.BoxGeometry(5, 3, 5), mat("#111", 0.4, 0.6));
+      jumbo.add(shell);
+      for (let i = 0; i < 4; i++) {
+        const scr = textSign(v.district.toUpperCase(), v.accent, 4.6, 2.6);
+        scr.position.set(Math.sin((i * Math.PI) / 2) * 2.52, 0, Math.cos((i * Math.PI) / 2) * 2.52);
+        scr.rotation.y = (i * Math.PI) / 2;
+        jumbo.add(scr);
+      }
+      jumbo.position.set(0, 12, COURT.length);
+      group.add(jumbo);
+      extras.push((_t, dt) => (jumbo.rotation.y += dt * 0.2));
+      // Arena lights
+      for (const [x, z] of [
+        [-5, 3],
+        [5, 3],
+        [-5, 10],
+        [5, 10],
+      ]) {
+        const l = new THREE.SpotLight("#ffffff", 900, 40, 0.7, 0.4, 1.6);
+        l.position.set(x, 16, z);
+        l.target.position.set(x * 0.3, 0, z);
+        group.add(l, l.target);
+        dimmables.push({ light: l, base: l.intensity });
+      }
+      // Team banner behind the hoop
+      const banner = textSign(v.district.replace("Home of the ", "").toUpperCase(), v.accent, 9, 2.2);
+      banner.position.set(0, 7, -7.5);
+      group.add(banner);
+      apron.material = mat("#8a6a44", 0.6);
       break;
     }
     case "crown": {

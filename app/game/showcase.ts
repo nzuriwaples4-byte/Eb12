@@ -148,7 +148,7 @@ export class Showcase {
     const fx = this.focus >= 0 ? this.slots[this.focus].x * 0.6 : 0;
     this.camX = damp(this.camX, fx, 3, dt);
     const wide = this.focus < 0;
-    const dist = wide ? 7.8 + this.slots.length * 0.55 : 7.2;
+    const dist = this.slots.length === 1 ? 4.6 : wide ? 7.8 + this.slots.length * 0.55 : 7.2;
     this.camera.position.set(this.camX, wide ? 1.7 : 1.45, dist);
     this.camera.lookAt(this.camX, wide ? 1.0 : 1.05, 0);
     this.renderer.render(this.scene, this.camera);

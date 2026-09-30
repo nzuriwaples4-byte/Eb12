@@ -89,7 +89,7 @@ export default function CityRoute() {
         id: "arena",
         kind: "arena",
         label: "EBL Arena",
-        action: leagueOpen ? "Play in the EBL" : "EBL (beat Book One to unlock)",
+        action: "EBL Career",
         x: PLACES.arena.x,
         z: PLACES.arena.z,
         r: 6,
@@ -133,7 +133,7 @@ export default function CityRoute() {
     } else if (p.kind === "story") navigate(`/story/${next.id}`);
     else if (p.kind === "shop") setShop(true);
     else if (p.kind === "crib") navigate("/crib");
-    else if (p.kind === "arena") navigate(leagueOpen ? "/league" : "/story");
+    else if (p.kind === "arena") navigate("/career");
     else if (p.kind === "online") navigate("/online");
     else if (p.kind === "roster") navigate("/roster");
   };

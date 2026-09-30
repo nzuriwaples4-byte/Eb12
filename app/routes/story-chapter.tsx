@@ -75,6 +75,7 @@ export default function StoryChapter({ params }: Route.ComponentProps) {
         background={BACKDROPS[chapter.id] ?? o.portrait}
         backgroundTint={venue.accent}
         title={`Chapter ${chapter.number} · ${chapter.title}`}
+        stage={{ set: "court", venueId: chapter.venueId }}
         onDone={() => setStage("match")}
       />
     );
@@ -88,6 +89,7 @@ export default function StoryChapter({ params }: Route.ComponentProps) {
         background={stage === "win" && chapter.id === "ch5" ? "crib-penthouse" : o.portrait}
         backgroundTint={venue.accent}
         title={stage === "win" ? "Victory" : "Defeat"}
+        stage={{ set: "court", venueId: chapter.venueId }}
         onDone={() => {
           if (stage === "lose") {
             setResult(null);
@@ -123,7 +125,7 @@ export default function StoryChapter({ params }: Route.ComponentProps) {
               Start {nextBook?.name ?? "next chapter"}
             </MenuButton>
           ) : (
-            <MenuButton to="/league" variant="primary">
+            <MenuButton to="/career" variant="primary">
               Go pro: EBL League
             </MenuButton>
           )}

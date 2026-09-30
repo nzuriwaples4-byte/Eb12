@@ -13,6 +13,18 @@ export type SpeakerId =
   | "titan"
   | "echo"
   | "architect"
+  | "imani"
+  | "dre"
+  | "coach"
+  | "agent"
+  | "producer"
+  | "reporter"
+  | "commish"
+  | "teammate"
+  | "mom"
+  | "hscoach"
+  | "collegecoach"
+  | "me"
   | "narrator"
   | "announcer";
 
@@ -35,13 +47,41 @@ export const SPEAKERS: Record<SpeakerId, Speaker> = {
   titan: { name: "Titan", portrait: "titan-portrait", accent: "#2de0c8" },
   echo: { name: "Echo", portrait: "echo-portrait", accent: "#e8ecf4" },
   architect: { name: "The Architect", portrait: "architect-portrait", accent: "#ff3a6e" },
+  imani: { name: "Imani", portrait: "imani-portrait", accent: "#ff9ec7" },
+  dre: { name: "Dre Cole", accent: "#e8742a" },
+  coach: { name: "Coach Harlan", accent: "#9fb4ff" },
+  agent: { name: "Tasha (Agent)", accent: "#5dff9a" },
+  producer: { name: "Nova (Producer)", accent: "#c77dff" },
+  reporter: { name: "Reporter", accent: "#c9d3e8" },
+  commish: { name: "Commissioner", accent: "#ffffff" },
+  teammate: { name: "Teammate", accent: "#ffc53d" },
+  mom: { name: "Mom", accent: "#ffb38a" },
+  hscoach: { name: "Coach Bell", accent: "#6ddc9a" },
+  collegecoach: { name: "Coach Okafor", accent: "#9fb4ff" },
+  me: { name: "You", accent: "#3ad7ff" },
   narrator: { name: "", accent: "#c9d3e8" },
   announcer: { name: "Announcer", accent: "#ff5a5a" },
 };
 
+export interface Effect {
+  fans?: number;
+  chemistry?: number;
+  love?: number;
+  crowns?: number;
+  flag?: string;
+}
+
+export interface Choice {
+  text: string;
+  effect?: Effect;
+  reply?: Line[];
+}
+
 export interface Line {
   who: SpeakerId;
   text: string;
+  /** Player picks one; its reply lines play next */
+  choices?: Choice[];
 }
 
 export type ObjectiveKind = "perfect" | "dunks" | "ankles" | "margin" | "special" | "blocks" | "threes";

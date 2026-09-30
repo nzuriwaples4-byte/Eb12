@@ -75,7 +75,7 @@
   background: rgba(6, 8, 14, 0.9);
   border-top: 3px solid var(--accent);
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
+  clip-path: polygon(0 -40px, 100% -40px, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
 }
 
 .box[data-narrator="true"] {
@@ -137,4 +137,81 @@
   font-size: var(--text-xs);
   letter-spacing: 0.1em;
   padding-top: var(--space-2);
+}
+
+.choices {
+  position: absolute;
+  left: 50%;
+  bottom: 210px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: min(700px, 90vw);
+}
+
+.choices button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(6, 8, 14, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-left: 4px solid var(--accent);
+  color: var(--color-text);
+  text-align: left;
+  font-size: var(--text-base);
+  cursor: pointer;
+  animation: pop 0.2s ease-out;
+}
+
+.choices button:hover,
+.choices button:focus-visible {
+  background: rgba(30, 36, 52, 0.95);
+  transform: translateX(6px);
+}
+
+.choices kbd {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #05070c;
+  font-weight: 900;
+  flex: none;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.root:has(.stage)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(0deg, rgba(0, 0, 0, 0.75), transparent 38%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 18%);
+}
+
+.root:has(.stage) .box,
+.root:has(.stage) .title,
+.root:has(.stage) .skip,
+.root:has(.stage) .progress,
+.root:has(.stage) .choices {
+  z-index: 2;
 }
