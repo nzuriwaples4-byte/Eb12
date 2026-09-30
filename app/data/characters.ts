@@ -1,6 +1,6 @@
 import type { AssetId } from "./higgsfield-assets";
 
-export type HairStyle = "twists" | "cap" | "shaved" | "silver-part" | "afro-puff" | "fade" | "braids";
+export type HairStyle = "twists" | "cap" | "shaved" | "silver-part" | "afro-puff" | "fade" | "braids" | "long-waves";
 export type SpecialStyle = "lightning" | "viral" | "quake" | "smoke" | "jewel" | "reign";
 
 export interface Ratings {
@@ -44,6 +44,12 @@ export interface Look {
   mask?: string;
   /** Width multiplier for the torso/limbs (1 = lean guard) */
   build: number;
+  /** Narrower shoulders, wider hips, a defined waist */
+  figure?: "feminine";
+  /** Long sleeves (jacket/hoodie) color; cuffs use jerseyTrim */
+  sleeves?: string;
+  /** Full-length fitted pants instead of basketball shorts */
+  pants?: string;
 }
 
 export interface Baller {

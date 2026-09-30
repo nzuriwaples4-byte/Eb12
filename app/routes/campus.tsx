@@ -97,7 +97,7 @@ export default function CampusRoute() {
   );
 
   const residents: Resident[] = [
-    { ballerId: "cast-imani", x: D.classes.x + 3, z: D.classes.z + 1.5, yaw: Math.PI * 0.9, noBall: true },
+    { ballerId: "cast-jaailyah", x: D.classes.x + 3, z: D.classes.z + 1.5, yaw: Math.PI * 0.9, noBall: true },
     { ballerId: "rival-dre", x: D.lot.x + 3.5, z: D.lot.z + 3, yaw: -Math.PI * 0.75, noBall: true },
     { ballerId: "cast-teammate", x: CAMPUS.courts.x - 6, z: CAMPUS.courts.z + 3, yaw: Math.PI / 2 },
     { ballerId: "hs-westside", x: CAMPUS.courts.x + 7, z: CAMPUS.courts.z - 5, yaw: -Math.PI / 2 },

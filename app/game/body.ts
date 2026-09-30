@@ -167,8 +167,9 @@ export function buildProceduralBody(baller: Baller): Body {
 
   // Landmarks (athletic proportions, ~7.5 heads)
   const hipY = 0.53 * H;
-  const shoulderHalf = 0.118 * H * (0.92 + b * 0.1);
-  const hipHalf = 0.055 * H * (0.9 + b * 0.1);
+  const fem = look.figure === "feminine";
+  const shoulderHalf = 0.118 * H * (0.92 + b * 0.1) * (fem ? 0.84 : 1);
+  const hipHalf = 0.055 * H * (0.9 + b * 0.1) * (fem ? 1.14 : 1);
   const thighLen = 0.215 * H;
   const shinLen = 0.235 * H;
   const upperArmLen = 0.175 * H;
@@ -186,10 +187,10 @@ export function buildProceduralBody(baller: Baller): Body {
   const torso = lathe(
     [
       [0.0, -0.1 * H],
-      [tw * 0.78, -0.095 * H],
-      [tw * 0.8, -0.03 * H],
-      [tw * 0.78, 0.04 * H],
-      [tw * 0.86, 0.12 * H],
+      [tw * (fem ? 0.9 : 0.78), -0.095 * H],
+      [tw * (fem ? 0.8 : 0.8), -0.03 * H],
+      [tw * (fem ? 0.68 : 0.78), 0.04 * H],
+      [tw * (fem ? 0.9 : 0.86), 0.12 * H],
       [tw * 0.93, 0.19 * H],
       [tw * 0.8, 0.225 * H],
       [tw * 0.4, 0.243 * H],
@@ -237,7 +238,8 @@ export function buildProceduralBody(baller: Baller): Body {
     ],
     24,
   );
-  addMesh(hips, shortsTop, shorts).scale.set(1, 1, 0.72);
+  const pantsMat = look.pants ? mat(look.pants, 0.85) : null;
+  addMesh(hips, shortsTop, pantsMat ?? shorts).scale.set(1, 1, pantsMat ? 0.66 : 0.72);
   const waist = addMesh(hips, new THREE.TorusGeometry(hipHalf * 1.92, 0.008 * H, 6, 24), stripe);
   waist.position.y = 0.018 * H;
   waist.rotation.x = Math.PI / 2;
@@ -402,6 +404,38 @@ export function buildProceduralBody(baller: Baller): Body {
       }
       break;
     }
+    case "long-waves": {
+      // Long wavy hair past the shoulders, center part, honey highlights
+      const crown = cap(1.08, Math.PI * 0.5);
+      crown.position.y += headSize * 0.06;
+      const hi = mat(look.hairTip ?? look.hairColor, 0.8);
+      const lockGeo = new THREE.CapsuleGeometry(headSize * 0.21, headSize * 3.1, 4, 10);
+      const wav = lockGeo.attributes.position as THREE.BufferAttribute;
+      for (let i = 0; i < wav.count; i++) {
+        const y = wav.getY(i);
+        wav.setX(i, wav.getX(i) + Math.sin(y * 9) * headSize * 0.05);
+      }
+      lockGeo.computeVertexNormals();
+      const n = 21;
+      for (let i = 0; i < n; i++) {
+        // Locks fan around the back and sides, leaving the face open
+        const th = Math.PI * 0.32 + (i / (n - 1)) * Math.PI * 1.36;
+        const dir = new THREE.Vector3(Math.sin(th), 0, Math.cos(th));
+        const lock = addMesh(head, lockGeo, i % 3 === 1 ? hi : hair);
+        lock.position.copy(hc).addScaledVector(dir, headSize * 0.84);
+        lock.position.y -= headSize * 1.25;
+        lock.rotation.z = -dir.x * 0.18;
+        lock.rotation.x = dir.z * 0.18;
+      }
+      // Face-framing front pieces
+      for (const s2 of [1, -1]) {
+        const fr = addMesh(head, lockGeo, hi);
+        fr.position.set(s2 * headSize * 0.8, hc.y - headSize * 1.05, headSize * 0.4);
+        fr.scale.set(0.85, 0.8, 0.85);
+        fr.rotation.z = s2 * 0.08;
+      }
+      break;
+    }
     case "fade":
     default: {
       cap(1.03, Math.PI * 0.48);
@@ -469,6 +503,17 @@ export function buildProceduralBody(baller: Baller): Body {
     const thumb = addMesh(wrist, new THREE.CapsuleGeometry(limbR * 0.32, limbR * 0.9, 3, 6), skin);
     thumb.position.set(-s * limbR * 0.2, -limbR * 0.9, limbR * 0.7);
     thumb.rotation.x = 0.6;
+    if (look.sleeves) {
+      // Long sleeves with ribbed cuffs (letterman jacket / hoodie)
+      const sl = mat(look.sleeves, 0.75);
+      const cap2 = addMesh(shoulder, new THREE.SphereGeometry(limbR * 1.7, 12, 10), sl);
+      cap2.scale.set(1, 1.1, 1);
+      segment(shoulder, upperDir, limbR * 1.45, limbR * 1.15, sl, 0.1);
+      segment(elbow, foreDir.clone().multiplyScalar(0.9), limbR * 1.2, limbR * 0.95, sl, 0.05);
+      const cuff = addMesh(elbow, new THREE.CylinderGeometry(limbR * 1.0, limbR * 1.0, 0.018 * H, 12), trim);
+      cuff.position.copy(foreDir.clone().multiplyScalar(0.9));
+      cuff.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), foreDir.clone().normalize());
+    }
     if (s > 0 && look.sleeveLeft) {
       const sl = mat(look.sleeveLeft, 0.6);
       segment(shoulder, upperDir, limbR * 1.33, limbR * 1.05, sl, 0.1);
@@ -484,14 +529,20 @@ export function buildProceduralBody(baller: Baller): Body {
     const hipJ = joint(hips, s > 0 ? "thighL" : "thighR", s * hipHalf, -0.04 * H, 0);
     const thighDir = new THREE.Vector3(s * 0.02, -1, 0.0).normalize().multiplyScalar(thighLen);
     segment(hipJ, thighDir, limbR * 1.75, limbR * 1.25, skin, 0.1);
-    // Baggy shorts leg
-    const legShort = segment(hipJ, thighDir.clone().multiplyScalar(0.72), limbR * 2.3, limbR * 2.05, shorts);
-    legShort.castShadow = true;
-    const st = segment(hipJ, thighDir.clone().multiplyScalar(0.7), limbR * 0.35, limbR * 0.35, stripe);
-    st.position.x += s * limbR * 2.05;
+    if (pantsMat) {
+      // Fitted pants cover the thigh
+      segment(hipJ, thighDir, limbR * 1.9, limbR * 1.35, pantsMat, 0.1);
+    } else {
+      // Baggy shorts leg
+      const legShort = segment(hipJ, thighDir.clone().multiplyScalar(0.72), limbR * 2.3, limbR * 2.05, shorts);
+      legShort.castShadow = true;
+      const st = segment(hipJ, thighDir.clone().multiplyScalar(0.7), limbR * 0.35, limbR * 0.35, stripe);
+      st.position.x += s * limbR * 2.05;
+    }
     const knee = joint(hipJ, s > 0 ? "shinL" : "shinR", thighDir.x, thighDir.y, thighDir.z);
     const shinDir = new THREE.Vector3(0, -1, -0.02).normalize().multiplyScalar(shinLen);
     segment(knee, shinDir, limbR * 1.3, limbR * 0.85, skin, 0.18);
+    if (pantsMat) segment(knee, shinDir.clone().multiplyScalar(0.93), limbR * 1.42, limbR * 1.05, pantsMat, 0.12);
     if (s < 0 && look.kneeBraceRight) {
       const brace = addMesh(
         knee,
