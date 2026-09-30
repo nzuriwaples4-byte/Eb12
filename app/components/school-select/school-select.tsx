@@ -43,7 +43,9 @@ export function SchoolSelect({ colleges, hsWins, rivalId, onSign }: Props) {
                     getAudio().play("confirm");
                   }}
                 >
-                  <span className={styles.city}>{col.city}</span>
+                  <span className={styles.city}>
+                    {col.city} · {col.state}
+                  </span>
                   <span className={styles.mascot}>{col.mascot}</span>
                   <span className={styles.logo}>{col.short}</span>
                   {!open && <span className={styles.stamp}>No offer</span>}

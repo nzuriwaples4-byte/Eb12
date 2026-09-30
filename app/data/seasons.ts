@@ -189,7 +189,7 @@ export const SEASON_EVENTS: SeasonEvent[] = [
     id: "kane-bid",
     week: 6,
     title: "Front Office",
-    when: (c, s) => s === 2 && c.team?.id !== "gca",
+    when: (c, s) => s === 2 && c.team?.id !== "lva",
     lines: (c) => [
       { who: "narrator", text: `Rumors all week: Victor Kane is trying to buy the ${c.team!.city} ${c.team!.name}.` },
       { who: "architect", text: "Every franchise has a price. Yours is lower than you'd think. Mine never is." },
@@ -406,7 +406,7 @@ export function contractOffers(
   const offers: Offer[] = [
     { teamId, salary: base, pitch: "Stay home. The city built this team around you.", resign: true },
   ];
-  const others = EBL_TEAMS.filter((t) => t.id !== teamId && t.id !== dreTeamId && t.id !== "gca");
+  const others = EBL_TEAMS.filter((t) => t.id !== teamId && t.id !== dreTeamId && t.id !== "lva");
   const pickN = (n: number) => others[(season * 7 + n * 5 + ovr) % others.length];
   const a = pickN(1);
   let b = pickN(2);
@@ -421,9 +421,9 @@ export function contractOffers(
     salary: Math.round((base * 1.2) / 10) * 10,
     pitch: `The ${b.name} are one star away from a title. You're the star.`,
   });
-  if (season >= 2 && teamId !== "gca" && dreTeamId !== "gca")
+  if (season >= 2 && teamId !== "lva" && dreTeamId !== "lva")
     offers.push({
-      teamId: "gca",
+      teamId: "lva",
       salary: Math.round((base * 1.6) / 10) * 10,
       pitch: "Victor Kane's supermax. The most money in league history, and you play for him.",
     });
@@ -437,9 +437,9 @@ export function signingLines(c: SceneCtx, offer: Offer, from: EblTeam): Line[] {
       { who: "agent", text: `Done. You re-signed with the ${t.name} for ₵${offer.salary} a game.` },
       { who: "coach", text: "Good. I didn't want to learn to game-plan against you." },
     ];
-  if (t.id === "gca")
+  if (t.id === "lva")
     return [
-      { who: "architect", text: "Welcome to Glass City. I always get what I build for." },
+      { who: "architect", text: "Welcome to Las Vegas. I always get what I build for." },
       { who: "imani", text: "...Kane? Really? Okay. Just promise me you're still you." },
       { who: "dre", text: `You're an Architect now? Wow. Rivalry Week just got personal.` },
     ];

@@ -9,7 +9,7 @@ import { Player } from "./player";
 import { createRenderer, environmentFor, fitToParent, skyTexture } from "./stage";
 
 /**
- * Meridian City: the walkable open-world hub. Third-person Kairo, pickup
+ * New York City: the walkable open-world hub. Third-person Kairo, pickup
  * courts with resident ballers, shops, the EBL Arena, pedestrians and a
  * minimap. Points of interest (POIs) are supplied by the route so the city
  * stays data-driven.
@@ -753,7 +753,7 @@ export class City {
       this.near = best;
       this.cb.prompt(best);
     }
-    const zone = best ? best.label : Math.hypot(me.pos.x, me.pos.z) < 8 ? "Crown Plaza" : "Meridian City";
+    const zone = best ? best.label : Math.hypot(me.pos.x, me.pos.z) < 8 ? "Crown Plaza" : "New York City";
     if (zone !== this.zoneName) {
       this.zoneName = zone;
       this.cb.zone(zone);

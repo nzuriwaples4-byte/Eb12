@@ -54,8 +54,10 @@ export const ARCHETYPES: Record<Archetype, { label: string; blurb: string; ratin
 export interface College {
   id: string;
   name: string;
-  /** Short city/state line shown above the mascot on the signing-day board */
+  /** School name shown above the mascot on the signing-day board */
   city: string;
+  /** Real US state (postal code) */
+  state: string;
   mascot: string;
   short: string;
   primary: string;
@@ -65,6 +67,19 @@ export interface College {
   needWins: number;
   venueId: string;
 }
+
+const COLLEGE_STATES: Record<string, string> = {
+  "meridian-state": "NY",
+  "coastal-tech": "NC",
+  "kane-university": "NV",
+  "silver-lake": "MT",
+  bayline: "FL",
+  redwood: "CA",
+  "summit-am": "CO",
+  ironvale: "OH",
+  "crescent-city": "LA",
+  "northern-pines": "MN",
+};
 
 function college(
   id: string,
@@ -80,6 +95,7 @@ function college(
     id,
     name: `${city} ${mascot}`,
     city,
+    state: COLLEGE_STATES[id] ?? "",
     mascot,
     short,
     primary,
@@ -94,9 +110,9 @@ function college(
 export const COLLEGES: College[] = [
   college(
     "meridian-state",
-    "Meridian State",
+    "Brooklyn State",
     "Mariners",
-    "MSU",
+    "BSU",
     "#1f8fff",
     "#f2f4f8",
     0,
@@ -104,9 +120,9 @@ export const COLLEGES: College[] = [
   ),
   college(
     "coastal-tech",
-    "Coastal Tech",
+    "Carolina Coastal Tech",
     "Current",
-    "CT",
+    "CCT",
     "#2ec4b6",
     "#0e2a33",
     2,
@@ -124,9 +140,9 @@ export const COLLEGES: College[] = [
   ),
   college(
     "silver-lake",
-    "Silver Lake State",
+    "Montana Silver Lake",
     "Wolves",
-    "SLS",
+    "MSL",
     "#b8c4d6",
     "#1b2436",
     1,
@@ -134,9 +150,9 @@ export const COLLEGES: College[] = [
   ),
   college(
     "bayline",
-    "Bayline College",
+    "Gulf Coast College",
     "Gulls",
-    "BAY",
+    "GCC",
     "#00b4d8",
     "#f7f3e8",
     1,
@@ -144,9 +160,9 @@ export const COLLEGES: College[] = [
   ),
   college(
     "redwood",
-    "Redwood U",
+    "NorCal Redwood U",
     "Lumberjacks",
-    "RWU",
+    "NRU",
     "#2f7d3a",
     "#f2e2b8",
     0,
@@ -154,9 +170,9 @@ export const COLLEGES: College[] = [
   ),
   college(
     "summit-am",
-    "Summit A&M",
+    "Colorado Summit A&M",
     "Rams",
-    "SAM",
+    "CSA",
     "#7a1f2b",
     "#e8c872",
     2,
@@ -164,9 +180,9 @@ export const COLLEGES: College[] = [
   ),
   college(
     "ironvale",
-    "Ironvale",
+    "Ohio Ironvale",
     "Miners",
-    "IRV",
+    "OIU",
     "#e2b23a",
     "#1b1b22",
     0,
@@ -174,9 +190,9 @@ export const COLLEGES: College[] = [
   ),
   college(
     "crescent-city",
-    "Crescent City",
+    "New Orleans Crescent",
     "Tigers",
-    "CCU",
+    "NOC",
     "#ff7a1a",
     "#1d1a3a",
     2,
@@ -184,9 +200,9 @@ export const COLLEGES: College[] = [
   ),
   college(
     "northern-pines",
-    "Northern Pines",
+    "Minnesota Northern Pines",
     "Huskies",
-    "NPU",
+    "MNP",
     "#1d2f5a",
     "#e8e8ea",
     3,
@@ -317,7 +333,7 @@ const DRE_COLLEGE: Record<string, Baller> = {
     "twists",
     "#5a3625",
   ),
-  bayline: amateur("rival-dre-bay", "Dre Cole", "DRE", "Bayline College", "#00b4d8", 73, 1.98, "twists", "#5a3625"),
+  bayline: amateur("rival-dre-bay", "Dre Cole", "DRE", "Gulf Coast College", "#00b4d8", 73, 1.98, "twists", "#5a3625"),
 };
 
 /** Where Dre signs: wherever you didn't */
@@ -341,12 +357,12 @@ export function collegeGamesFor(myCollegeId?: string) {
   const dc = dreCollege(myCollegeId);
   return [
     {
-      opp: amateur("co-1", "Marcus Hale", "HALE", "Redwood U", "#2f7d3a", 64, 1.9, "fade", "#a86f4c"),
-      label: "Conference opener vs Redwood U",
+      opp: amateur("co-1", "Marcus Hale", "HALE", "NorCal Redwood U", "#2f7d3a", 64, 1.9, "fade", "#a86f4c"),
+      label: "Conference opener vs NorCal Redwood U",
     },
     {
-      opp: amateur("co-2", "Isaiah Stone", "STONE", "Summit A&M", "#7a1f2b", 68, 2.06, "braids", "#3e2519"),
-      label: "Top-10 matchup vs Summit A&M",
+      opp: amateur("co-2", "Isaiah Stone", "STONE", "Colorado Summit A&M", "#7a1f2b", 68, 2.06, "braids", "#3e2519"),
+      label: "Top-10 matchup vs Colorado Summit A&M",
     },
     {
       opp: amateur(
@@ -509,7 +525,7 @@ export const SCENES = {
           },
         ],
         [
-          { who: "hscoach", text: "You beat St. Jude. Coastal Tech called me at halftime." },
+          { who: "hscoach", text: "You beat St. Jude. Carolina Coastal Tech called me at halftime." },
           { who: "narrator", text: "Your phone buzzes. 214 new followers, and a message from an unknown number." },
           {
             who: "dre",
@@ -737,7 +753,7 @@ export const LIFE_EVENTS: { id: string; when(c: SceneCtx, week: number): boolean
     lines: () => [
       {
         who: "architect",
-        text: "Congratulations on the draft. The Glass City Architects could use a player like you.",
+        text: "Congratulations on the draft. The Las Vegas Architects could use a player like you.",
       },
       {
         who: "architect",
@@ -1004,6 +1020,6 @@ export function sceneSet(
   const dates = ["queensway", "neon-alley", "the-crown", "pier-9", "the-crown"];
   if (key.startsWith("date")) return { set: "court", venueId: dates[Number(key.slice(4)) || 0] };
   if (key === "official") return { set: "court", venueId: "pier-9" };
-  if (key === "kane") return { set: "court", venueId: "arena-gca" };
-  return { set: "court", venueId: ctx.team?.venueId ?? "arena-pmt" };
+  if (key === "kane") return { set: "court", venueId: "arena-lva" };
+  return { set: "court", venueId: ctx.team?.venueId ?? "arena-nyc" };
 }

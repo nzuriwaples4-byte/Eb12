@@ -105,7 +105,7 @@ const GAME = [
   ["game-crown-special", "/dev/attract?p=kairo&o=monarch&v=the-crown&t=99", "special"],
   ["game-neon-ankles", "/dev/attract?p=kairo&o=silk&v=neon-alley&t=99", "ankles"],
   ["game-cage", "/dev/attract?p=kairo&o=brick&v=the-cage&t=99", "live"],
-  ["game-arena", "/dev/attract?p=kairo&o=ebl-gca&v=arena-gca&t=99", "shoot"],
+  ["game-arena", "/dev/attract?p=kairo&o=ebl-lva&v=arena-lva&t=99", "shoot"],
   ["game-glass-house", "/dev/attract?p=kairo&o=architect&v=glass-house&t=99", "live"],
 ];
 

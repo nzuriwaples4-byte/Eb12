@@ -32,18 +32,18 @@ function rng(seed: number) {
 }
 
 const TEAM_DEFS: [string, string, string, string, string, number, string?][] = [
-  ["Port Meridian", "Tide", "PMT", "#1f8fff", "#0b0f1a", 64],
-  ["Glass City", "Architects", "GCA", "#ff3a6e", "#16161b", 92, "Victor Kane"],
-  ["Atlas City", "Titans", "ATL", "#c9a24a", "#1c1c24", 86],
-  ["Bayline", "Sharks", "BAY", "#2ec4b6", "#0e2a33", 80],
-  ["Emberfield", "Blaze", "EMB", "#ff6b1a", "#2a0d05", 77],
-  ["Ironvale", "Forge", "IRN", "#9aa3b4", "#b3122a", 71],
-  ["Kestrel Heights", "Hawks", "KES", "#6a3fc8", "#f2c230", 83],
-  ["Solano", "Suns", "SOL", "#ffb300", "#8a1c24", 74],
-  ["Northgate", "Wolves", "NGW", "#3b4a5c", "#e8ecf4", 68],
-  ["Crescent Bay", "Comets", "CBC", "#00b4d8", "#ff4fd8", 60],
-  ["Redwood", "Rangers", "RED", "#2f7d3a", "#c2452d", 58],
-  ["Silver Lake", "Sirens", "SLS", "#b8c4d6", "#1d2f5a", 88],
+  ["New York", "Tide", "NYC", "#1f8fff", "#0b0f1a", 64],
+  ["Las Vegas", "Architects", "LVA", "#ff3a6e", "#16161b", 92, "Victor Kane"],
+  ["Atlanta", "Titans", "ATL", "#c9a24a", "#1c1c24", 86],
+  ["San Diego", "Sharks", "SDS", "#2ec4b6", "#0e2a33", 80],
+  ["Phoenix", "Blaze", "PHX", "#ff6b1a", "#2a0d05", 77],
+  ["Pittsburgh", "Forge", "PIT", "#9aa3b4", "#b3122a", 71],
+  ["Seattle", "Kestrels", "SEA", "#6a3fc8", "#f2c230", 83],
+  ["Miami", "Solstice", "MIA", "#ffb300", "#8a1c24", 74],
+  ["Chicago", "Gales", "CHI", "#3b4a5c", "#e8ecf4", 68],
+  ["Houston", "Orbit", "HOU", "#00b4d8", "#ff4fd8", 60],
+  ["Portland", "Redwoods", "POR", "#2f7d3a", "#c2452d", 58],
+  ["Los Angeles", "Sirens", "LAS", "#b8c4d6", "#1d2f5a", 88],
 ];
 
 const FIRST = [

@@ -13,7 +13,7 @@ import type { Route } from "./+types/city";
 import styles from "./city.module.css";
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: "Meridian City — Concrete Crown" }];
+  return [{ title: "New York City — EBL 2" }];
 }
 
 const COURTS: { ballerId: string; venueId: string; x: number; z: number }[] = [
@@ -31,7 +31,7 @@ export default function CityRoute() {
   const mapRef = useRef<HTMLCanvasElement>(null);
   const cityRef = useRef<City | null>(null);
   const [prompt, setPrompt] = useState<Poi | null>(null);
-  const [zone, setZone] = useState("Meridian City");
+  const [zone, setZone] = useState("New York City");
   const [shop, setShop] = useState(false);
   const [ready, setReady] = useState(false);
   const look = kairoLook(progress);
@@ -174,13 +174,13 @@ export default function CityRoute() {
   return (
     <main className={styles.page}>
       <canvas ref={canvasRef} className={styles.canvas} />
-      {!ready && <div className={styles.loading}>Loading Meridian City…</div>}
+      {!ready && <div className={styles.loading}>Loading New York City…</div>}
       <header className={styles.top}>
         <Link to="/" className={styles.menu}>
           ☰ Menu
         </Link>
         <div className={styles.zone}>
-          <span>Port Meridian</span>
+          <span>New York, NY</span>
           <strong>{zone}</strong>
         </div>
         <div className={styles.wallet}>₵ {(progress.crowns ?? 0).toLocaleString()}</div>

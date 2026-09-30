@@ -36,7 +36,7 @@ export default function DevScene() {
       hairColor: "#140f0c",
       number: "7",
     },
-    team: getTeam("cbc"),
+    team: getTeam("hou"),
     college: COLLEGES[1],
     hsWins: 3,
     collegeWins: 3,
