@@ -7,7 +7,7 @@ import { Results } from "~/components/results/results";
 import { BALLERS, getBaller, overall } from "~/data/characters";
 import { CHAPTERS } from "~/data/story";
 import { STREET_VENUES } from "~/data/venues";
-import { NetLink } from "~/game/net";
+import { NetLink, relayUrl } from "~/game/net";
 import type { MatchResult } from "~/game/types";
 import { unlockedBallers, useProgress } from "~/hooks/use-progress";
 import { useSettings } from "~/hooks/use-settings";
@@ -44,6 +44,14 @@ export default function Online() {
   const [target, setTarget] = useState(11);
   const [result, setResult] = useState<MatchResult | null>(null);
   const [runId, setRunId] = useState(0);
+  const [server, setServer] = useState("");
+  useEffect(() => {
+    try {
+      setServer(localStorage.getItem("concrete-crown.relay") ?? relayUrl());
+    } catch {
+      setServer(relayUrl());
+    }
+  }, []);
   const meRef = useRef(me);
   meRef.current = me;
 
@@ -73,12 +81,16 @@ export default function Online() {
     setError("");
     setLobby({ kind: "connecting" });
     try {
-      const l = host ? await NetLink.host() : await NetLink.join(code);
+      const url = server.trim() || relayUrl();
+      try {
+        localStorage.setItem("concrete-crown.relay", url);
+      } catch {
+        /* storage unavailable: just don't remember it */
+      }
+      const l = host ? await NetLink.host(url) : await NetLink.join(code, url);
       setLobby({ kind: "room", link: l, peer: null });
     } catch (e) {
-      setError(
-        `${(e as Error).message}. Make sure the online server is running (npm run relay) and reachable on port 8787.`,
-      );
+      setError(`${(e as Error).message}. Check the online server address below.`);
       setLobby({ kind: "menu" });
     }
   };
@@ -280,6 +292,16 @@ export default function Online() {
                 </MenuButton>
               </div>
             </div>
+          </section>
+          <section className={styles.server}>
+            <label>
+              Online server
+              <input value={server} onChange={(e) => setServer(e.target.value)} spellCheck={false} />
+            </label>
+            <small>
+              The desktop game runs a server on your PC (port 8787). On the same Wi-Fi, your friend enters
+              ws://YOUR-PC-IP:8787. Over the internet, both players use a public relay (npm run relay on any server).
+            </small>
           </section>
           {error && <p className={styles.error}>{error}</p>}
         </>

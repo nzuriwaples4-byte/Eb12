@@ -1,0 +1,23 @@
+# Desktop packaging for Steam: `npm run desktop:dist`
+# Output goes to dist-desktop/. Upload the unpacked folder for your platform
+# (e.g. dist-desktop/win-unpacked) as the Steam depot content.
+appId: com.concretecrown.game
+productName: Concrete Crown
+directories:
+  output: dist-desktop
+files:
+  - desktop/**
+  - build/**
+  - server/**
+  - package.json
+extraMetadata:
+  main: desktop/main.mjs
+asar: false
+win:
+  target: dir
+linux:
+  target: dir
+  category: Game
+mac:
+  target: dir
+  category: public.app-category.sports-games

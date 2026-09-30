@@ -118,3 +118,29 @@
     flex-direction: column;
   }
 }
+
+.server {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: 640px;
+}
+
+.server label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-weight: 700;
+}
+
+.server input {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-surface-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: ui-monospace, monospace;
+}
+
+.server small {
+  color: var(--color-text-muted);
+}
