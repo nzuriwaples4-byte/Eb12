@@ -1,5 +1,6 @@
 import type { Attrs } from "~/data/attributes";
 import type { MyPlayer, Stage } from "~/data/career";
+import type { SeasonRecord } from "~/data/seasons";
 import { createLocalStore } from "./use-local-store";
 
 export interface ProGame {
@@ -38,6 +39,14 @@ export interface Career {
   earnings: number;
   /** Rapper side quest progress (steps of RAP_QUEST completed) */
   rapStep?: number;
+  /** EBL season number, 1 = rookie year (missing on old saves = 1) */
+  season?: number;
+  /** One record per finished EBL season */
+  history?: SeasonRecord[];
+  /** Per-game salary (₵) */
+  salary?: number;
+  /** The team Dre Cole plays for */
+  dreTeamId?: string;
 }
 
 export const NEW_CAREER: Career = {

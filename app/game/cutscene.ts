@@ -39,6 +39,8 @@ export class CutsceneStage {
   private disposed = false;
   private t = 0;
   private faceoff = false;
+  /** Snap the camera to its target on the next frame */
+  private cut = true;
 
   constructor(canvas: HTMLCanvasElement, opts: { set: CutsceneSet; venueId?: string; actors: string[] }) {
     this.renderer = createRenderer(canvas, { shadows: true, pixelRatio: 1.5 });
@@ -187,7 +189,10 @@ export class CutsceneStage {
 
   /** Cut the camera to this actor (null = wide shot) */
   setSpeaker(id: string | null) {
-    this.speaker = id ? (this.actors.find((a) => a.id === id) ?? null) : null;
+    const next = id ? (this.actors.find((a) => a.id === id) ?? null) : null;
+    // Film-style hard cut on a new speaker, instead of dollying through the cast
+    if (next !== this.speaker) this.cut = true;
+    this.speaker = next;
   }
 
   private loop = () => {
@@ -271,6 +276,11 @@ export class CutsceneStage {
         .divideScalar(Math.max(1, this.actors.length));
       pos = c.clone().add(new THREE.Vector3(Math.sin(this.t * 0.1) * 1.5, 1.9, 6.5));
       look = c.clone().add(new THREE.Vector3(0, 1.2, 0));
+    }
+    if (this.cut) {
+      this.cut = false;
+      this.camPos.copy(pos);
+      this.camLook.copy(look);
     }
     const k = 3;
     this.camPos.set(

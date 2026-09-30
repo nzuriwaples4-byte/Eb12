@@ -10,7 +10,7 @@ import { VENUES, type Venue } from "./venues";
  */
 
 export type Archetype = "slasher" | "sniper" | "floor-general" | "lockdown" | "big";
-export type Stage = "create" | "hs" | "college-pick" | "college" | "draft" | "pro" | "done";
+export type Stage = "create" | "hs" | "college-pick" | "college" | "draft" | "pro" | "offseason" | "done";
 
 export interface MyPlayer {
   name: string;
@@ -428,6 +428,11 @@ export interface SceneCtx {
   losses: number;
   fans: number;
   love: number;
+  /** EBL season number (1 = rookie year) */
+  season?: number;
+  /** The team Dre Cole plays for in the EBL */
+  dreTeam?: EblTeam;
+  flags?: string[];
 }
 
 export const SCENES = {
@@ -971,6 +976,13 @@ export function sceneSet(
   ctx: { college?: College; team?: EblTeam },
 ): { set: "court" | "draft" | "faceoff"; venueId?: string; lead?: string[]; alias?: Record<string, string> } {
   if (key === "draft") return { set: "draft" };
+  if (key.startsWith("eblPregame"))
+    return {
+      set: "faceoff",
+      venueId: key.split(":")[1] || ctx.team?.venueId,
+      lead: ["me", "rival-dre-ebl"],
+      alias: { "rival-dre": "rival-dre-ebl" },
+    };
   if (key === "hsPregame") return { set: "faceoff", venueId: "hs-gym", lead: ["me", "rival-dre"] };
   if (key === "collegePregame")
     return {

@@ -34,6 +34,12 @@ A 1-on-1 arcade streetball game in the spirit of _NBA Ballers: Rebound_, with an
   - **Imani**, the photographer you meet in high school, becomes your girlfriend through your dialogue choices and dates.
   - **Dre Cole**, her big brother, is your rival at every level. You face off at center court before the City Championship and the conference final, then meet again on draft night and at Sunday dinner.
   - Weekly life choices: practice, dates, endorsements, press conferences, rest.
+  - **Up to 12 EBL seasons.**
+    - Every offseason brings an awards night (MVP, Finals MVP, Rookie of the Year, All-EBL, All-Star), then free agency: re-sign, take a rival offer, or take Victor Kane's supermax.
+    - Life goes on between seasons: moving in with Imani, the proposal at Pier 9, the wedding on the Crown (Dre gives the best-man speech), a Kane buyout attempt, and mentoring rookies.
+    - **Rivalry Week:** every season you face Dre and his EBL team after a center-court face-off.
+    - The league plays a level harder from season 3, and your athleticism starts to fade from season 8.
+    - Retire from season 5 on (or after season 12) for a Hall of Fame ceremony. Your career table tracks rings, MVPs and awards.
   - **Side quest: Mic Check.** Become a rapper. Record in Nova's studio (a rhythm minigame over a synthesized beat), answer Dre's diss track, drop a mixtape, and headline the Crown.
 - **Meridian City.** A walkable New York–style grid with traffic, shops for gear and shoes, street courts and the EBL arena.
 - **The Crib.** Kairo's house goes from the Harbor Loft to the Crown Penthouse. His bodyguards, the Hollis Twins, stand courtside at his games.
