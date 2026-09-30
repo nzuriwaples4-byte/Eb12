@@ -228,6 +228,13 @@ export const VENUES: Venue[] = [
   },
 ];
 
+/**
+ * The hand-built street courts. Other modules push more venues (EBL arenas,
+ * college gyms) into VENUES at import time, so pickers that render on both
+ * server and client use this fixed list.
+ */
+export const STREET_VENUES: readonly Venue[] = [...VENUES];
+
 export function getVenue(id: string): Venue {
   return VENUES.find((v) => v.id === id) ?? VENUES[0];
 }

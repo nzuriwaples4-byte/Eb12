@@ -6,7 +6,7 @@ import { MenuButton } from "~/components/menu-button/menu-button";
 import { Results } from "~/components/results/results";
 import { BALLERS, getBaller, overall } from "~/data/characters";
 import { CHAPTERS } from "~/data/story";
-import { VENUES } from "~/data/venues";
+import { STREET_VENUES } from "~/data/venues";
 import { NetLink } from "~/game/net";
 import type { MatchResult } from "~/game/types";
 import { unlockedBallers, useProgress } from "~/hooks/use-progress";
@@ -40,7 +40,7 @@ export default function Online() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [lobby, setLobby] = useState<Lobby>({ kind: "menu" });
-  const [venue, setVenue] = useState(VENUES[0].id);
+  const [venue, setVenue] = useState(STREET_VENUES[0].id);
   const [target, setTarget] = useState(11);
   const [result, setResult] = useState<MatchResult | null>(null);
   const [runId, setRunId] = useState(0);
@@ -179,7 +179,7 @@ export default function Online() {
           {role === "host" ? (
             <>
               <div className={play.chips}>
-                {VENUES.slice(0, 9).map((v) => (
+                {STREET_VENUES.map((v) => (
                   <button
                     key={v.id}
                     data-selected={venue === v.id}

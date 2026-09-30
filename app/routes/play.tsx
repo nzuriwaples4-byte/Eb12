@@ -6,7 +6,7 @@ import { MenuButton } from "~/components/menu-button/menu-button";
 import { Results } from "~/components/results/results";
 import { BALLERS, getBaller, overall } from "~/data/characters";
 import { CHAPTERS } from "~/data/story";
-import { VENUES } from "~/data/venues";
+import { STREET_VENUES } from "~/data/venues";
 import type { GameMode, MatchResult } from "~/game/types";
 import { PAYOUT } from "~/data/gear";
 import { kairoLook, unlockedBallers, useProgress } from "~/hooks/use-progress";
@@ -34,7 +34,7 @@ export default function Play() {
   const [params] = useSearchParams();
   const [me, setMe] = useState("kairo");
   const [opp, setOpp] = useState(params.get("opp") ?? "deuce");
-  const [venue, setVenue] = useState(params.get("venue") ?? VENUES[0].id);
+  const [venue, setVenue] = useState(params.get("venue") ?? STREET_VENUES[0].id);
   const [target, setTarget] = useState(11);
   const [diff, setDiff] = useState(params.get("diff") ? Number(params.get("diff")) : settings.difficulty);
   const [playing, setPlaying] = useState(params.get("auto") === "1");
@@ -206,7 +206,7 @@ export default function Play() {
         <div>
           <h3>Court</h3>
           <div className={styles.chips}>
-            {VENUES.map((v) => (
+            {STREET_VENUES.map((v) => (
               <button
                 key={v.id}
                 data-selected={venue === v.id}
