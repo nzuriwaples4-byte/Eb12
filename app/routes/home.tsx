@@ -7,7 +7,7 @@ import styles from "./home.module.css";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Concrete Crown — Streetball" },
+    { title: "EBL 2" },
     { name: "description", content: "1-on-1 streetball with a story. Five courts, five kings, one comeback." },
   ];
 }
@@ -27,23 +27,21 @@ export default function Home() {
       </div>
       <div className={styles.glow} />
       <section className={styles.panel}>
-        <p className={styles.kicker}>1-on-1 Streetball</p>
+        <p className={styles.kicker}>Elite Basketball League</p>
         <h1 className={styles.logo}>
-          Concrete
+          EBL
           <br />
-          <span>Crown</span>
+          <span>2</span>
         </h1>
         <p className={styles.sub}>
           {BOOK}: {STORY_TITLE}
         </p>
         <nav className={styles.menu}>
-          <MenuButton
-            to="/story"
-            variant="primary"
-            hint={next ? `Ch. ${next.number} · ${next.title}` : "Completed"}
-            autoFocus
-          >
+          <MenuButton to="/story" hint={next ? `Ch. ${next.number} · ${next.title}` : "Completed"} autoFocus>
             Story Mode
+          </MenuButton>
+          <MenuButton to="/owner" variant="primary" hint="New · run a franchise like a real owner">
+            Owner Mode
           </MenuButton>
           <MenuButton to="/career" hint="High school → college → EBL draft">
             EBL Career
