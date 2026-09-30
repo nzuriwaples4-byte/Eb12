@@ -22,7 +22,7 @@ interface Props {
   /** Start at this line (dev screenshots) */
   startAt?: number;
   /** Stage the scene in 3D on this set */
-  stage?: { set: CutsceneSet; venueId?: string };
+  stage?: { set: CutsceneSet; venueId?: string; lead?: string[]; alias?: Record<string, string> };
   /** Show each line fully at once (screenshots) */
   instant?: boolean;
 }
@@ -50,23 +50,29 @@ export function Dialogue({
   const sp = { ...SPEAKERS[line.who], name: names?.[line.who] ?? SPEAKERS[line.who].name };
   const done = chars >= line.text.length;
 
+  const act = (who: SpeakerId) => {
+    const a = actorFor(who);
+    return a ? (stage?.alias?.[a] ?? a) : a;
+  };
+
   // 3D staging: everyone who speaks in this scene is on set
   const actors = useMemo(() => {
-    const ids: string[] = [];
+    const ids: string[] = [...(stage?.lead ?? [])];
     for (const l of initial) {
-      const a = actorFor(l.who);
+      const a = act(l.who);
       if (a && !ids.includes(a)) ids.push(a);
     }
     for (const l of initial)
       for (const c of l.choices ?? [])
         for (const r of c.reply ?? []) {
-          const a = actorFor(r.who);
+          const a = act(r.who);
           if (a && !ids.includes(a)) ids.push(a);
         }
-    const me = actorFor(chooser);
+    const me = act(chooser);
     if (initial.some((l) => l.choices) && me && !ids.includes(me)) ids.push(me);
     return ids.slice(0, 5);
-  }, [initial, chooser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initial, chooser, stage?.lead?.join()]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stageRef = useRef<CutsceneStage | null>(null);
   useEffect(() => {
@@ -75,7 +81,7 @@ export function Dialogue({
     import("~/game/cutscene").then(({ CutsceneStage }) => {
       if (cancelled || !canvasRef.current) return;
       stageRef.current = new CutsceneStage(canvasRef.current, { set: stage.set, venueId: stage.venueId, actors });
-      stageRef.current.setSpeaker(actorFor(line.who));
+      stageRef.current.setSpeaker(act(line.who));
       if (import.meta.env.DEV) (window as unknown as { __stage: CutsceneStage }).__stage = stageRef.current;
     });
     return () => {
@@ -86,7 +92,7 @@ export function Dialogue({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage?.set, stage?.venueId, actors.join()]);
   useEffect(() => {
-    stageRef.current?.setSpeaker(actorFor(line.who));
+    stageRef.current?.setSpeaker(act(line.who));
   }, [line.who, i]);
 
   // Most recent left/right speakers stay on screen

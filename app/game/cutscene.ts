@@ -9,7 +9,7 @@ import { damp, dampAngle } from "./math";
 import { createPose } from "./rig";
 import { createRenderer, environmentFor, fitToParent } from "./stage";
 
-export type CutsceneSet = "court" | "draft";
+export type CutsceneSet = "court" | "draft" | "faceoff";
 
 interface Actor {
   id: string;
@@ -38,13 +38,17 @@ export class CutsceneStage {
   private court: CourtScene | null = null;
   private disposed = false;
   private t = 0;
+  private faceoff = false;
 
   constructor(canvas: HTMLCanvasElement, opts: { set: CutsceneSet; venueId?: string; actors: string[] }) {
     this.renderer = createRenderer(canvas, { shadows: true, pixelRatio: 1.5 });
     this.scene.environment = environmentFor(this.renderer);
     this.scene.environmentIntensity = 0.3;
+    const faceoff = opts.set === "faceoff";
+    this.faceoff = faceoff;
     if (opts.set === "draft") this.buildDraftStage();
     else {
+      // (court and faceoff both stand on a venue)
       const v = getVenue(opts.venueId ?? "pier-9");
       this.court = buildCourt(v, { shadows: true });
       this.scene.add(this.court.group);
@@ -61,7 +65,17 @@ export class CutsceneStage {
       const z = (opts.set === "draft" ? 0 : 7.5) - Math.abs(x) * 0.35;
       const home = new THREE.Vector3(x, opts.set === "draft" ? 1.2 : 0, z);
       // Face the center of the group, slightly toward camera
-      const yaw = Math.atan2(-x * 0.6, 2.5);
+      let yaw = Math.atan2(-x * 0.6, 2.5);
+      if (faceoff) {
+        // First two actors square up nose to nose at center court; the rest watch from behind
+        if (i < 2) {
+          home.set(i === 0 ? -0.62 : 0.62, 0, 12.2);
+          yaw = i === 0 ? Math.PI / 2 : -Math.PI / 2;
+        } else {
+          home.set((i - 2 - (n - 3) / 2) * 1.6, 0, 10.2);
+          yaw = 0.2 * Math.sign(-home.x);
+        }
+      }
       body.root.position.copy(home);
       body.root.rotation.y = yaw;
       this.scene.add(body.root);
@@ -74,11 +88,17 @@ export class CutsceneStage {
     const s = this.scene;
     s.background = new THREE.Color("#05060c");
     s.fog = new THREE.Fog("#05060c", 14, 40);
-    const stage = new THREE.Mesh(new THREE.BoxGeometry(16, 1.2, 8), new THREE.MeshStandardMaterial({ color: "#12131a", roughness: 0.3, metalness: 0.4 }));
+    const stage = new THREE.Mesh(
+      new THREE.BoxGeometry(16, 1.2, 8),
+      new THREE.MeshStandardMaterial({ color: "#12131a", roughness: 0.3, metalness: 0.4 }),
+    );
     stage.position.set(0, 0.6, 0);
     stage.receiveShadow = true;
     s.add(stage);
-    const edge = new THREE.Mesh(new THREE.BoxGeometry(16.2, 0.08, 0.08), new THREE.MeshBasicMaterial({ color: "#6a3fc8" }));
+    const edge = new THREE.Mesh(
+      new THREE.BoxGeometry(16.2, 0.08, 0.08),
+      new THREE.MeshBasicMaterial({ color: "#6a3fc8" }),
+    );
     edge.position.set(0, 1.2, 4);
     s.add(edge);
     // Giant screen
@@ -100,11 +120,17 @@ export class CutsceneStage {
     g.fillText("ELITE BASKETBALL LEAGUE", 512, 360);
     const tex = new THREE.CanvasTexture(c);
     tex.colorSpace = THREE.SRGBColorSpace;
-    const screen = new THREE.Mesh(new THREE.PlaneGeometry(14, 7), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+    const screen = new THREE.Mesh(
+      new THREE.PlaneGeometry(14, 7),
+      new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }),
+    );
     screen.position.set(0, 5.5, -3.8);
     s.add(screen);
     // Podium
-    const pod = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 0.6), new THREE.MeshStandardMaterial({ color: "#1b1c24", metalness: 0.6 }));
+    const pod = new THREE.Mesh(
+      new THREE.BoxGeometry(1.2, 1.2, 0.6),
+      new THREE.MeshStandardMaterial({ color: "#1b1c24", metalness: 0.6 }),
+    );
     pod.position.set(2.8, 1.8, 0.4);
     pod.castShadow = true;
     s.add(pod);
@@ -122,7 +148,13 @@ export class CutsceneStage {
       s.add(l, l.target);
       const beam = new THREE.Mesh(
         new THREE.ConeGeometry(2.2, 12, 24, 1, true),
-        new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.05, depthWrite: false, side: THREE.DoubleSide }),
+        new THREE.MeshBasicMaterial({
+          color: col,
+          transparent: true,
+          opacity: 0.05,
+          depthWrite: false,
+          side: THREE.DoubleSide,
+        }),
       );
       beam.position.set(x * 0.65, 6.2, 3);
       beam.rotation.x = -0.45;
@@ -184,7 +216,7 @@ export class CutsceneStage {
       const speaking = a === this.speaker;
       a.talk = damp(a.talk, speaking ? 1 : 0, 6, dt);
       // Speaker turns toward the camera a little
-      const want = speaking ? 0 : a.yaw;
+      const want = speaking && !this.faceoff ? 0 : a.yaw;
       a.body.root.rotation.y = dampAngle(a.body.root.rotation.y, want, 4, dt);
       a.body.root.position.copy(a.home);
       a.body.root.updateMatrixWorld(true);
@@ -204,7 +236,27 @@ export class CutsceneStage {
     let pos: THREE.Vector3;
     let look: THREE.Vector3;
     const sp = this.speaker;
-    if (sp) {
+    const [f0, f1] = this.actors;
+    if (this.faceoff && f0 && f1 && (!sp || sp === f0 || sp === f1)) {
+      if (sp) {
+        // Over the other player's shoulder, looking at the speaker
+        const other = sp === f0 ? f1 : f0;
+        const h = getBaller(sp.id).height;
+        const head = sp.home.clone().setY(h * 0.9);
+        const dir = other.home.clone().sub(sp.home).setY(0).normalize();
+        pos = other.home
+          .clone()
+          .setY(getBaller(other.id).height * 0.95)
+          .addScaledVector(dir, 1.9)
+          .add(new THREE.Vector3(0, 0.12, 1.05));
+        look = head.add(new THREE.Vector3(0, -0.12, 0));
+      } else {
+        // Side-on two-shot: both players in profile, crowd behind
+        const hy = (getBaller(f0.id).height + getBaller(f1.id).height) * 0.42;
+        pos = new THREE.Vector3(Math.sin(this.t * 0.15) * 0.4, hy + 0.1, 15.6);
+        look = new THREE.Vector3(0, hy - 0.05, 12.2);
+      }
+    } else if (sp) {
       const h = getBaller(sp.id).height;
       const head = sp.home.clone().setY(sp.home.y + h * 0.88);
       // Shoot from the audience side (+z) so the rest of the cast stays beside
@@ -214,13 +266,23 @@ export class CutsceneStage {
       pos = head.clone().add(new THREE.Vector3(side * 1.1, 0.1, 3.4));
       look = head.clone().add(new THREE.Vector3(side * 0.35, -0.2, 0));
     } else {
-      const c = this.actors.reduce((acc, a) => acc.add(a.home), new THREE.Vector3()).divideScalar(Math.max(1, this.actors.length));
+      const c = this.actors
+        .reduce((acc, a) => acc.add(a.home), new THREE.Vector3())
+        .divideScalar(Math.max(1, this.actors.length));
       pos = c.clone().add(new THREE.Vector3(Math.sin(this.t * 0.1) * 1.5, 1.9, 6.5));
       look = c.clone().add(new THREE.Vector3(0, 1.2, 0));
     }
     const k = 3;
-    this.camPos.set(damp(this.camPos.x, pos.x, k, dt), damp(this.camPos.y, pos.y, k, dt), damp(this.camPos.z, pos.z, k, dt));
-    this.camLook.set(damp(this.camLook.x, look.x, k + 1, dt), damp(this.camLook.y, look.y, k + 1, dt), damp(this.camLook.z, look.z, k + 1, dt));
+    this.camPos.set(
+      damp(this.camPos.x, pos.x, k, dt),
+      damp(this.camPos.y, pos.y, k, dt),
+      damp(this.camPos.z, pos.z, k, dt),
+    );
+    this.camLook.set(
+      damp(this.camLook.x, look.x, k + 1, dt),
+      damp(this.camLook.y, look.y, k + 1, dt),
+      damp(this.camLook.z, look.z, k + 1, dt),
+    );
     this.camera.position.copy(this.camPos);
     this.camera.lookAt(this.camLook);
   }

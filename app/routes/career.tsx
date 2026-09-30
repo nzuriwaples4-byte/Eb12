@@ -627,7 +627,22 @@ export default function CareerRoute() {
               </div>
               <MenuButton
                 variant="primary"
-                onClick={() => startGame(next!.oppId, next!.venueId, next!.label, next!.target)}
+                onClick={() => {
+                  const n = next!;
+                  if (n.oppId.startsWith("rival-dre")) {
+                    // Beef at center court first, then tip-off
+                    const key = c.stage === "hs" ? "hsPregame" : "collegePregame";
+                    setRunId((r) => r + 1);
+                    setResult(null);
+                    scene("Face-Off", SCENES[key](ctx!), undefined, undefined, key, {
+                      kind: "game",
+                      oppId: n.oppId,
+                      venueId: n.venueId,
+                      label: n.label,
+                      target: n.target,
+                    });
+                  } else startGame(n.oppId, n.venueId, n.label, n.target);
+                }}
                 autoFocus
               >
                 Play game

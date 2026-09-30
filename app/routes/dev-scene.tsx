@@ -112,21 +112,23 @@ export default function DevScene() {
               ? RAP_QUEST[Number(s.slice(8))].intro(ctx)
               : s.startsWith("rapAfter")
                 ? RAP_QUEST[Number(s.slice(8))].after(ctx, 0.9)
-                : s === "hsIntro"
-                  ? SCENES.hsIntro(ctx)
-                  : s === "collegeIntro"
-                    ? SCENES.collegeIntro(ctx)
-                    : s === "draft"
-                      ? SCENES.draft(ctx)
-                      : s === "proIntro"
-                        ? SCENES.proIntro(ctx)
-                        : s === "champion"
-                          ? FINALE.champion(ctx)
-                          : s.startsWith("date")
-                            ? DATES[Number(s.slice(4))](ctx)
-                            : s.startsWith("press")
-                              ? PRESSERS[Number(s.slice(5))](ctx)
-                              : (LIFE_EVENTS.find((e) => e.id === s)?.lines(ctx) ?? []);
+                : s === "hsPregame" || s === "collegePregame"
+                  ? SCENES[s](ctx)
+                  : s === "hsIntro"
+                    ? SCENES.hsIntro(ctx)
+                    : s === "collegeIntro"
+                      ? SCENES.collegeIntro(ctx)
+                      : s === "draft"
+                        ? SCENES.draft(ctx)
+                        : s === "proIntro"
+                          ? SCENES.proIntro(ctx)
+                          : s === "champion"
+                            ? FINALE.champion(ctx)
+                            : s.startsWith("date")
+                              ? DATES[Number(s.slice(4))](ctx)
+                              : s.startsWith("press")
+                                ? PRESSERS[Number(s.slice(5))](ctx)
+                                : (LIFE_EVENTS.find((e) => e.id === s)?.lines(ctx) ?? []);
   return (
     <Dialogue
       instant
@@ -140,7 +142,15 @@ export default function DevScene() {
       stage={
         staged
           ? sceneSet(
-              s.startsWith("hs") || s === "collegeOffers" ? "hsIntro" : s === "collegeAfter" ? "collegeIntro" : s,
+              s.endsWith("Pregame")
+                ? s
+                : s.startsWith("rap")
+                  ? RAP_QUEST[Number(s.slice(8))].venueId
+                  : s.startsWith("hs") || s === "collegeOffers"
+                    ? "hsIntro"
+                    : s === "collegeAfter"
+                      ? "collegeIntro"
+                      : s,
               ctx,
             )
           : undefined

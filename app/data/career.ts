@@ -541,6 +541,61 @@ export const SCENES = {
           { who: "hscoach", text: "Shake it off. The offers will still come. Maybe not all of them." },
         ]
       : [{ who: "hscoach", text: "Shake it off. Film tomorrow. We learn and we go again." }],
+  /** Face-off at center court before the big games against Dre */
+  hsPregame: (c: SceneCtx): Line[] => [
+    {
+      who: "narrator",
+      text: "City Championship. Northgate vs Harbor Heights. The gym is so packed they opened the stage doors.",
+    },
+    { who: "dre", text: "Look at you. Mouthguard and everything. You remembered it for once?" },
+    { who: "me", text: "Remembered it just for you, Dre. Figured you'd want something to look at while I score." },
+    {
+      who: "dre",
+      text: "You took my sister to a diner and now you think you run this city. Tonight I take your scholarship AND your seat at Thanksgiving.",
+    },
+    {
+      who: "dre",
+      text: "Last chance to say something smart.",
+      choices: [
+        {
+          text: "Check the ball. Talk after.",
+          effect: { chemistry: 3 },
+          reply: [{ who: "dre", text: "Oh, I'm checking it. Right into your chest." }],
+        },
+        {
+          text: "Tell your mom I'll need a plate for Sunday.",
+          effect: { fans: 5 },
+          reply: [{ who: "dre", text: "...You're dead. You're so dead." }],
+        },
+      ],
+    },
+    { who: "imani", text: "Both of you. Shake hands. The ref is literally waiting." },
+    {
+      who: "narrator",
+      text: `Neither of them shakes. First to 11. ${c.me.name.split(" ")[0]} vs Dre Cole for the city.`,
+    },
+  ],
+  collegePregame: (c: SceneCtx): Line[] => [
+    {
+      who: "narrator",
+      text: `Conference championship. ${c.college!.short} vs ${dreCollege(c.college?.id).short}. National TV. Dre is already at center court, waiting.`,
+    },
+    { who: "dre", text: "Round two. Last time was a fluke and everybody knows it." },
+    { who: "me", text: "Fluke? I've got the photo on my wall. Your sister took it." },
+    { who: "dre", text: "Don't. Bring. Her. Into. This." },
+    {
+      who: "dre",
+      text: "Winner goes top ten in the draft. Loser watches from the green room. You ready?",
+      choices: [
+        { text: "Been ready since the diner.", effect: { fans: 6 } },
+        {
+          text: "Respect, Dre. Let's give them a show.",
+          effect: { chemistry: 4, flag: "dre-respect" },
+          reply: [{ who: "dre", text: "...Yeah. Let's give them a show." }],
+        },
+      ],
+    },
+  ],
   collegeOffers: (c: SceneCtx): Line[] => [
     { who: "narrator", text: "National Signing Day. The whole school packs the gym to watch you pick a hat." },
     { who: "mom", text: "Whatever you choose, I'm proud of you. Now choose fast, the cameras are rolling." },
@@ -914,8 +969,22 @@ export function eblTeam(id: string) {
 export function sceneSet(
   key: string,
   ctx: { college?: College; team?: EblTeam },
-): { set: "court" | "draft"; venueId?: string } {
+): { set: "court" | "draft" | "faceoff"; venueId?: string; lead?: string[]; alias?: Record<string, string> } {
   if (key === "draft") return { set: "draft" };
+  if (key === "hsPregame") return { set: "faceoff", venueId: "hs-gym", lead: ["me", "rival-dre"] };
+  if (key === "collegePregame")
+    return {
+      set: "faceoff",
+      venueId: dreCollege(ctx.college?.id).venueId,
+      lead: ["me", DRE_COLLEGE[dreCollege(ctx.college?.id).id].id],
+      alias: { "rival-dre": DRE_COLLEGE[dreCollege(ctx.college?.id).id].id },
+    };
+  if (key === "collegeAfter" || key === "collegeIntro")
+    return {
+      set: "court",
+      venueId: ctx.college?.venueId ?? "college-msu",
+      alias: { "rival-dre": DRE_COLLEGE[dreCollege(ctx.college?.id).id].id },
+    };
   if (VENUES.some((v) => v.id === key)) return { set: "court", venueId: key };
   if (key === "hsIntro" || key === "hsAfter") return { set: "court", venueId: "hs-gym" };
   if (key === "collegeIntro" || key === "collegeAfter")
