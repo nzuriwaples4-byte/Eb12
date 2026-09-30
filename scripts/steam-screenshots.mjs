@@ -18,19 +18,50 @@ const only = process.argv.find((a) => a.startsWith("--only="))?.slice(7);
 // [file, path, waitMs]
 const STORY = [];
 const picks = {
-  ch1: [[11, "intro"], [0, "win"]],
-  ch2: [[4, "intro"], [1, "win"]],
-  ch3: [[6, "intro"], [2, "win"]],
-  ch4: [[5, "intro"], [2, "win"]],
-  ch5: [[5, "intro"], [2, "win"]],
-  ch6: [[7, "intro"], [2, "win"]],
-  ch7: [[2, "intro"], [2, "win"]],
-  ch8: [[3, "intro"], [0, "win"]],
-  ch9: [[5, "intro"], [1, "win"]],
-  ch10: [[6, "intro"], [6, "win"]],
+  ch1: [
+    [11, "intro"],
+    [0, "win"],
+  ],
+  ch2: [
+    [4, "intro"],
+    [1, "win"],
+  ],
+  ch3: [
+    [6, "intro"],
+    [2, "win"],
+  ],
+  ch4: [
+    [5, "intro"],
+    [2, "win"],
+  ],
+  ch5: [
+    [5, "intro"],
+    [2, "win"],
+  ],
+  ch6: [
+    [7, "intro"],
+    [2, "win"],
+  ],
+  ch7: [
+    [2, "intro"],
+    [2, "win"],
+  ],
+  ch8: [
+    [3, "intro"],
+    [0, "win"],
+  ],
+  ch9: [
+    [5, "intro"],
+    [1, "win"],
+  ],
+  ch10: [
+    [6, "intro"],
+    [6, "win"],
+  ],
 };
 for (const [ch, list] of Object.entries(picks))
-  for (const [at, part] of list) STORY.push([`story-${ch}-${part}-${at}`, `/dev/scene?ch=${ch}&part=${part}&at=${at}`, 2600]);
+  for (const [at, part] of list)
+    STORY.push([`story-${ch}-${part}-${at}`, `/dev/scene?ch=${ch}&part=${part}&at=${at}`, 2600]);
 
 const CAREER = [
   ["career-00-signing-day", "/dev/scene?s=schools&wins=2", 1500],
@@ -85,7 +116,16 @@ await mkdir(OUT, { recursive: true });
 const shoot = async ([file, path, wait]) => {
   await page.goto(BASE + path, { waitUntil: "load", timeout: 120000 });
   // Cutscenes: wait for the 3D stage and for the typewriter to finish
-  await page.waitForFunction(() => { const t = document.querySelector("[data-typed]"); return !t || t.dataset.typed === "true"; }, null, { timeout: 30000 }).catch(() => {});
+  await page
+    .waitForFunction(
+      () => {
+        const t = document.querySelector("[data-typed]");
+        return !t || t.dataset.typed === "true";
+      },
+      null,
+      { timeout: 30000 },
+    )
+    .catch(() => {});
   await page.waitForTimeout(wait);
   await page.evaluate(() => window.__stage?.settle());
   await page.waitForTimeout(400);
