@@ -171,7 +171,7 @@ export const HIGGSFIELD_ASSETS = {
     id: "imani-portrait",
     kind: "image",
     local: "/assets/higgsfield/imani-portrait.png",
-    remote: `${CDN}/hf_PENDING_5a27b2e7-e489-4c88-8cb6-f1cb93d318a6.png`,
+    remote: `${CDN}/hf_20260929_233007_5a27b2e7-e489-4c88-8cb6-f1cb93d318a6.png`,
     job: "5a27b2e7-e489-4c88-8cb6-f1cb93d318a6",
     model: "soul_2",
     prompt: "Imani Brooks, sports photographer, curly puff, denim jacket, camera, courtside.",
