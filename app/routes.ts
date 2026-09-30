@@ -16,6 +16,7 @@ export default [
   route("story", "routes/story.tsx"),
   route("story/:chapterId", "routes/story-chapter.tsx"),
   route("play", "routes/play.tsx"),
+  route("online", "routes/online.tsx"),
   route("crib", "routes/crib.tsx"),
   route("roster", "routes/roster.tsx"),
   route("settings", "routes/settings.tsx"),

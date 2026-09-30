@@ -2,6 +2,8 @@ import type { ObjectiveKind } from "~/data/story";
 
 export type Phase = "loading" | "intro" | "check" | "live" | "dead" | "special" | "over";
 
+export type GameMode = "solo" | "versus" | "tag" | "online-host" | "online-guest";
+
 export interface MatchConfig {
   playerId: string;
   opponentId: string;
@@ -16,6 +18,15 @@ export interface MatchConfig {
   playerLook?: import("~/data/characters").Look;
   /** Attract / screenshot mode: both sides AI */
   cpuVsCpu?: boolean;
+  /**
+   * Who controls each side.
+   * solo: you vs CPU · versus: two humans on one machine ·
+   * tag: two humans tag-teaming side 0 vs CPU (swap at every check ball) ·
+   * online-host / online-guest: one human per machine over the relay
+   */
+  mode?: GameMode;
+  /** Tag Team: the second human's baller */
+  partnerId?: string;
 }
 
 export interface PlayerStats {
@@ -56,6 +67,10 @@ export interface HudState {
   countdown: number;
   loadingText: string;
   modelKinds: [string, string];
+  /** Baller ids currently on the court (Tag Team swaps side 0) */
+  onCourt?: [string, string];
+  /** Tag Team: which human is on the court (0 = P1, 1 = P2) */
+  tagUp?: 0 | 1;
 }
 
 export interface Callout {

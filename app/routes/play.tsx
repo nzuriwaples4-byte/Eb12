@@ -7,7 +7,7 @@ import { Results } from "~/components/results/results";
 import { BALLERS, getBaller, overall } from "~/data/characters";
 import { CHAPTERS } from "~/data/story";
 import { VENUES } from "~/data/venues";
-import type { MatchResult } from "~/game/types";
+import type { GameMode, MatchResult } from "~/game/types";
 import { PAYOUT } from "~/data/gear";
 import { kairoLook, unlockedBallers, useProgress } from "~/hooks/use-progress";
 import { useSettings } from "~/hooks/use-settings";
@@ -19,6 +19,11 @@ export function meta({}: Route.MetaArgs) {
 }
 
 const TARGETS = [11, 15, 21];
+const MODES: { id: GameMode; label: string; blurb: string }[] = [
+  { id: "solo", label: "Solo", blurb: "You vs the CPU" },
+  { id: "versus", label: "Local Versus", blurb: "Two players, one screen" },
+  { id: "tag", label: "Tag Team Co-op", blurb: "You + a friend vs the CPU. Tag in at every check ball." },
+];
 const DIFFS = ["Rookie", "Pro", "Legend"];
 
 export default function Play() {
@@ -35,6 +40,9 @@ export default function Play() {
   const [playing, setPlaying] = useState(params.get("auto") === "1");
   const [result, setResult] = useState<MatchResult | null>(null);
   const [runId, setRunId] = useState(0);
+  const [mode, setMode] = useState<GameMode>((params.get("mode") as GameMode) ?? "solo");
+  const [p2, setP2] = useState("silk");
+  const cpuOpp = mode === "versus" ? p2 : opp;
 
   if (playing) {
     return (
@@ -42,7 +50,9 @@ export default function Play() {
         runId={runId}
         config={{
           playerId: me,
-          opponentId: opp,
+          opponentId: cpuOpp,
+          mode,
+          partnerId: mode === "tag" ? p2 : undefined,
           venueId: venue,
           target,
           difficulty: diff,
@@ -69,7 +79,7 @@ export default function Play() {
             <Results
               result={result}
               playerId={me}
-              opponentId={opp}
+              opponentId={cpuOpp}
               actions={
                 <>
                   <MenuButton
@@ -145,16 +155,53 @@ export default function Play() {
           Record {progress.wins}–{progress.losses}
         </span>
       </header>
+      <section className={styles.modes}>
+        {MODES.map((m) => (
+          <button key={m.id} data-selected={mode === m.id} onClick={() => setMode(m.id)}>
+            <strong>{m.label}</strong>
+            <small>{m.blurb}</small>
+          </button>
+        ))}
+        <Link to="/online" className={styles.onlineLink}>
+          <strong>Online ↗</strong>
+          <small>Play a friend over the internet</small>
+        </Link>
+      </section>
+      {mode !== "solo" && (
+        <p className={styles.controls}>
+          <b>P1</b> WASD · J shoot · K juke · L trick · U lob · Space special · L-Shift turbo · gamepad 1 &nbsp;|&nbsp;{" "}
+          <b>P2</b> Arrows · . shoot · , juke · / trick · ; lob · Enter special · R-Shift turbo · gamepad 2
+        </p>
+      )}
       <section className={styles.cols}>
         <div>
-          <h2 style={{ color: mine.accent }}>You · {mine.nickname}</h2>
+          <h2 style={{ color: mine.accent }}>
+            {mode === "solo" ? "You" : "Player 1"} · {mine.nickname}
+          </h2>
           {pick(BALLERS, me, setMe, true)}
         </div>
-        <div>
-          <h2 style={{ color: theirs.accent }}>CPU · {theirs.nickname}</h2>
-          {pick(BALLERS, opp, setOpp, false)}
-        </div>
+        {mode === "solo" ? (
+          <div>
+            <h2 style={{ color: theirs.accent }}>CPU · {theirs.nickname}</h2>
+            {pick(BALLERS, opp, setOpp, false)}
+          </div>
+        ) : (
+          <div>
+            <h2 style={{ color: getBaller(p2).accent }}>
+              Player 2{mode === "tag" ? " (tag partner)" : ""} · {getBaller(p2).nickname}
+            </h2>
+            {pick(BALLERS, p2, setP2, true)}
+          </div>
+        )}
       </section>
+      {mode === "tag" && (
+        <section className={styles.cols}>
+          <div>
+            <h2 style={{ color: theirs.accent }}>CPU opponent · {theirs.nickname}</h2>
+            {pick(BALLERS, opp, setOpp, false)}
+          </div>
+        </section>
+      )}
       <section className={styles.options}>
         <div>
           <h3>Court</h3>

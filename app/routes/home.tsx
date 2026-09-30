@@ -45,8 +45,17 @@ export default function Home() {
           >
             Story Mode
           </MenuButton>
-          <MenuButton to="/play" hint="Any baller, any court">
+          <MenuButton to="/career" hint="High school → college → EBL draft">
+            EBL Career
+          </MenuButton>
+          <MenuButton to="/city" hint="Walk the city · shops · courts">
+            Enter the City
+          </MenuButton>
+          <MenuButton to="/play" hint="Solo · local versus · tag team co-op">
             Quick Match
+          </MenuButton>
+          <MenuButton to="/online" hint="1v1 a friend with a room code">
+            Play Online
           </MenuButton>
           <MenuButton to="/crib" hint="House & bodyguards">
             The Crib

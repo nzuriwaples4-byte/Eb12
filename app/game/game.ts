@@ -13,10 +13,19 @@ import { COURT, RIM_CENTER } from "./constants";
 import { buildCourt, type CourtScene } from "./court";
 import { Input } from "./input";
 import { clamp, damp, rand } from "./math";
-import { Match } from "./match";
+import { Match, type MatchHooks } from "./match";
+import {
+  applySnapshot,
+  extrapolate,
+  RemoteIntent,
+  takeSnapshot,
+  type NetEvent,
+  type NetLink,
+  type Snapshot,
+} from "./net";
 import { Player } from "./player";
 import { createRenderer, environmentFor, fitToParent } from "./stage";
-import type { Callout, HudState, MatchConfig, MatchResult } from "./types";
+import type { Callout, HudState, MatchConfig, MatchResult, PlayerStats } from "./types";
 
 export interface GameCallbacks {
   hud(h: HudState): void;
@@ -40,7 +49,17 @@ export class Game {
   private camera = new THREE.PerspectiveCamera(46, 16 / 9, 0.1, 400);
   private court!: CourtScene;
   private match!: Match;
-  private input = new Input();
+  private input: Input;
+  /** Second local human (versus / tag team) */
+  private input2: Input | null = null;
+  /** Tag Team: the partner waiting on the sideline, and who's up */
+  private bench: Player | null = null;
+  private tagUp: 0 | 1 = 0;
+  /** Online: guest input stream (host) / latest host snapshot (guest) */
+  private remote = new RemoteIntent();
+  private snap: Snapshot | null = null;
+  private snapT = 0;
+  private netOff: (() => void) | null = null;
   private ballMesh = makeBallMesh();
   private raf = 0;
   private last = 0;
@@ -72,6 +91,7 @@ export class Game {
     private config: MatchConfig,
     private cb: GameCallbacks,
     private overlay: Overlay,
+    private net: NetLink | null = null,
   ) {
     this.renderer = createRenderer(canvas, { shadows: config.shadows, pixelRatio: 1.75 });
     this.scene.environment = environmentFor(this.renderer);
@@ -79,6 +99,9 @@ export class Game {
     const venue = getVenue(config.venueId);
     this.scene.fog = new THREE.FogExp2(venue.fog, venue.fogDensity);
     this.baller = [getBaller(config.playerId), getBaller(config.opponentId)];
+    const split = config.mode === "versus" || config.mode === "tag";
+    this.input = new Input(window, split ? "p1" : "all");
+    if (split) this.input2 = new Input(window, "p2");
 
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
@@ -112,11 +135,18 @@ export class Game {
     }
     if (this.disposed) return;
     for (const b of bodies) this.scene.add(b.root);
+    if (this.config.mode === "tag" && this.config.partnerId) {
+      const pb = getBaller(this.config.partnerId);
+      const body = buildProceduralBody(pb);
+      body.root.visible = false;
+      this.scene.add(body.root);
+      this.bench = new Player(0, pb, body);
+    }
     const players: [Player, Player] = [
       new Player(0, this.baller[0], bodies[0]),
       new Player(1, this.baller[1], bodies[1]),
     ];
-    this.match = new Match(this.config, players, {
+    const hooks: MatchHooks = {
       callout: (c) => this.cb.callout({ ...c, id: ++this.calloutId }),
       sfx: (n, s) => this.audio.play(n as Sfx, s),
       shake: (a) => (this.shakeAmt = Math.max(this.shakeAmt, this.config.cameraShake ? a : a * 0.2)),
@@ -127,9 +157,43 @@ export class Game {
       },
       specialStart: (p) => this.startSpecialFx(p),
       specialEnd: () => this.endSpecialFx(),
-      over: (r) => setTimeout(() => this.cb.over(r), 2200),
+      over: (r) => {
+        if (this.bench) r.stats[0] = sumStats(r.stats[0], this.bench.stats);
+        setTimeout(() => this.cb.over(r), 2200);
+      },
+      tag: () => this.tagSwap(),
       rimWobble: (a) => (this.rimWob = Math.max(this.rimWob, a)),
-    });
+    };
+    const mode = this.config.mode;
+    if (this.net && mode === "online-host") {
+      // Everything the guest sees or hears is forwarded as an event
+      const net = this.net;
+      const ev = (e: NetEvent) => net.send({ t: "ev", e });
+      const h = { ...hooks };
+      hooks.callout = (c) => (h.callout(c), ev({ k: "callout", ...c }));
+      hooks.sfx = (n, st) => (h.sfx(n, st), ev({ k: "sfx", name: n, s: st }));
+      hooks.shake = (a) => (h.shake(a), ev({ k: "shake", a }));
+      hooks.flash = (a) => (h.flash(a), ev({ k: "flash", a }));
+      hooks.slowmo = (sc, sec) => (h.slowmo(sc, sec), ev({ k: "slowmo", s: sc, sec }));
+      hooks.specialStart = (p) => (h.specialStart(p), ev({ k: "specialStart", id: p.id }));
+      hooks.specialEnd = () => (h.specialEnd(), ev({ k: "specialEnd" }));
+      hooks.rimWobble = (a) => (h.rimWobble(a), ev({ k: "rim", a }));
+      hooks.over = (r) => (net.send({ t: "over", r }), h.over(r));
+      this.netOff = net.on((m) => {
+        if (m.t === "in") this.remote.push(m.i);
+        else if (m.t === "left") this.peerLeft();
+      });
+    }
+    this.match = new Match(this.config, players, hooks);
+    if (this.net && mode === "online-guest") {
+      const net = this.net;
+      this.netOff = net.on((m) => {
+        if (m.t === "snap") this.snap = m.s;
+        else if (m.t === "ev") this.onNetEvent(m.e);
+        else if (m.t === "over") setTimeout(() => this.cb.over(m.r), 2200);
+        else if (m.t === "left") this.peerLeft();
+      });
+    }
     if (this.config.useHiggsfield) void this.addBodyguards();
     this.audio.startCrowd();
     const v = getVenue(this.config.venueId);
@@ -137,6 +201,74 @@ export class Game {
     this.last = performance.now();
     if (import.meta.env.DEV) (window as unknown as { __cc: Game }).__cc = this;
     this.loop();
+  }
+
+  /** Guest: replay the host's presentation events locally */
+  private onNetEvent(e: NetEvent) {
+    const m = this.match;
+    switch (e.k) {
+      case "callout":
+        this.cb.callout({ id: ++this.calloutId, text: e.text, sub: e.sub, color: e.color, size: e.size });
+        break;
+      case "sfx":
+        this.audio.play(e.name as Sfx, e.s);
+        break;
+      case "shake":
+        this.shakeAmt = Math.max(this.shakeAmt, this.config.cameraShake ? e.a : e.a * 0.2);
+        break;
+      case "flash":
+        this.court.flash(e.a);
+        break;
+      case "slowmo":
+        this.timeScale = e.s;
+        this.slowT = e.sec;
+        break;
+      case "specialStart":
+        m.specialOf = m.players[e.id];
+        this.startSpecialFx(m.players[e.id]);
+        break;
+      case "specialEnd":
+        m.specialOf = null;
+        this.endSpecialFx();
+        break;
+      case "rim":
+        this.rimWob = Math.max(this.rimWob, e.a);
+        break;
+    }
+  }
+
+  private peerLeft() {
+    this.cb.callout({
+      id: ++this.calloutId,
+      text: "OPPONENT LEFT",
+      sub: "The online game has ended",
+      color: "#ff5a5a",
+      size: "lg",
+    });
+  }
+
+  /** Tag Team: the benched partner checks in, the other sits */
+  private tagSwap() {
+    const m = this.match;
+    const inn = this.bench;
+    if (!inn) return;
+    const out = m.players[0];
+    out.body.root.visible = false;
+    out.action = null;
+    out.hasBall = false;
+    inn.body.root.visible = true;
+    inn.pos.copy(out.pos);
+    m.players[0] = inn;
+    this.bench = out;
+    this.tagUp = this.tagUp === 0 ? 1 : 0;
+    this.cb.callout({
+      id: ++this.calloutId,
+      text: `TAG! ${inn.baller.nickname} IN`,
+      sub: this.tagUp === 0 ? "Player 1 · WASD / pad 1" : "Player 2 · Arrows / pad 2",
+      color: inn.baller.accent,
+      size: "md",
+    });
+    this.audio.play("whistle");
   }
 
   /** Dev/testing: run the simulation without rendering */
@@ -265,9 +397,12 @@ export class Game {
     this.composer.setSize(size.x, size.y);
 
     this.input.poll();
-    if (this.input.wasPressed("pause")) this.cb.pause();
-    if (this.paused) {
+    this.input2?.poll();
+    if (this.input.wasPressed("pause") || this.input2?.wasPressed("pause")) this.cb.pause();
+    // Online games can't stop the clock for the other player
+    if (this.paused && !this.net) {
       this.input.endFrame();
+      this.input2?.endFrame();
       this.render();
       return;
     }
@@ -278,24 +413,30 @@ export class Game {
     dt *= this.timeScale;
     this.step(dt);
     this.input.endFrame();
+    this.input2?.endFrame();
     this.render();
   };
 
   private step(dt: number) {
     const m = this.match;
-    const inp = this.input;
-    m.update(dt, {
-      moveX: inp.moveX,
-      moveZ: inp.moveZ,
-      turbo: inp.isHeld("turbo"),
-      shootPress: inp.wasPressed("shoot"),
-      shootHeld: inp.isHeld("shoot"),
-      shootRelease: inp.wasReleased("shoot"),
-      juke: inp.wasPressed("juke"),
-      trick: inp.wasPressed("trick"),
-      lob: inp.wasPressed("lob"),
-      special: inp.wasPressed("special"),
-    });
+    const mode = this.config.mode ?? "solo";
+    if (mode === "online-guest") {
+      // The host simulates; we stream input and follow its snapshots
+      this.net?.send({ t: "in", i: this.input.intent() });
+      const fresh = !!this.snap;
+      if (this.snap) applySnapshot(m, this.snap);
+      this.snap = null;
+      extrapolate(m, dt, fresh);
+    } else if (mode === "online-host") {
+      m.update(dt, this.input.intent(), this.remote.take());
+      this.snapT -= dt;
+      if (this.snapT <= 0) {
+        this.snapT = 1 / 30;
+        this.net?.send({ t: "snap", s: takeSnapshot(m) });
+      }
+    } else if (mode === "versus") m.update(dt, this.input.intent(), this.input2!.intent());
+    else if (mode === "tag") m.update(dt, (this.tagUp === 0 ? this.input : this.input2!).intent());
+    else m.update(dt, this.input.intent());
 
     const t = m.time;
     const defendingOf = (i: number) => !m.players[i].hasBall && m.players[1 - i].hasBall && m.phase === "live";
@@ -457,8 +598,10 @@ export class Game {
   private updateMeter() {
     const el = this.overlay.meter;
     if (!el) return;
-    const human = this.match.players[0];
-    const st = this.match.meterFor(human);
+    const m = this.match;
+    // Any human who is mid-shot (versus has two)
+    const human = m.players.find((p) => !m.brains[p.id] && m.meterFor(p).active) ?? m.players[0];
+    const st = m.meterFor(human);
     if (!st.active || this.config.cpuVsCpu) {
       el.style.opacity = "0";
       return;
@@ -503,6 +646,8 @@ export class Game {
       countdown: m.phase === "intro" ? 3.2 - m.phaseT : 0,
       loadingText: "",
       modelKinds: this.modelKinds,
+      onCourt: [m.players[0].baller.id, m.players[1].baller.id],
+      tagUp: this.tagUp,
     });
   }
 
@@ -525,10 +670,19 @@ export class Game {
     this.audio.stopMusic();
     this.audio.setCrowd(0);
     this.input.dispose();
+    this.input2?.dispose();
+    this.netOff?.();
     this.match?.players.forEach((p) => p.body.dispose());
+    this.bench?.body.dispose();
     this.composer.dispose();
     this.renderer.dispose();
   }
+}
+
+function sumStats(a: PlayerStats, b: PlayerStats): PlayerStats {
+  const out = { ...a };
+  for (const k of Object.keys(out) as (keyof PlayerStats)[]) out[k] += b[k];
+  return out;
 }
 
 export { HIGGSFIELD_ASSETS };

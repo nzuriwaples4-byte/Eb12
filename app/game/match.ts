@@ -4,7 +4,7 @@ import { Ball, type BallEvent } from "./ball";
 import { BALL_RADIUS, COURT, RIM_CENTER, SHOT_CLOCK, distToRim, isThreePoint } from "./constants";
 import { chance, clamp, gaussian, pick, rand } from "./math";
 import { Player, type Action } from "./player";
-import type { Callout, Intent, MatchConfig, MatchResult, Phase } from "./types";
+import { emptyIntent, type Callout, type Intent, type MatchConfig, type MatchResult, type Phase } from "./types";
 
 export interface MatchHooks {
   callout(c: Omit<Callout, "id">): void;
@@ -16,6 +16,8 @@ export interface MatchHooks {
   specialEnd(): void;
   over(result: MatchResult): void;
   rimWobble(amount: number): void;
+  /** Tag Team: swap the side-0 baller at every check ball */
+  tag?(): void;
 }
 
 const HYPE = {
@@ -59,7 +61,8 @@ export class Match {
     public players: [Player, Player],
     private hooks: MatchHooks,
   ) {
-    this.brains = players.map((p) => (p.id === 1 || config.cpuVsCpu ? new AiBrain(p, this) : null));
+    const humanSide1 = config.mode === "versus" || config.mode === "online-host" || config.mode === "online-guest";
+    this.brains = players.map((p) => (config.cpuVsCpu || (p.id === 1 && !humanSide1) ? new AiBrain(p, this) : null));
     this.possession = 0;
     this.setupCheck(0);
     this.phase = "intro";
@@ -99,7 +102,7 @@ export class Match {
   }
 
   /** Main simulation step */
-  update(dt: number, human: Intent) {
+  update(dt: number, human: Intent, human2: Intent = emptyIntent()) {
     this.time += dt;
     this.phaseT += dt;
     const [p0, p1] = this.players;
@@ -124,6 +127,7 @@ export class Match {
           if (this.score[0] >= target || this.score[1] >= target) {
             this.finish();
           } else {
+            this.hooks.tag?.();
             this.setupCheck(this.deadNext);
             this.setPhase("check");
             this.hooks.callout({ text: "CHECK BALL", color: "#ffffff", size: "sm" });
@@ -134,7 +138,7 @@ export class Match {
 
     const intents: Intent[] = [
       this.brains[0] ? this.brains[0].think(dt) : human,
-      this.brains[1] ? this.brains[1]!.think(dt) : human,
+      this.brains[1] ? this.brains[1]!.think(dt) : human2,
     ];
     const live = this.phase === "live";
 

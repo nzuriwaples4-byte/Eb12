@@ -18,6 +18,8 @@ interface Props {
   overlay?: React.ReactNode;
   /** Bumping this restarts the match */
   runId?: number;
+  /** Online play: the connected relay link */
+  net?: import("~/game/net").NetLink;
 }
 
 const EMPTY_HUD: HudState = {
@@ -34,7 +36,7 @@ const EMPTY_HUD: HudState = {
   modelKinds: ["procedural", "procedural"],
 };
 
-export function GameView({ config, objective, onFinish, onQuit, overlay, runId = 0 }: Props) {
+export function GameView({ config, objective, onFinish, onQuit, overlay, runId = 0, net }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const meterRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Game | null>(null);
@@ -45,8 +47,8 @@ export function GameView({ config, objective, onFinish, onQuit, overlay, runId =
   finishRef.current = onFinish;
   const pausedRef = useRef(false);
 
-  const p = getBaller(config.playerId);
-  const o = getBaller(config.opponentId);
+  const p = getBaller(hud.onCourt?.[0] ?? config.playerId);
+  const o = getBaller(hud.onCourt?.[1] ?? config.opponentId);
   const venue = getVenue(config.venueId);
 
   const togglePause = (v?: boolean) => {
@@ -79,6 +81,7 @@ export function GameView({ config, objective, onFinish, onQuit, overlay, runId =
           pause: () => togglePause(),
         },
         { meter: meterRef.current },
+        net ?? null,
       );
     });
     return () => {

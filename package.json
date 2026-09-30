@@ -9,7 +9,8 @@
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "fetch-assets": "node scripts/fetch-assets.mjs",
-    "screenshots": "node scripts/steam-screenshots.mjs"
+    "screenshots": "node scripts/steam-screenshots.mjs",
+    "relay": "node server/relay.mjs"
   },
   "dependencies": {
     "@dazl/color-scheme": "^1.3.0",
@@ -26,7 +27,8 @@
     "react-dom": "^19.2.7",
     "react-hook-form": "^7.81.0",
     "react-router": "^8.2.0",
-    "three": "^0.186.1"
+    "three": "^0.186.1",
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "@dazl-lib/radix-ui": "^0.1.0",
