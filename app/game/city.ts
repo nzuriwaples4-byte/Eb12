@@ -149,8 +149,14 @@ function signTexture(lines: string[], bg: string, fg: string, accent?: string) {
     g.textBaseline = "middle";
     g.fillStyle = fg;
     lines.forEach((l, i) => {
-      const size = i === 0 ? 120 : 44;
+      let size = i === 0 ? 120 : 44;
       g.font = `900 ${size}px 'Bebas Neue', Impact, sans-serif`;
+      // Shrink long names so they never run off the sign
+      const w = g.measureText(l).width;
+      if (w > 480) {
+        size = Math.floor((size * 480) / w);
+        g.font = `900 ${size}px 'Bebas Neue', Impact, sans-serif`;
+      }
       g.fillText(l, 256, i === 0 ? 100 : 175 + (i - 1) * 46);
     });
   });
@@ -391,13 +397,18 @@ export class City {
     const frontZ = Math.abs(p.z - l.minZ) < Math.abs(p.z - l.maxZ) ? l.minZ : l.maxZ;
     const out = frontZ === l.minZ ? -1 : 1;
     if (p.kind !== "arena") {
-      const kind = p.kind === "shop" ? "concrete" : p.kind === "roster" ? "concrete" : "brick";
+      // The VYRO flagship is black glass; everything else is masonry
+      const kind = p.kind === "shop" ? "glass" : p.kind === "roster" ? "concrete" : "brick";
       const h = p.kind === "crib" ? 16 : p.kind === "roster" ? 14 : 12;
       const tex = facadeTexture(kind);
       tex.repeat.set(Math.round(w / 12), Math.max(1, Math.round(h / 24)));
       const body = new THREE.Mesh(
         new THREE.BoxGeometry(w, h, d),
-        new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85 }),
+        new THREE.MeshStandardMaterial(
+          p.kind === "shop"
+            ? { map: tex, color: "#3a2f55", roughness: 0.15, metalness: 0.7 }
+            : { map: tex, roughness: 0.85 },
+        ),
       );
       body.position.set(cx, h / 2, cz);
       body.castShadow = body.receiveShadow = true;
@@ -416,7 +427,10 @@ export class City {
     const sign = new THREE.Mesh(
       new THREE.PlaneGeometry(10, 2.4),
       new THREE.MeshBasicMaterial({
-        map: signTexture([p.label.toUpperCase()], "#0b0d12", p.color, p.color),
+        map:
+          p.kind === "shop"
+            ? signTexture(["VYRO", "ATHLETICS  ·  BUILT FOR MORE"], "#07050c", "#e9e2ff", "#8b5cf6")
+            : signTexture([p.label.toUpperCase()], "#0b0d12", p.color, p.color),
         toneMapped: false,
       }),
     );
@@ -450,7 +464,8 @@ export class City {
       }
     }
     if (p.kind === "shop") {
-      const cols = ["#d6ff3a", "#ff4fd8", "#e2b23a", "#f4f7fb", "#b3122a", "#2fc6ff"];
+      // Waples colorways in the window
+      const cols = ["#2f6bff", "#8b5cf6", "#e2b23a", "#f2f3f7", "#c21d2a", "#7c3aed"];
       cols.forEach((c, i) => {
         const shoe = new THREE.Mesh(
           new THREE.BoxGeometry(0.5, 0.25, 0.9),
@@ -461,7 +476,7 @@ export class City {
         g.add(shoe);
         const ped = new THREE.Mesh(
           new THREE.CylinderGeometry(0.35, 0.35, 1.1, 16),
-          new THREE.MeshStandardMaterial({ color: "#f2f2f2" }),
+          new THREE.MeshStandardMaterial({ color: "#14101f", emissive: "#6d28d9", emissiveIntensity: 0.6 }),
         );
         ped.position.set(shoe.position.x, 0.55, 0.5);
         g.add(ped);

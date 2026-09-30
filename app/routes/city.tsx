@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Shop } from "~/components/shop/shop";
+import { VyroStore } from "~/components/vyro-store/vyro-store";
 import { getBaller } from "~/data/characters";
 import { CHAPTERS } from "~/data/story";
 import { getVenue } from "~/data/venues";
@@ -68,12 +68,12 @@ export default function CityRoute() {
       {
         id: "shop",
         kind: "shop",
-        label: "Kicks & Gear",
-        action: "Shop for shoes & gear",
+        label: "VYRO Athletics",
+        action: "Shop VYRO: Waples signature shoes & gear",
         x: PLACES.shop.x,
         z: PLACES.shop.z,
         r: 5,
-        color: "#d6ff3a",
+        color: "#8b5cf6",
       },
       {
         id: "crib",
@@ -200,7 +200,7 @@ export default function CityRoute() {
         </button>
       )}
       <p className={styles.help}>WASD move · Shift sprint · drag / Q R to turn camera · E interact</p>
-      {shop && <Shop onClose={() => setShop(false)} />}
+      {shop && <VyroStore onClose={() => setShop(false)} />}
     </main>
   );
 }

@@ -1,7 +1,7 @@
 import type { Look } from "./characters";
 
 /** Gear sold at KICKS & GEAR in Meridian City. Prices are in Crowns (₵). */
-export type GearSlot = "shoes" | "jersey" | "headband" | "sleeve" | "chain";
+export type GearSlot = "shoes" | "jersey" | "headband" | "sleeve" | "chain" | "lifestyle";
 
 export interface GearItem {
   id: string;
@@ -12,6 +12,12 @@ export interface GearItem {
   /** Swatch colors for the shop card */
   swatch: string[];
   apply(look: Look): Look;
+  /** VYRO Athletics catalog fields */
+  line?: string;
+  colorway?: string;
+  /** Upper / accent / sole colors for the sneaker preview */
+  shoe?: [string, string, string];
+  kind?: string;
 }
 
 const shoe = (id: string, name: string, brand: string, price: number, shoes: string, soles: string): GearItem => ({
@@ -117,6 +123,87 @@ export const GEAR: GearItem[] = [
     apply: (l) => ({ ...l, chain: true }),
   },
 ];
+
+/* ---------------------------------------------------------- VYRO Athletics */
+
+/** A VYRO sneaker in one colorway */
+const vyroShoe = (
+  line: string,
+  kind: string,
+  price: number,
+  colorway: string,
+  upper: string,
+  accent: string,
+  sole: string,
+): GearItem => ({
+  id: `vyro-${line.toLowerCase().replace(/\s+/g, "-")}-${colorway.toLowerCase().replace(/[^a-z]+/g, "-")}`,
+  slot: "shoes",
+  name: `${line} '${colorway}'`,
+  brand: "VYRO Athletics",
+  price,
+  swatch: [upper, accent, sole],
+  shoe: [upper, accent, sole],
+  line,
+  colorway,
+  kind,
+  // In game the upper takes the main color and the sole carries the accent
+  apply: (l) => ({ ...l, shoes: upper, soles: sole === "#f4f4f6" || sole === upper ? accent : sole }),
+});
+
+const vyroGoods = (id: string, name: string, kind: string, price: number, colors: string[]): GearItem => ({
+  id: `vyro-${id}`,
+  slot: "lifestyle",
+  name,
+  brand: "VYRO Athletics",
+  price,
+  swatch: colors,
+  kind,
+  line: name,
+  apply: (l) => l,
+});
+
+export const VYRO: GearItem[] = [
+  // Waples signature line
+  vyroShoe("Waples 1", "Signature Shoe", 900, "Black/Blue", "#0b0c14", "#2f6bff", "#2f6bff"),
+  vyroShoe("Waples 1", "Signature Shoe", 900, "White/Volt", "#f2f3f7", "#3ddc5a", "#f4f4f6"),
+  vyroShoe("Waples 1", "Signature Shoe", 950, "Silver", "#b9bec8", "#6d7380", "#e3e6ec"),
+  vyroShoe("Waples 1", "Signature Shoe", 1100, "Gold", "#1a1508", "#e2b23a", "#e2b23a"),
+  vyroShoe("Waples 2", "Signature Shoe", 1200, "Black/Purple", "#0b0a12", "#8b5cf6", "#8b5cf6"),
+  vyroShoe("Waples 2", "Signature Shoe", 1200, "White/Blue", "#f2f3f7", "#2f6bff", "#f4f4f6"),
+  vyroShoe("Waples 2", "Signature Shoe", 1250, "Grey/Gold", "#6d7078", "#e2b23a", "#2a2b30"),
+  vyroShoe("Waples 2", "Signature Shoe", 1250, "Red/Black", "#c21d2a", "#0b0b0e", "#0b0b0e"),
+  vyroShoe("Waples 3", "Signature Shoe", 1600, "Black/Purple", "#0c0a14", "#7c3aed", "#b8932e"),
+  vyroShoe("Waples 3", "Signature Shoe", 1600, "White/Gold", "#f4f1ea", "#d4a93a", "#f4f4f6"),
+  vyroShoe("Waples 3", "Signature Shoe", 1650, "Grey/Blue", "#7a7e88", "#2f6bff", "#23252b"),
+  vyroShoe("Waples 3", "Signature Shoe", 1650, "Orange/Black", "#ff6a1a", "#0b0b0e", "#0b0b0e"),
+  // Footwear
+  vyroShoe("VYRO Trainer 1", "Training Shoe", 550, "Black/Purple", "#101018", "#8b5cf6", "#f4f4f6"),
+  vyroShoe("VYRO Lifestyle 1", "Casual Shoe", 500, "Speckle White", "#f2f2f4", "#1a1a20", "#f4f4f6"),
+  vyroShoe("VYRO Run 1", "Running Shoe", 450, "Violet", "#1b1430", "#a78bfa", "#d9dbe2"),
+  vyroShoe("VYRO Kids 1", "Youth Shoe", 300, "Royal", "#0e1020", "#2f6bff", "#2f6bff"),
+  // Apparel & gear (collectibles for your closet)
+  vyroGoods("hoops-1", "VYRO Hoops 1", "Backpack", 350, ["#0b0b10", "#7c3aed"]),
+  vyroGoods("tech-2", "VYRO Tech 2", "Hoodie", 450, ["#0d0d12", "#8b5cf6"]),
+  vyroGoods("tech-tee", "VYRO Tech", "T-Shirt", 200, ["#101016", "#8b5cf6"]),
+  vyroGoods("ball", "VYRO Basketball", "Official Game Ball", 250, ["#16121f", "#7c3aed"]),
+  vyroGoods("duffel-1", "VYRO Duffel 1", "Gym Bag", 400, ["#0b0b10", "#6d28d9"]),
+  vyroGoods("slides", "VYRO Slides", "Lifestyle", 150, ["#0b0b10", "#8b5cf6"]),
+  vyroGoods("socks", "VYRO Elite Socks", "Performance", 100, ["#f4f4f6", "#0b0b10", "#7c3aed"]),
+  // Elite Circuit jersey (equippable kit)
+  {
+    id: "vyro-elite-circuit",
+    slot: "jersey",
+    name: "Elite Circuit Jersey #23",
+    brand: "VYRO Athletics",
+    price: 900,
+    swatch: ["#0b0a12", "#8b5cf6", "#0b0a12"],
+    kind: "Jersey",
+    line: "Elite Circuit",
+    apply: (l) => ({ ...l, jersey: "#0b0a12", jerseyTrim: "#8b5cf6", shorts: "#0b0a12", shortsStripe: "#8b5cf6" }),
+  },
+];
+
+GEAR.push(...VYRO);
 
 export const STARTER_GEAR = ["volt-00", "home-00"];
 
