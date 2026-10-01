@@ -168,7 +168,12 @@ export function Dialogue({
   }, [advance, onDone, choosing]);
 
   return (
-    <div className={styles.root} onClick={advance} style={{ "--tint": backgroundTint } as React.CSSProperties}>
+    <div
+      className={styles.root}
+      data-pad="game"
+      onClick={advance}
+      style={{ "--tint": backgroundTint } as React.CSSProperties}
+    >
       {stage && <canvas ref={canvasRef} className={styles.stage} />}
       <div className={styles.bg} hidden={!!stage}>
         {background && <AssetImage asset={background} alt="" accent={backgroundTint} fallbackLabel=" " />}
@@ -204,9 +209,14 @@ export function Dialogue({
         <span className={styles.next}>{done && !choosing ? (i + 1 >= lines.length ? "▶" : "▶") : ""}</span>
       </div>
       {choosing && (
-        <div className={styles.choices} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.choices} data-pad="ui" onClick={(e) => e.stopPropagation()}>
           {line.choices!.map((c, k) => (
-            <button key={k} onClick={() => choose(k)} style={{ "--accent": sp.accent } as React.CSSProperties}>
+            <button
+              key={k}
+              autoFocus={k === 0}
+              onClick={() => choose(k)}
+              style={{ "--accent": sp.accent } as React.CSSProperties}
+            >
               <kbd>{k + 1}</kbd> {c.text}
             </button>
           ))}
@@ -214,6 +224,7 @@ export function Dialogue({
       )}
       <button
         className={styles.skip}
+        data-pad-menu
         onClick={(e) => {
           e.stopPropagation();
           onDone();

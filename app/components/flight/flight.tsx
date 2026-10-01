@@ -56,7 +56,11 @@ export function Flight({ from, to, team, tag = "Rookie", at, onDone }: Props) {
 
   const step = phase === "depart" ? 0 : phase === "cruise" ? 1 : 2;
   return (
-    <div className={styles.root} style={{ "--team": team.primary, "--team2": team.secondary } as React.CSSProperties}>
+    <div
+      className={styles.root}
+      data-pad="ui"
+      style={{ "--team": team.primary, "--team2": team.secondary } as React.CSSProperties}
+    >
       <canvas ref={ref} className={styles.canvas} />
       <div className={styles.letterbox} />
       <section className={styles.pass} aria-label="Boarding pass">
@@ -113,7 +117,7 @@ export function Flight({ from, to, team, tag = "Rookie", at, onDone }: Props) {
           </>
         )}
       </div>
-      <button className={styles.skip} onClick={() => doneRef.current()}>
+      <button className={styles.skip} onClick={() => doneRef.current()} data-pad-back>
         Skip ▸
       </button>
     </div>

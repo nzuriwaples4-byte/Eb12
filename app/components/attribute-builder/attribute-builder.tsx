@@ -158,7 +158,7 @@ export function AttributeBuilder({
         <p className={styles.help}>← → select · ↑ upgrade · ↓ undo · click to upgrade, right-click to undo</p>
         <div className={styles.actions}>
           {onClose && (
-            <button className={styles.ghost} onClick={onClose}>
+            <button className={styles.ghost} onClick={onClose} data-pad-back>
               Back
             </button>
           )}

@@ -12,7 +12,11 @@
     "screenshots": "node scripts/steam-screenshots.mjs",
     "relay": "node server/relay.mjs",
     "desktop": "npm run build && electron .",
-    "desktop:dist": "npm run build && electron-builder"
+    "desktop:dist": "npm run build && electron-builder",
+    "build:pc": "node scripts/build-platform.mjs pc",
+    "build:steamdeck": "node scripts/build-platform.mjs steamdeck",
+    "build:xbox": "node scripts/build-platform.mjs xbox",
+    "build:playstation": "node scripts/build-platform.mjs playstation"
   },
   "dependencies": {
     "@dazl/color-scheme": "^1.3.0",

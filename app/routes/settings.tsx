@@ -1,5 +1,8 @@
 import { Link } from "react-router";
-import { Controls } from "~/components/game-view/game-view";
+import { ControllerMap } from "~/components/controller-map/controller-map";
+import { Glyph } from "~/components/glyph/glyph";
+import { BUILD_PLATFORM, PLATFORM_INFO, type Platform, type PlatformSetting } from "~/platform/platform";
+import { usePlatformCtx } from "~/platform/use-platform";
 import { getAudio } from "~/game/audio";
 import { useProgress } from "~/hooks/use-progress";
 import { useSettings, type Settings as S } from "~/hooks/use-settings";
@@ -7,12 +10,13 @@ import type { Route } from "./+types/settings";
 import styles from "./settings.module.css";
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: "Settings — Concrete Crown" }];
+  return [{ title: "Settings — EBL 2" }];
 }
 
 export default function Settings() {
   const [s, update] = useSettings();
   const [, setProgress] = useProgress();
+  const platform = usePlatformCtx();
   const set = <K extends keyof S>(k: K, v: S[K]) => {
     update((prev) => ({ ...prev, [k]: v }));
     const a = getAudio();
@@ -40,7 +44,7 @@ export default function Settings() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <Link to="/" className={styles.back}>
+        <Link to="/" className={styles.back} data-pad-back>
           ← Menu
         </Link>
         <h1>Settings</h1>
@@ -77,17 +81,38 @@ export default function Settings() {
           </button>
         </section>
         <section className={styles.group}>
-          <h2>Controls</h2>
-          <Controls />
+          <h2>Platform &amp; controls</h2>
+          <div className={styles.platforms} data-pad-tabs>
+            {(["auto", "pc", "steamdeck", "xbox", "playstation"] as PlatformSetting[]).map((p) => (
+              <button
+                key={p}
+                data-on={(s.platform ?? "auto") === p}
+                disabled={!!BUILD_PLATFORM && p !== BUILD_PLATFORM}
+                onClick={() => set("platform", p)}
+              >
+                {p === "auto" ? "Auto" : PLATFORM_INFO[p as Platform].short}
+              </button>
+            ))}
+          </div>
+          {BUILD_PLATFORM && <p className={styles.tips}>This is the {PLATFORM_INFO[BUILD_PLATFORM].name} build.</p>}
+          <ControllerMap platform={platform} />
           <h2>How to play</h2>
           <ul className={styles.tips}>
             <li>1-on-1, first to the target score. Twos and threes, and specials are worth 3.</li>
             <li>After a make, the other player gets the ball (loser's ball) with a check at the top of the key.</li>
             <li>After a steal or defensive rebound, take it back behind the arc before you can score.</li>
             <li>Hold shoot to rise and let go in the green zone for a perfect release.</li>
-            <li>Cross your defender up (K) when they're close. Get the timing right and their ankles go.</li>
-            <li>Flashy plays fill your HYPE meter. When it's full, hit your special move.</li>
-            <li>Throw it off the glass (U), then press J by the rim to catch it and throw it down.</li>
+            <li>
+              Cross your defender up (<Glyph action="juke" />) when they're close. Get the timing right and their ankles
+              go.
+            </li>
+            <li>
+              Flashy plays fill your HYPE meter. When it's full, hit your special move (<Glyph action="special" />).
+            </li>
+            <li>
+              Throw it off the glass (<Glyph action="lob" />
+              ), then press <Glyph action="shoot" /> by the rim to catch it and throw it down.
+            </li>
           </ul>
         </section>
       </div>

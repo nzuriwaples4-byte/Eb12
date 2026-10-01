@@ -164,7 +164,7 @@ export function VyroStore({ onClose, brand = "vyro" }: Props) {
   };
 
   return (
-    <div className={styles.backdrop} onClick={onClose}>
+    <div className={styles.backdrop} data-pad="ui" onClick={onClose}>
       <section className={styles.panel} data-brand={brand} onClick={(e) => e.stopPropagation()}>
         <header className={styles.head}>
           {vanta ? <VantaLogo size={64} /> : <VyroLogo size={64} />}
@@ -181,11 +181,11 @@ export function VyroStore({ onClose, brand = "vyro" }: Props) {
             </p>
           </div>
           <p className={styles.wallet}>₵ {(progress.crowns ?? 0).toLocaleString()}</p>
-          <button className={styles.close} onClick={onClose} aria-label="Close store">
+          <button className={styles.close} onClick={onClose} aria-label="Close store" data-pad-back>
             ✕
           </button>
         </header>
-        <nav className={styles.tabs}>
+        <nav className={styles.tabs} data-pad-tabs>
           {TABS[brand].map((t) => (
             <button key={t.id} data-on={tab === t.id} onClick={() => setTab(t.id)}>
               {t.label}

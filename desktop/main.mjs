@@ -1,4 +1,4 @@
-// Concrete Crown desktop shell (Steam build).
+// EBL 2 desktop shell (Steam build for PC and Steam Deck).
 // Serves the production build from a local HTTP server inside Electron and
 // opens it in a fullscreen-capable window. Also hosts the online relay so a
 // player can host LAN games without any other setup.
@@ -19,6 +19,10 @@ async function startRelay() {
   }
 }
 
+// Steam sets SteamDeck=1 when the game runs on a Deck; --platform= overrides
+const platformArg = process.argv.find((a) => a.startsWith("--platform="))?.slice(11);
+const platform = platformArg ?? (process.env.SteamDeck === "1" ? "steamdeck" : "pc");
+
 async function createWindow() {
   const port = await startServer();
   const win = new BrowserWindow({
@@ -27,7 +31,7 @@ async function createWindow() {
     minWidth: 1024,
     minHeight: 600,
     backgroundColor: "#05070c",
-    title: "Concrete Crown",
+    title: "EBL 2",
     autoHideMenuBar: true,
     webPreferences: { backgroundThrottling: false },
   });
@@ -41,8 +45,9 @@ async function createWindow() {
     void shell.openExternal(url);
     return { action: "deny" };
   });
-  await win.loadURL(`http://127.0.0.1:${port}/`);
-  if (process.argv.includes("--fullscreen")) win.setFullScreen(true);
+  await win.loadURL(`http://127.0.0.1:${port}/?platform=${platform}`);
+  // The Deck (and console-style "Big Picture" launches) start fullscreen
+  if (process.argv.includes("--fullscreen") || platform === "steamdeck") win.setFullScreen(true);
 }
 
 app.whenReady().then(async () => {

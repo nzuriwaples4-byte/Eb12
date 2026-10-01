@@ -1,3 +1,4 @@
+import { Glyph } from "~/components/glyph/glyph";
 import { useMemo, useState } from "react";
 import {
   ATTRS,
@@ -204,8 +205,8 @@ export function Blueprint({ onFinish, onBack, initial }: Props) {
           <b>Note:</b> you start as a high-school senior. Win games and practice to earn Skill Points and grow toward
           these caps.
         </p>
-        <button className={styles.back} onClick={onBack}>
-          ◉ Back
+        <button className={styles.back} onClick={onBack} data-pad-back>
+          <Glyph action="back" /> Back
         </button>
       </aside>
 

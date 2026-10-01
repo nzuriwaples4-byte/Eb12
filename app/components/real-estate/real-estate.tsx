@@ -102,7 +102,7 @@ export function RealEstate({ teamId, owned, crowns, onBuy, onClose }: Props) {
           <span>You live here until you retire. Kids need bedrooms: one spare room per kid, up to three.</span>
         </div>
         <div className={styles.wallet}>₵ {crowns.toLocaleString()}</div>
-        <button className={styles.close} onClick={onClose} aria-label="Close">
+        <button className={styles.close} onClick={onClose} aria-label="Close" data-pad-back>
           ✕
         </button>
       </header>

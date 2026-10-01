@@ -1,3 +1,5 @@
+import { Hints } from "~/components/glyph/glyph";
+import { usePlatformCtx } from "~/platform/use-platform";
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { AssetImage } from "~/components/asset-image/asset-image";
@@ -27,6 +29,7 @@ const MODES: { id: GameMode; label: string; blurb: string }[] = [
 const DIFFS = ["Rookie", "Pro", "Legend"];
 
 export default function Play() {
+  const platform = usePlatformCtx();
   const [progress, setProgress] = useProgress();
   const [settings] = useSettings();
   const navigate = useNavigate();
@@ -147,7 +150,7 @@ export default function Play() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <Link to="/" className={styles.back}>
+        <Link to="/" className={styles.back} data-pad-back>
           ← Menu
         </Link>
         <h1>Quick Match</h1>
@@ -167,7 +170,20 @@ export default function Play() {
           <small>Play a friend over the internet</small>
         </Link>
       </section>
-      {mode !== "solo" && (
+      <p className={styles.controls}>
+        <Hints
+          items={[
+            ["move", "Move"],
+            ["shoot", "Shoot"],
+            ["juke", "Juke"],
+            ["trick", "Trick"],
+            ["lob", "Lob"],
+            ["special", "Special"],
+            ["sprint", "Turbo"],
+          ]}
+        />
+      </p>
+      {mode !== "solo" && platform === "pc" && (
         <p className={styles.controls}>
           <b>P1</b> WASD · J shoot · K juke · L trick · U lob · Space special · L-Shift turbo · gamepad 1 &nbsp;|&nbsp;{" "}
           <b>P2</b> Arrows · . shoot · , juke · / trick · ; lob · Enter special · R-Shift turbo · gamepad 2

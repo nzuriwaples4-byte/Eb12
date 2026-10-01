@@ -111,7 +111,7 @@ export default function Owner() {
   return (
     <main className={styles.page} style={{ "--team": me.primary, "--team2": me.secondary } as React.CSSProperties}>
       <header className={styles.header}>
-        <Link to="/" className={styles.back}>
+        <Link to="/" className={styles.back} data-pad-back>
           ← Menu
         </Link>
         <div>
@@ -166,7 +166,7 @@ function PickTeam({ onPick }: { onPick(id: string): void }) {
   return (
     <main className={styles.page} style={{ "--team": t.primary } as React.CSSProperties}>
       <header className={styles.header}>
-        <Link to="/" className={styles.back}>
+        <Link to="/" className={styles.back} data-pad-back>
           ← Menu
         </Link>
         <div>

@@ -1,3 +1,4 @@
+import { Glyph } from "~/components/glyph/glyph";
 import { useState } from "react";
 import type { Attrs } from "~/data/attributes";
 import { BADGE_CATS, BADGES, maxTier, TIER_COLORS, TIER_COST, TIER_NAMES, type BadgeCat } from "~/data/badges";
@@ -97,7 +98,9 @@ export function BadgeBuilder({ attrs, bp: bp0, badges: b0, onClose, onConfirm }:
         })}
       </section>
       <footer className={styles.foot}>
-        <button onClick={onClose}>◉ Cancel</button>
+        <button onClick={onClose} data-pad-back>
+          <Glyph action="back" /> Cancel
+        </button>
         <button
           className={styles.go}
           onClick={() => {
@@ -105,7 +108,7 @@ export function BadgeBuilder({ attrs, bp: bp0, badges: b0, onClose, onConfirm }:
             onConfirm(badges, bp);
           }}
         >
-          Ⓐ Confirm badges
+          <Glyph action="confirm" /> Confirm badges
         </button>
       </footer>
     </main>

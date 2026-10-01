@@ -1,3 +1,4 @@
+import { Glyph } from "~/components/glyph/glyph";
 import { ATTRS, GROUPS, heightLabel, overallOf, type AttrGroup, type Attrs } from "~/data/attributes";
 import { BADGE_CATS, BADGES, badgePotential, maxTier, TIER_COLORS } from "~/data/badges";
 import type { MyPlayer } from "~/data/career";
@@ -112,7 +113,9 @@ export function Potential({ me, start, caps, onContinue, onBack }: Props) {
           available as you meet attribute requirements.
         </p>
         <div className={styles.actions}>
-          <button onClick={onBack}>◉ Back</button>
+          <button onClick={onBack} data-pad-back>
+            <Glyph action="back" /> Back
+          </button>
           <button
             className={styles.go}
             onClick={() => {
@@ -120,7 +123,7 @@ export function Potential({ me, start, caps, onContinue, onBack }: Props) {
               onContinue();
             }}
           >
-            Ⓐ Continue
+            <Glyph action="confirm" /> Continue
           </button>
         </div>
       </section>

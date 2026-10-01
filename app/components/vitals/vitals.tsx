@@ -1,3 +1,4 @@
+import { Glyph } from "~/components/glyph/glyph";
 import { useState } from "react";
 import { HOMETOWN, registerMyBaller } from "~/data/career";
 import { getAudio } from "~/game/audio";
@@ -150,8 +151,8 @@ export function Vitals({ initial, onContinue, onBack }: Props) {
         >
           Continue
         </button>
-        <button className={styles.back} onClick={onBack}>
-          ◉ Back
+        <button className={styles.back} onClick={onBack} data-pad-back>
+          <Glyph action="back" /> Back
         </button>
       </aside>
       <p className={styles.mark}>EBL 2</p>

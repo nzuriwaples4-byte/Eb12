@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
+import { Glyph, Hints } from "~/components/glyph/glyph";
 import { VyroStore } from "~/components/vyro-store/vyro-store";
 import { getBaller } from "~/data/characters";
 import { cityFor } from "~/data/cities";
@@ -193,7 +194,7 @@ export default function CityRoute() {
   }, [shop]);
 
   return (
-    <main className={styles.page}>
+    <main className={styles.page} data-pad="game">
       <canvas ref={canvasRef} className={styles.canvas} />
       {!ready && (
         <div className={styles.loading}>
@@ -201,7 +202,7 @@ export default function CityRoute() {
         </div>
       )}
       <header className={styles.top}>
-        <Link to="/" className={styles.menu}>
+        <Link to="/" className={styles.menu} data-pad-menu>
           ☰ Menu
         </Link>
         <div className={styles.zone}>
@@ -219,14 +220,24 @@ export default function CityRoute() {
           style={{ "--accent": prompt.color } as React.CSSProperties}
           onClick={() => onInteract(prompt)}
         >
-          <kbd>E</kbd>
+          <Glyph action="interact" />
           <span>
             <small>{prompt.label}</small>
             {prompt.action}
           </span>
         </button>
       )}
-      <p className={styles.help}>WASD move · Shift sprint · drag / Q R to turn camera · E interact</p>
+      <p className={styles.help}>
+        <Hints
+          items={[
+            ["move", "Move"],
+            ["sprint", "Sprint"],
+            ["camera", "Camera"],
+            ["interact", "Interact"],
+            ["menu", "Menu"],
+          ]}
+        />
+      </p>
       {shop && <VyroStore brand={shop} onClose={() => setShop(false)} />}
     </main>
   );

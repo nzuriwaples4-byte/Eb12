@@ -57,7 +57,7 @@ export default function Crib() {
       </div>
       <div className={styles.shade} />
       <header className={styles.header}>
-        <Link to="/" className={styles.back}>
+        <Link to="/" className={styles.back} data-pad-back>
           ← Menu
         </Link>
         <h1>The Crib</h1>

@@ -54,5 +54,5 @@ export async function startServer(port = 0) {
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
   const port = await startServer(Number(process.env.PORT ?? 3210));
-  console.log(`Concrete Crown running at http://127.0.0.1:${port}/`);
+  console.log(`EBL 2 running at http://127.0.0.1:${port}/`);
 }

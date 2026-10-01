@@ -170,7 +170,7 @@ export default function Online() {
   return (
     <main className={play.page}>
       <header className={play.header}>
-        <Link to="/play" className={play.back}>
+        <Link to="/play" className={play.back} data-pad-back>
           ← Quick Match
         </Link>
         <h1>Online</h1>

@@ -95,7 +95,7 @@ export function GameView({ config, objective, onFinish, onQuit, overlay, runId =
   const hypeFull = hud.hype[0] >= 100;
 
   return (
-    <div className={styles.root}>
+    <div className={styles.root} data-pad="game">
       <canvas ref={canvasRef} className={styles.canvas} />
 
       {hud.phase === "loading" && (

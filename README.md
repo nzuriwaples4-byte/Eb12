@@ -182,3 +182,20 @@ Book Two (chapters 6–10) continues after THE ARCHITECT's message. To add chapt
 ---
 
 Built on the Dazl React Router template.
+
+## EBL 2 platform versions
+
+EBL 2 ships in four versions from this one codebase: **PC (Steam)**, **Steam Deck**,
+**Xbox Series X|S** and **PlayStation 5**.
+
+```bash
+npm run build:pc            # Steam (Windows/Linux)
+npm run build:steamdeck     # Steam Deck (Linux x64, 1280×800)
+npm run build:xbox          # Xbox build for the GDK shell
+npm run build:playstation   # PS5 build for the SDK shell
+```
+
+Every version is fully playable with a controller: menus use the D-pad, A/✕,
+B/○, LB/RB (L1/R1) and Start/OPTIONS, and every prompt shows the platform's own
+buttons. See [platforms/README.md](platforms/README.md) for packaging steps
+and certification notes.

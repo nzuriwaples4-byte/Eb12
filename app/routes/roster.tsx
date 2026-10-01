@@ -16,7 +16,7 @@ export default function Roster() {
     <main className={styles.page}>
       <ShowcaseCanvas ballers={BALLERS} focusId={focus} className={styles.stage} />
       <header className={styles.header}>
-        <Link to="/" className={styles.back}>
+        <Link to="/" className={styles.back} data-pad-back>
           ← Menu
         </Link>
         <h1 className={styles.title}>The Crown Circuit</h1>

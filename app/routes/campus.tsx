@@ -1,3 +1,4 @@
+import { Glyph, Hints } from "~/components/glyph/glyph";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Dialogue } from "~/components/dialogue/dialogue";
@@ -182,11 +183,11 @@ export default function CampusRoute() {
   }, [talk]);
 
   return (
-    <main className={styles.page}>
+    <main className={styles.page} data-pad="game">
       <canvas ref={canvasRef} className={styles.canvas} />
       {!ready && <div className={styles.loading}>Loading Peachtree Heights High…</div>}
       <header className={styles.top}>
-        <Link to="/career" className={styles.menu}>
+        <Link to="/career" className={styles.menu} data-pad-menu>
           ← Career
         </Link>
         <div className={styles.zone}>
@@ -202,14 +203,24 @@ export default function CampusRoute() {
           style={{ "--accent": prompt.color } as React.CSSProperties}
           onClick={() => onInteract(prompt)}
         >
-          <kbd>E</kbd>
+          <Glyph action="interact" />
           <span>
             <small>{prompt.label}</small>
             {prompt.action}
           </span>
         </button>
       )}
-      <p className={styles.help}>WASD move · Shift sprint · drag / Q R to turn camera · E interact</p>
+      <p className={styles.help}>
+        <Hints
+          items={[
+            ["move", "Move"],
+            ["sprint", "Sprint"],
+            ["camera", "Camera"],
+            ["interact", "Interact"],
+            ["menu", "Menu"],
+          ]}
+        />
+      </p>
       {talk && (
         <>
           <Dialogue

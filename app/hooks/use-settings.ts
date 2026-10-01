@@ -9,6 +9,8 @@ export interface Settings {
   cameraShake: boolean;
   useHiggsfield: boolean;
   unlockAll: boolean;
+  /** Button prompts and layout: auto-detect or a specific version */
+  platform?: import("~/platform/platform").PlatformSetting;
 }
 
 const store = createLocalStore<Settings>("concrete-crown.settings.v1", {

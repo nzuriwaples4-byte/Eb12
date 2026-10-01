@@ -42,3 +42,25 @@ button {
   outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
+
+/* ---------- Controller navigation: a clear focus ring on every control */
+html[data-input="pad"] :is(button, a, input, select, textarea, [tabindex]):focus {
+  outline: 3px solid #ffd24a;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(255, 210, 74, 0.28);
+  position: relative;
+  z-index: 2;
+}
+
+html[data-input="pad"] body {
+  cursor: none;
+}
+
+/* ---------- Steam Deck: 1280x800 handheld, bigger text and targets */
+html[data-platform="steamdeck"] {
+  font-size: 17px;
+}
+
+html[data-platform="steamdeck"] :is(button, input, select) {
+  min-height: 40px;
+}

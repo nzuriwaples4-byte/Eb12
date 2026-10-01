@@ -14,6 +14,9 @@ import "./styles/reset.css";
 import "./styles/global.css";
 import "./styles/theme.css";
 import { useColorScheme } from "@dazl/color-scheme/react";
+import { useEffect } from "react";
+import { useGamepadNav } from "~/platform/gamepad-nav";
+import { PlatformContext, usePlatform } from "~/platform/use-platform";
 import favicon from "/favicon.svg";
 
 export const links: Route.LinksFunction = () => [
@@ -45,7 +48,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  const platform = usePlatform();
+  useGamepadNav();
+  useEffect(() => {
+    document.documentElement.dataset.platform = platform;
+  }, [platform]);
+  return (
+    <PlatformContext.Provider value={platform}>
+      <Outlet />
+    </PlatformContext.Provider>
+  );
 }
 
 export const ErrorBoundary = ErrorBoundaryRoot;

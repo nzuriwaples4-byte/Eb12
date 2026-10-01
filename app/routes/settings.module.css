@@ -107,3 +107,34 @@
     grid-template-columns: 1fr;
   }
 }
+
+.platforms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.platforms button {
+  flex: 1;
+  min-width: 70px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-family: var(--family-display);
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.platforms button[data-on="true"] {
+  background: #ffd24a;
+  border-color: transparent;
+  color: #111;
+}
+
+.platforms button:disabled {
+  opacity: 0.35;
+}

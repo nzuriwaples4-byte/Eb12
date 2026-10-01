@@ -1192,7 +1192,7 @@ export default function CareerRoute() {
         />
       )}
       <header className={styles.header}>
-        <Link to="/" className={styles.back}>
+        <Link to="/" className={styles.back} data-pad-back>
           ← Menu
         </Link>
         <div>

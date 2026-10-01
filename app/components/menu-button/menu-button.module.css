@@ -53,3 +53,12 @@
   letter-spacing: 0.1em;
   opacity: 0.7;
 }
+
+/* Controller focus: the clipped shape hides outlines, so light the whole button */
+:global(html[data-input="pad"]) .btn:focus {
+  transform: translateX(10px);
+  background: linear-gradient(90deg, #ffd24a, #ffe9a3);
+  color: #111;
+  box-shadow: inset 6px 0 0 #fff;
+  outline: none;
+}
