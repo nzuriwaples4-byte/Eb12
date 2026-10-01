@@ -52,6 +52,8 @@ export interface Career {
   bp?: Record<BadgeCat, number>;
   /** Badge tiers (0-4) by badge id */
   badges?: Record<string, number>;
+  /** Pending charter flight to a new home city (team ids) */
+  flight?: { from: string; to: string; tag: string } | null;
 }
 
 export const NEW_CAREER: Career = {

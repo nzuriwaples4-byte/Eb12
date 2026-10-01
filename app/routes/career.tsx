@@ -10,6 +10,8 @@ import { applyBadges, emptyBP, type BadgeCat } from "~/data/badges";
 import type { Attrs } from "~/data/attributes";
 import type { MyPlayer } from "~/data/career";
 import { Dialogue } from "~/components/dialogue/dialogue";
+import { Flight } from "~/components/flight/flight";
+import { cityFor } from "~/data/cities";
 import { GameView } from "~/components/game-view/game-view";
 import { MenuButton } from "~/components/menu-button/menu-button";
 import { Results } from "~/components/results/results";
@@ -571,6 +573,20 @@ export default function CareerRoute() {
     }
   }
 
+  /* ---------------------------------------------------------- flight */
+  if (c.flight && !overlay) {
+    return (
+      <Flight
+        key={`${c.flight.from}-${c.flight.to}`}
+        from={cityFor(c.flight.from)}
+        to={cityFor(c.flight.to)}
+        team={getTeam(c.flight.to)}
+        tag={c.flight.tag}
+        onDone={() => setCareer((x) => ({ ...x, flight: null }))}
+      />
+    );
+  }
+
   /* ---------------------------------------------------------- stage intros */
   if (c.stage === "hs" && !c.seen.includes("hs-intro") && !overlay) {
     return (
@@ -663,6 +679,8 @@ export default function CareerRoute() {
             games: [],
             sp: x.sp + 30,
             seen: [...x.seen, "draft"],
+            // Draft night is in New York; fly to your new home city
+            flight: drafted.id === "nyc" ? null : { from: "nyc", to: drafted.id, tag: "Rookie" },
           }))
         }
       />
@@ -766,6 +784,7 @@ export default function CareerRoute() {
       playoff: null,
       activityDone: false,
       sp: x.sp + 25,
+      flight: offer.teamId === from.id ? null : { from: from.id, to: offer.teamId, tag: `Season ${nextSeason}` },
     }));
     scene("Contract", signingLines(ctx!, offer, from), undefined, undefined, getTeam(offer.teamId).venueId);
   }
@@ -1006,6 +1025,11 @@ export default function CareerRoute() {
               {c.stage === "hs" && (
                 <MenuButton onClick={() => navigate("/campus")} hint="Explore Harbor Heights High before the game">
                   Walk the campus
+                </MenuButton>
+              )}
+              {c.stage === "pro" && team && (
+                <MenuButton onClick={() => navigate("/city")} hint={`Your home until you retire · ${cityFor(team.id).tagline}`}>
+                  Explore {cityFor(team.id).city}, {cityFor(team.id).state}
                 </MenuButton>
               )}
             </>

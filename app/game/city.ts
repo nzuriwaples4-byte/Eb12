@@ -50,6 +50,8 @@ export interface CityOptions {
   spawn?: { x: number; z: number; yaw: number };
   /** Which map to build: New York (default) or the Harbor Heights campus */
   world?: "nyc" | "campus";
+  /** Home-city look (your EBL team's city) */
+  theme?: import("~/data/cities").CityTheme;
 }
 
 export interface CityCallbacks {
@@ -211,7 +213,7 @@ export class City {
     this.world =
       opts.world === "campus"
         ? buildCampusWorld(this.scene, { shadows: opts.shadows })
-        : buildNycWorld(this.scene, { shadows: opts.shadows });
+        : buildNycWorld(this.scene, { shadows: opts.shadows, theme: opts.theme });
     this.colliders = this.world.colliders;
     this.circles = this.world.circles;
     if (opts.world !== "campus") buildSpecialLots(this.scene);

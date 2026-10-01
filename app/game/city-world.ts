@@ -4,6 +4,7 @@ import { assetSources, type AssetId } from "~/data/higgsfield-assets";
 import { windowTexture } from "./court";
 import { rand } from "./math";
 import { skyTexture } from "./stage";
+import { CITIES, type CityTheme } from "~/data/cities";
 
 /**
  * A New York-style city on a Manhattan grid. Avenues run north/south (z),
@@ -206,7 +207,8 @@ function signTex(lines: string[], bg: string, fg: string, accent?: string, w = 5
 
 /* --------------------------------------------------------------- world */
 
-export function buildNycWorld(scene: THREE.Scene, opts: { shadows: boolean }): CityWorld {
+export function buildNycWorld(scene: THREE.Scene, opts: { shadows: boolean; theme?: CityTheme }): CityWorld & { name?: string } {
+  const theme = opts.theme ?? CITIES.nyc;
   const colliders: Box2[] = [];
   const circles: { x: number; z: number; r: number }[] = [];
   const lots: (Box2 & { park?: boolean })[] = [];
@@ -232,8 +234,8 @@ export function buildNycWorld(scene: THREE.Scene, opts: { shadows: boolean }): C
     grass: new THREE.MeshStandardMaterial({ color: "#4f7f3a", roughness: 1 }),
     path: new THREE.MeshStandardMaterial({ color: "#8f8676", roughness: 0.95 }),
     trunk: new THREE.MeshStandardMaterial({ color: "#5a4030", roughness: 0.9 }),
-    leaves: new THREE.MeshStandardMaterial({ color: "#3e7a36", roughness: 0.9, flatShading: true }),
-    leaves2: new THREE.MeshStandardMaterial({ color: "#5c9443", roughness: 0.9, flatShading: true }),
+    leaves: new THREE.MeshStandardMaterial({ color: theme.leaves[0], roughness: 0.9, flatShading: true }),
+    leaves2: new THREE.MeshStandardMaterial({ color: theme.leaves[1], roughness: 0.9, flatShading: true }),
     green: new THREE.MeshStandardMaterial({ color: "#1f5a3a", roughness: 0.5, metalness: 0.5 }),
     red: new THREE.MeshStandardMaterial({ color: "#b52a1e", roughness: 0.5 }),
     awningA: new THREE.MeshStandardMaterial({ color: "#1e5a3c", roughness: 0.8 }),
@@ -250,14 +252,14 @@ export function buildNycWorld(scene: THREE.Scene, opts: { shadows: boolean }): C
   disposables.push(...Object.values(M));
 
   /* ----- sky, light, fog */
-  scene.fog = new THREE.Fog("#e9c7a3", 120, 420);
+  scene.fog = new THREE.Fog(theme.fog, theme.rain ? 70 : 120, theme.rain ? 300 : 420);
   const sky = new THREE.Mesh(
     new THREE.SphereGeometry(600, 32, 16),
-    new THREE.MeshBasicMaterial({ map: skyTexture("#4f86c8", "#f6c998"), side: THREE.BackSide, fog: false }),
+    new THREE.MeshBasicMaterial({ map: skyTexture(theme.sky[0], theme.sky[1]), side: THREE.BackSide, fog: false }),
   );
   scene.add(sky);
-  scene.add(new THREE.HemisphereLight("#cfe0ff", "#6a5446", 0.85));
-  const sun = new THREE.DirectionalLight("#ffd6a8", 3.3);
+  scene.add(new THREE.HemisphereLight(theme.hemi[0], theme.hemi[1], theme.rain ? 1.1 : 0.85));
+  const sun = new THREE.DirectionalLight(theme.sun, theme.sunIntensity);
   sun.castShadow = opts.shadows;
   sun.shadow.mapSize.set(2048, 2048);
   const sc = sun.shadow.camera;
@@ -640,10 +642,16 @@ export function buildNycWorld(scene: THREE.Scene, opts: { shadows: boolean }): C
       spots.push([x, z]);
     for (const [x, z] of spots) {
       if (Math.abs(x) < 4 || Math.abs(z) < 4) continue;
-      trunks.push(cylAt(0.2, 0.3, 3.2, x, 1.8, z, 7));
-      const c = new THREE.IcosahedronGeometry(rand(1.8, 2.6), 1);
-      c.translate(x, 4.4 + rand(0, 0.8), z);
-      (Math.random() < 0.5 ? crownsA : crownsB).push(c);
+      if (theme.palms) {
+        const ph = rand(6, 8.5);
+        trunks.push(cylAt(0.14, 0.24, ph, x, ph / 2, z, 7));
+        for (const c of palmFronds(x, ph, z)) (Math.random() < 0.5 ? crownsA : crownsB).push(c);
+      } else {
+        trunks.push(cylAt(0.2, 0.3, 3.2, x, 1.8, z, 7));
+        const c = new THREE.IcosahedronGeometry(rand(1.8, 2.6), 1);
+        c.translate(x, 4.4 + rand(0, 0.8), z);
+        (Math.random() < 0.5 ? crownsA : crownsB).push(c);
+      }
       circles.push({ x, z, r: 0.4 });
     }
     // Street trees along avenues outside the park
@@ -654,10 +662,16 @@ export function buildNycWorld(scene: THREE.Scene, opts: { shadows: boolean }): C
           const tx = x + sx * (half + 1.2);
           if (tx > PARK.minX - walk && tx < PARK.maxX + walk && z > PARK.minZ - walk && z < PARK.maxZ + walk) continue;
           if (Math.random() < 0.65) continue;
-          trunks.push(cylAt(0.15, 0.2, 4.6, tx, 2.4, z, 6));
-          const c = new THREE.IcosahedronGeometry(1.5, 1);
-          c.translate(tx, 5.6, z);
-          (Math.random() < 0.5 ? crownsA : crownsB).push(c);
+          if (theme.palms) {
+            const ph = rand(7, 9.5);
+            trunks.push(cylAt(0.12, 0.2, ph, tx, ph / 2, z, 6));
+            for (const c of palmFronds(tx, ph, z)) (Math.random() < 0.5 ? crownsA : crownsB).push(c);
+          } else {
+            trunks.push(cylAt(0.15, 0.2, 4.6, tx, 2.4, z, 6));
+            const c = new THREE.IcosahedronGeometry(1.5, 1);
+            c.translate(tx, 5.6, z);
+            (Math.random() < 0.5 ? crownsA : crownsB).push(c);
+          }
           circles.push({ x: tx, z, r: 0.3 });
         }
       }
@@ -1107,8 +1121,11 @@ export function buildNycWorld(scene: THREE.Scene, opts: { shadows: boolean }): C
   });
 
   batch.flush(scene, true);
+  buildLandmark(scene, theme, disposables);
+  if (theme.rain) updaters.push(rainUpdater(scene, disposables));
 
   return {
+    name: theme.city === "New York" ? undefined : theme.city,
     colliders,
     circles,
     lots,
@@ -1122,6 +1139,122 @@ export function buildNycWorld(scene: THREE.Scene, opts: { shadows: boolean }): C
     dispose() {
       for (const d of disposables) d.dispose();
     },
+  };
+}
+
+/** Six drooping fronds for a palm tree top */
+function palmFronds(x: number, h: number, z: number) {
+  const out: THREE.BufferGeometry[] = [];
+  for (let i = 0; i < 6; i++) {
+    const g = new THREE.ConeGeometry(0.5, 3.4, 4, 1);
+    g.scale(1, 1, 0.25);
+    g.rotateZ(Math.PI / 2 + 0.45);
+    g.translate(1.5, 0, 0);
+    g.rotateY((i / 6) * Math.PI * 2 + rand(0, 0.4));
+    g.translate(x, h - 0.3, z);
+    out.push(g);
+  }
+  return out;
+}
+
+/** A recognizable silhouette beyond the grid, so every city reads as itself */
+export function buildLandmark(scene: THREE.Object3D, theme: CityTheme, disposables: { dispose(): void }[]) {
+  const mat = (c: string, e = 0) => {
+    const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.6, metalness: 0.3, emissive: c, emissiveIntensity: e });
+    disposables.push(m);
+    return m;
+  };
+  const add = (geo: THREE.BufferGeometry, m: THREE.Material, x: number, y: number, z: number) => {
+    const mesh = new THREE.Mesh(geo, m);
+    mesh.position.set(x, y, z);
+    scene.add(mesh);
+    return mesh;
+  };
+  const far = -240;
+  switch (theme.landmark) {
+    case "needle": {
+      const m = mat("#d9dde6");
+      add(new THREE.CylinderGeometry(1.2, 3, 150, 12), m, 60, 75, far);
+      add(new THREE.CylinderGeometry(20, 9, 8, 24), mat("#c9ced8"), 60, 152, far);
+      add(new THREE.CylinderGeometry(1, 1, 30, 8), m, 60, 172, far);
+      break;
+    }
+    case "mountains":
+    case "hills": {
+      const m = mat(theme.landmark === "hills" ? "#8a7a5a" : theme.rain ? "#5a6a72" : "#b0623a");
+      for (let i = 0; i < 9; i++) {
+        const h = rand(60, 140);
+        const mt = add(new THREE.ConeGeometry(rand(60, 110), h, 7), m, -320 + i * 80, h / 2 - 5, far - rand(0, 60));
+        mt.rotation.y = rand(0, Math.PI);
+      }
+      if (theme.rain) add(new THREE.ConeGeometry(90, 170, 9), mat("#e8eef4"), 140, 80, far - 120); // snowy peak
+      break;
+    }
+    case "strip": {
+      const cols = ["#ff3a6e", "#ffd24a", "#3ad7ff", "#b88cff", "#6dff9a"];
+      for (let i = 0; i < 10; i++) {
+        const h = rand(60, 150);
+        add(new THREE.BoxGeometry(rand(14, 26), h, 18), mat(cols[i % cols.length], 0.9), -200 + i * 44, h / 2, far + rand(-20, 20));
+      }
+      add(new THREE.ConeGeometry(30, 70, 4), mat("#1a1a20", 0.1), 240, 35, far + 30); // glass pyramid
+      break;
+    }
+    case "bridges": {
+      const m = mat("#ffb81c", 0.15);
+      for (let b = 0; b < 3; b++) {
+        const z = far + b * 30;
+        add(new THREE.BoxGeometry(260, 3, 10), m, b * 40 - 40, 18, z);
+        for (let i = 0; i < 7; i++) {
+          const arch = add(new THREE.TorusGeometry(18, 1, 6, 16, Math.PI), m, -150 + i * 40 + b * 40, 18, z);
+          void arch;
+        }
+      }
+      break;
+    }
+    case "harbor": {
+      add(new THREE.BoxGeometry(900, 1, 160), mat("#2a7ab0", 0.1), 0, -0.3, far - 40);
+      for (let i = 0; i < 5; i++) add(new THREE.BoxGeometry(30, 8, 8), mat("#f2f2f4"), -180 + i * 90, 4, far - rand(10, 70));
+      break;
+    }
+    case "spire":
+    case "skyline":
+    default: {
+      const m = mat(theme.accent === "#1f8fff" ? "#b9c4d4" : "#8a96a8", 0.05);
+      for (let i = 0; i < 16; i++) {
+        const h = rand(90, 210);
+        add(new THREE.BoxGeometry(rand(16, 30), h, rand(16, 30)), m, -320 + i * 42, h / 2, far - rand(0, 80));
+      }
+    }
+  }
+}
+
+/** Steady rain that follows the player around */
+function rainUpdater(scene: THREE.Scene, disposables: { dispose(): void }[]) {
+  const N = 2500;
+  const pos = new Float32Array(N * 6);
+  for (let i = 0; i < N; i++) {
+    const x = rand(-40, 40);
+    const y = rand(0, 30);
+    const z = rand(-40, 40);
+    pos.set([x, y, z, x + 0.05, y - 0.7, z], i * 6);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  const m = new THREE.LineBasicMaterial({ color: "#c8d6e6", transparent: true, opacity: 0.45 });
+  disposables.push(geo, m);
+  const rain = new THREE.LineSegments(geo, m);
+  rain.frustumCulled = false;
+  scene.add(rain);
+  return (_t: number, dt: number, player: THREE.Vector3) => {
+    rain.position.set(player.x, 0, player.z);
+    const p = geo.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < N; i++) {
+      let y = p.getY(i * 2) - dt * 22;
+      if (y < 0) y += 30;
+      p.setY(i * 2, y);
+      p.setY(i * 2 + 1, y - 0.7);
+    }
+    p.needsUpdate = true;
   };
 }
 

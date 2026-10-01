@@ -1,19 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { VyroStore } from "~/components/vyro-store/vyro-store";
 import { getBaller } from "~/data/characters";
+import { cityFor } from "~/data/cities";
 import { CHAPTERS } from "~/data/story";
 import { getVenue } from "~/data/venues";
 import { getAudio } from "~/game/audio";
 import type { City, Poi, Resident } from "~/game/city";
 import { PLACES } from "~/game/city-world";
+import { readCareer, useCareer, type Career } from "~/hooks/use-career";
 import { kairoLook, useProgress } from "~/hooks/use-progress";
 import { useSettings } from "~/hooks/use-settings";
 import type { Route } from "./+types/city";
 import styles from "./city.module.css";
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: "New York City — EBL 2" }];
+  return [{ title: "The City — EBL 2" }];
 }
 
 const COURTS: { ballerId: string; venueId: string; x: number; z: number }[] = [
@@ -23,15 +25,23 @@ const COURTS: { ballerId: string; venueId: string; x: number; z: number }[] = [
   { ballerId: "queen", venueId: "queensway", ...PLACES.courts[1] },
 ];
 
+/** Once you're drafted you live in your team's city until you retire */
+function homeTeam(c: Career) {
+  return c.teamId && (c.stage === "pro" || c.stage === "offseason" || c.stage === "done") ? c.teamId : null;
+}
+
 export default function CityRoute() {
   const navigate = useNavigate();
   const [progress] = useProgress();
   const [settings] = useSettings();
+  const [career] = useCareer();
+  const [params] = useSearchParams();
+  const theme = cityFor(params.get("home") ?? homeTeam(career));
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mapRef = useRef<HTMLCanvasElement>(null);
   const cityRef = useRef<City | null>(null);
   const [prompt, setPrompt] = useState<Poi | null>(null);
-  const [zone, setZone] = useState("New York City");
+  const [zone, setZone] = useState(theme.city);
   const [shop, setShop] = useState(false);
   const [ready, setReady] = useState(false);
   const look = kairoLook(progress);
@@ -146,7 +156,7 @@ export default function CityRoute() {
       if (cancelled || !canvasRef.current) return;
       cityRef.current = new City(
         canvasRef.current,
-        { look, useHiggsfield: settings.useHiggsfield, shadows: settings.shadows, pois, residents },
+        { look, useHiggsfield: settings.useHiggsfield, shadows: settings.shadows, pois, residents, theme: cityFor(params.get("home") ?? homeTeam(readCareer())) },
         { prompt: setPrompt, interact: (p) => interactRef.current(p), zone: setZone },
         mapRef.current,
       );
@@ -174,13 +184,19 @@ export default function CityRoute() {
   return (
     <main className={styles.page}>
       <canvas ref={canvasRef} className={styles.canvas} />
-      {!ready && <div className={styles.loading}>Loading New York City…</div>}
+      {!ready && (
+        <div className={styles.loading}>
+          Loading {theme.city}, {theme.state}…
+        </div>
+      )}
       <header className={styles.top}>
         <Link to="/" className={styles.menu}>
           ☰ Menu
         </Link>
         <div className={styles.zone}>
-          <span>New York, NY</span>
+          <span>
+            {theme.city}, {theme.state}
+          </span>
           <strong>{zone}</strong>
         </div>
         <div className={styles.wallet}>₵ {(progress.crowns ?? 0).toLocaleString()}</div>

@@ -7,6 +7,7 @@ const devRoutes = import.meta.env.DEV
       route("builder", "routes/dev-builder.tsx"),
       route("scene", "routes/dev-scene.tsx"),
       route("vyro", "routes/dev-vyro.tsx"),
+      route("flight", "routes/dev-flight.tsx"),
     ])
   : [];
 
