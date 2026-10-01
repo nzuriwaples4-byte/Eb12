@@ -23,7 +23,11 @@ export function SchoolSelect({ colleges, hsWins, rivalId, onSign }: Props) {
   return (
     <div className={styles.root}>
       <div className={styles.floor} aria-hidden />
-      <h1 className={styles.header}>Choose which school you would like to attend</h1>
+      <h1 className={styles.header}>Choose a college</h1>
+      <p className={styles.intro}>
+        Consider your archetype and playing style carefully when choosing your school. Each one offers a unique bonus to
+        your development in the form of additional Badge Points.
+      </p>
       <div className={styles.board}>
         {cols.map((list, k) => (
           <div key={k} className={styles.column}>
@@ -47,6 +51,13 @@ export function SchoolSelect({ colleges, hsWins, rivalId, onSign }: Props) {
                     {col.city} · {col.state}
                   </span>
                   <span className={styles.mascot}>{col.mascot}</span>
+                  <span className={styles.bonus}>
+                    {(["finishing", "shooting", "playmaking", "defense"] as const).map((k) => (
+                      <em key={k}>
+                        +{col.bonus[k]} {k === "defense" ? "Def/Reb" : k[0].toUpperCase() + k.slice(1)}
+                      </em>
+                    ))}
+                  </span>
                   <span className={styles.logo}>{col.short}</span>
                   {!open && <span className={styles.stamp}>No offer</span>}
                   {col.id === rivalId && <span className={styles.rival}>Zay Carter's pick</span>}

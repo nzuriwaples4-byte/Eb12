@@ -192,3 +192,34 @@
     align-items: stretch;
   }
 }
+
+.bonus {
+  position: absolute;
+  top: 6px;
+  right: 110px;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 1px 10px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.bonus em {
+  font-style: normal;
+}
+
+.bonusLine {
+  color: #f2c21b;
+  font-weight: 700;
+}
+
+.intro {
+  position: relative;
+  max-width: 900px;
+  margin: -8px 0 0;
+  text-align: center;
+  color: #c9d2e8;
+}

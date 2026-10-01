@@ -91,20 +91,27 @@ const TIER_COLOR = ["#555", "#c98a4a", "#c9d3e8", "#ffd24a", "#b88cff"];
 interface Props {
   onFinish(p: MyPlayer, attrs: Attrs): void;
   onBack(): void;
+  /** Prefill from the Vitals step */
+  initial?: { name: string; number: string; pos: Pos; hand: "R" | "L" };
 }
 
 /** 2K-style "Signature Blueprint" player creator with a live 3D preview */
-export function Blueprint({ onFinish, onBack }: Props) {
-  const [posI, setPosI] = useState(0);
+export function Blueprint({ onFinish, onBack, initial }: Props) {
+  const [posI, setPosI] = useState(
+    Math.max(
+      0,
+      POSITIONS.findIndex((p) => p.id === initial?.pos),
+    ),
+  );
   const [skillI, setSkillI] = useState(0);
   const [tab, setTab] = useState<"attrs" | "badges" | "body">("attrs");
   const pos = POSITIONS[posI];
   const skill = SKILLS[skillI];
   const [height, setHeight] = useState(76);
   const h = Math.min(pos.max, Math.max(pos.min, height));
-  const [name, setName] = useState("Jordan Reed");
+  const [name, setName] = useState(initial?.name ?? "Jordan Reed");
   const [nick, setNick] = useState("Launch");
-  const [number, setNumber] = useState("7");
+  const [number, setNumber] = useState(initial?.number ?? "7");
   const [skin, setSkin] = useState(SKINS[5]);
   const [hair, setHair] = useState<HairStyle>("fade");
   const [hairColor, setHairColor] = useState(HAIR_COLORS[0]);
@@ -125,6 +132,8 @@ export function Blueprint({ onFinish, onBack }: Props) {
     hair,
     hairColor,
     number,
+    position: pos.id,
+    hand: initial?.hand ?? "R",
   };
   const preview = useMemo(
     () =>

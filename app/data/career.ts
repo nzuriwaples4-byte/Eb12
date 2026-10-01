@@ -21,6 +21,9 @@ export interface MyPlayer {
   hair: HairStyle;
   hairColor: string;
   number: string;
+  /** 2K22 vitals */
+  position?: "PG" | "SG" | "SF" | "PF" | "C";
+  hand?: "R" | "L";
 }
 
 export const ARCHETYPES: Record<Archetype, { label: string; blurb: string; ratings: Ratings }> = {
@@ -66,6 +69,8 @@ export interface College {
   /** Minimum high-school wins for an offer */
   needWins: number;
   venueId: string;
+  /** Bonus Badge Points by category for finishing the season */
+  bonus: Record<"finishing" | "shooting" | "playmaking" | "defense", number>;
 }
 
 const COLLEGE_STATES: Record<string, string> = {
@@ -79,6 +84,20 @@ const COLLEGE_STATES: Record<string, string> = {
   ironvale: "OH",
   "crescent-city": "LA",
   "northern-pines": "MN",
+};
+
+/** Each program develops a different part of your game */
+const COLLEGE_BONUS: Record<string, College["bonus"]> = {
+  "meridian-state": { finishing: 1, shooting: 2, playmaking: 2, defense: 1 },
+  "coastal-tech": { finishing: 2, shooting: 3, playmaking: 1, defense: 0 },
+  "kane-university": { finishing: 3, shooting: 2, playmaking: 2, defense: 1 },
+  "silver-lake": { finishing: 0, shooting: 1, playmaking: 1, defense: 4 },
+  bayline: { finishing: 2, shooting: 2, playmaking: 2, defense: 0 },
+  redwood: { finishing: 1, shooting: 1, playmaking: 1, defense: 1 },
+  "summit-am": { finishing: 1, shooting: 1, playmaking: 4, defense: 1 },
+  ironvale: { finishing: 3, shooting: 0, playmaking: 0, defense: 2 },
+  "crescent-city": { finishing: 2, shooting: 3, playmaking: 1, defense: 1 },
+  "northern-pines": { finishing: 2, shooting: 2, playmaking: 2, defense: 3 },
 };
 
 function college(
@@ -103,6 +122,7 @@ function college(
     pitch,
     needWins,
     venueId: `college-${id}`,
+    bonus: COLLEGE_BONUS[id] ?? { finishing: 1, shooting: 1, playmaking: 1, defense: 1 },
   };
 }
 

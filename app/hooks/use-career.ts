@@ -1,5 +1,6 @@
 import type { Attrs } from "~/data/attributes";
 import type { MyPlayer, Stage } from "~/data/career";
+import type { BadgeCat } from "~/data/badges";
 import type { SeasonRecord } from "~/data/seasons";
 import { createLocalStore } from "./use-local-store";
 
@@ -47,6 +48,10 @@ export interface Career {
   salary?: number;
   /** The team Zay Carter plays for */
   dreTeamId?: string;
+  /** Unspent Badge Points per category */
+  bp?: Record<BadgeCat, number>;
+  /** Badge tiers (0-4) by badge id */
+  badges?: Record<string, number>;
 }
 
 export const NEW_CAREER: Career = {

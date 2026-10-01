@@ -3,6 +3,12 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { AttributeBuilder } from "~/components/attribute-builder/attribute-builder";
 import { AssetImage } from "~/components/asset-image/asset-image";
 import { Blueprint } from "~/components/blueprint/blueprint";
+import { Potential } from "~/components/potential/potential";
+import { Vitals, type VitalsData } from "~/components/vitals/vitals";
+import { BadgeBuilder } from "~/components/badge-builder/badge-builder";
+import { applyBadges, emptyBP, type BadgeCat } from "~/data/badges";
+import type { Attrs } from "~/data/attributes";
+import type { MyPlayer } from "~/data/career";
 import { Dialogue } from "~/components/dialogue/dialogue";
 import { GameView } from "~/components/game-view/game-view";
 import { MenuButton } from "~/components/menu-button/menu-button";
@@ -75,6 +81,7 @@ type Overlay =
       next?: Overlay;
     }
   | { kind: "builder" }
+  | { kind: "badges" }
   | { kind: "rap"; step: number }
   | { kind: "game"; oppId: string; venueId: string; label: string; target: number }
   | null;
@@ -96,6 +103,14 @@ function standings(c: Career) {
   );
 }
 
+const addBP = (bp: Record<BadgeCat, number> | undefined, add: Record<BadgeCat, number>) => {
+  const out = { ...(bp ?? emptyBP()) };
+  for (const k of Object.keys(add) as BadgeCat[]) out[k] += add[k];
+  return out;
+};
+
+const cap = (w: string) => w.charAt(0) + w.slice(1).toLowerCase();
+
 /** Runs an action once after mount (used for campus → career shortcuts) */
 function RunOnce({ run }: { run(): void }) {
   const done = useRef(false);
@@ -116,6 +131,14 @@ export default function CareerRoute() {
   const [, setProgress] = useProgress();
   const [settings] = useSettings();
   const [overlay, setOverlay] = useState<Overlay>(null);
+  const [create, setCreate] = useState<{
+    step: "vitals" | "builder" | "potential";
+    vitals?: VitalsData;
+    me?: MyPlayer;
+    attrs?: Attrs;
+  }>({
+    step: "vitals",
+  });
   const [result, setResult] = useState<MatchResult | null>(null);
   const [runId, setRunId] = useState(0);
   const c = career;
@@ -159,7 +182,7 @@ export default function CareerRoute() {
     if (college && (c.stage === "college" || c.stage === "draft")) return [college.primary, college.secondary];
     return ["#f2f4f8", "#8ec3ee"];
   }, [c.stage, team, college]);
-  if (c.me && c.attrs) registerMyBaller(c.me, toRatings(c.attrs), jersey[0], jersey[1]);
+  if (c.me && c.attrs) registerMyBaller(c.me, applyBadges(toRatings(c.attrs), c.badges), jersey[0], jersey[1]);
 
   const scene = (
     title: string,
@@ -172,12 +195,37 @@ export default function CareerRoute() {
 
   /* ---------------------------------------------------------- create */
   if (c.stage === "create" || !c.me || !c.attrs) {
+    // 2K22-style creator: Vitals → Builder → Potential
+    if (create.step === "vitals")
+      return (
+        <Vitals
+          initial={create.vitals}
+          onBack={() => navigate("/")}
+          onContinue={(v) => setCreate({ step: "builder", vitals: v })}
+        />
+      );
+    if (create.step === "potential" && create.me && create.attrs) {
+      const cm = create.me;
+      const ca = create.attrs;
+      return (
+        <Potential
+          me={cm}
+          start={ca}
+          caps={capsFor(cm.archetype, cm.heightIn)}
+          onBack={() => setCreate((x) => ({ ...x, step: "builder" }))}
+          onContinue={() => {
+            setCareer(() => ({ ...NEW_CAREER, me: cm, attrs: ca, stage: "hs", bp: emptyBP(), badges: {} }));
+            setCreate({ step: "vitals" });
+          }}
+        />
+      );
+    }
+    const v = create.vitals;
     return (
       <Blueprint
-        onBack={() => navigate("/")}
-        onFinish={(me, attrs) => {
-          setCareer(() => ({ ...NEW_CAREER, me, attrs, stage: "hs" }));
-        }}
+        initial={v ? { name: `${cap(v.first)} ${cap(v.last)}`, number: v.number, pos: v.pos, hand: v.hand } : undefined}
+        onBack={() => setCreate((x) => ({ ...x, step: "vitals" }))}
+        onFinish={(me, attrs) => setCreate((x) => ({ ...x, step: "potential", me, attrs }))}
       />
     );
   }
@@ -247,6 +295,20 @@ export default function CareerRoute() {
             undefined,
             step.venueId,
           );
+        }}
+      />
+    );
+  }
+  if (overlay?.kind === "badges") {
+    return (
+      <BadgeBuilder
+        attrs={attrs}
+        bp={c.bp ?? emptyBP()}
+        badges={c.badges ?? {}}
+        onClose={() => setOverlay(null)}
+        onConfirm={(badges, bp) => {
+          setCareer((x) => ({ ...x, badges, bp }));
+          setOverlay(null);
         }}
       />
     );
@@ -329,6 +391,23 @@ export default function CareerRoute() {
   function finishGame(r: MatchResult) {
     const win = r.winner === 0;
     const sp = win ? 14 : 6;
+    // Badge Points: your archetype's category grows fastest
+    const main: BadgeCat =
+      me.archetype === "sniper"
+        ? "shooting"
+        : me.archetype === "floor-general"
+          ? "playmaking"
+          : me.archetype === "lockdown" || me.archetype === "big"
+            ? "defense"
+            : "finishing";
+    const cats: BadgeCat[] = ["finishing", "shooting", "playmaking", "defense"];
+    const other = cats[(c.hsGame + c.collegeGame + c.week) % 4];
+    setCareer((x) => {
+      const bp = { ...(x.bp ?? emptyBP()) };
+      bp[main] += win ? 2 : 1;
+      if (win) bp[other] += 1;
+      return { ...x, bp };
+    });
     setProgress((p) => ({
       ...p,
       crowns: (p.crowns ?? 0) + (c.stage === "pro" ? salary + (win ? 200 : 0) : win ? 60 : 20),
@@ -530,7 +609,9 @@ export default function CareerRoute() {
         colleges={COLLEGES}
         hsWins={c.hsWins}
         rivalId={dreCollege().id}
-        onSign={(col) => setCareer((x) => ({ ...x, collegeId: col.id, stage: "college", sp: x.sp + 20 }))}
+        onSign={(col) =>
+          setCareer((x) => ({ ...x, collegeId: col.id, stage: "college", sp: x.sp + 20, bp: addBP(x.bp, col.bonus) }))
+        }
       />
     );
   }
@@ -938,7 +1019,15 @@ export default function CareerRoute() {
                     key={col.id}
                     disabled={!offered}
                     style={{ "--c": col.primary } as React.CSSProperties}
-                    onClick={() => setCareer((x) => ({ ...x, collegeId: col.id, stage: "college", sp: x.sp + 20 }))}
+                    onClick={() =>
+                      setCareer((x) => ({
+                        ...x,
+                        collegeId: col.id,
+                        stage: "college",
+                        sp: x.sp + 20,
+                        bp: addBP(x.bp, col.bonus),
+                      }))
+                    }
                   >
                     <strong>{col.name}</strong>
                     <em>{offered ? col.pitch : `No offer (needs ${col.needWins} HS wins)`}</em>
@@ -957,6 +1046,9 @@ export default function CareerRoute() {
             {c.sp} <small>SP available</small>
           </p>
           <MenuButton onClick={() => setOverlay({ kind: "builder" })}>Upgrade attributes</MenuButton>
+          <MenuButton onClick={() => setOverlay({ kind: "badges" })}>
+            Badges · {Object.values(c.bp ?? emptyBP()).reduce((a, b) => a + b, 0)} BP
+          </MenuButton>
           <p className={styles.small}>Wins +14 SP · losses +6 · practice +12</p>
         </article>
 
