@@ -1,0 +1,396 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 28px 16px 24px;
+  color: #f4f4f6;
+  background:
+    radial-gradient(60% 50% at 25% 40%, rgba(139, 92, 246, 0.22), transparent 70%),
+    radial-gradient(60% 50% at 75% 40%, rgba(255, 255, 255, 0.08), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0 2px, transparent 2px 120px),
+    linear-gradient(180deg, #17120f, #0a0807 60%, #050404);
+}
+
+.head {
+  text-align: center;
+}
+
+.head p {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #b9b2a8;
+}
+
+.head h1 {
+  margin: 2px 0 0;
+  font-family: var(--family-display);
+  font-size: clamp(44px, 6vw, 76px);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: 0.03em;
+}
+
+.head span {
+  font-size: 14px;
+  color: #d6d0c6;
+}
+
+.table {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 520px));
+  gap: 36px;
+  justify-content: center;
+  width: 100%;
+}
+
+.paper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f7f4ec;
+  color: #16130f;
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.55),
+    0 2px 0 rgba(255, 255, 255, 0.6) inset;
+  transition:
+    transform 0.4s ease,
+    filter 0.4s ease,
+    opacity 0.4s ease;
+}
+
+.paper[data-brand="vyro"] {
+  transform: rotate(-1.2deg);
+}
+
+.paper[data-brand="vanta"] {
+  transform: rotate(1.2deg);
+}
+
+.paper[data-state="open"]:hover,
+.paper[data-state="signed"] {
+  transform: rotate(0) translateY(-6px);
+}
+
+.paper[data-state="passed"] {
+  filter: grayscale(0.9) brightness(0.55);
+  opacity: 0.7;
+}
+
+.band {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  color: #fff;
+}
+
+.paper[data-brand="vyro"] .band {
+  background: linear-gradient(110deg, #2a1660, #120b26 60%, #0b0a12);
+}
+
+.paper[data-brand="vanta"] .band {
+  background: #050505;
+}
+
+.band strong {
+  display: block;
+  font-family: var(--family-display);
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.06em;
+}
+
+.paper[data-brand="vanta"] .band strong {
+  letter-spacing: 0.32em;
+}
+
+.band small {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.band em {
+  margin-left: auto;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.body {
+  padding: 14px 22px 18px;
+  background-image: repeating-linear-gradient(180deg, transparent 0 27px, rgba(22, 19, 15, 0.05) 27px 28px);
+}
+
+.body h2 {
+  margin: 0;
+  font-family: var(--family-display);
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.parties {
+  margin: 4px 0 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #3c362e;
+}
+
+.shoe {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.paper[data-brand="vyro"] .shoe {
+  background: linear-gradient(120deg, #1a1033, #0b0a12);
+}
+
+.paper[data-brand="vanta"] .shoe {
+  background: linear-gradient(120deg, #1c1c1f, #050505);
+}
+
+.shoe svg {
+  width: 100%;
+  height: auto;
+}
+
+.shoe small {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #b9b2c8;
+}
+
+.shoe strong {
+  display: block;
+  font-family: var(--family-display);
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1;
+  color: #fff;
+  letter-spacing: 0.04em;
+}
+
+.terms {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  margin: 12px 0 6px;
+  border-top: 2px solid #16130f;
+}
+
+.terms div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 7px 4px;
+  border-bottom: 1px solid rgba(22, 19, 15, 0.18);
+}
+
+.terms div:nth-child(odd) {
+  margin-right: 12px;
+}
+
+.terms dt {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6a6256;
+}
+
+.terms dd {
+  margin: 0;
+  font-family: var(--family-display);
+  font-size: 24px;
+}
+
+.perks {
+  margin: 6px 0 10px;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+
+.perks li {
+  padding: 2px 0;
+}
+
+.perks li::before {
+  content: "✓ ";
+  font-weight: 900;
+}
+
+.paper[data-brand="vyro"] .perks li::before {
+  color: #6d28d9;
+}
+
+.sigs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 6px;
+}
+
+.sigs > div {
+  display: flex;
+  flex-direction: column;
+  border-top: 1.5px solid #16130f;
+  padding-top: 2px;
+  position: relative;
+  min-height: 52px;
+  justify-content: flex-end;
+}
+
+.sigs small {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6a6256;
+}
+
+.ink {
+  position: absolute;
+  bottom: 16px;
+  left: 2px;
+  font-family: "Caveat", cursive;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1;
+  color: #1c2a6b;
+  white-space: nowrap;
+  clip-path: inset(0 100% 0 0);
+}
+
+.ink[data-on="true"] {
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 1.3s ease-out 0.15s;
+}
+
+.stamp {
+  position: absolute;
+  right: 26px;
+  bottom: 58px;
+  padding: 4px 18px;
+  border: 5px double currentColor;
+  border-radius: 8px;
+  font-family: var(--family-display);
+  font-size: 54px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transform: rotate(-14deg);
+  opacity: 0.82;
+  animation: thud 0.35s cubic-bezier(0.2, 1.6, 0.4, 1) 1.2s both;
+  pointer-events: none;
+}
+
+.paper[data-brand="vyro"] .stamp {
+  color: #7c3aed;
+}
+
+.paper[data-brand="vanta"] .stamp {
+  color: #0a0a0b;
+}
+
+@keyframes thud {
+  from {
+    opacity: 0;
+    transform: rotate(-14deg) scale(2.2);
+  }
+}
+
+.sign {
+  margin: 0 22px 18px;
+  padding: 14px;
+  border: 0;
+  border-radius: 6px;
+  font-family: var(--family-display);
+  font-size: 26px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+.paper[data-brand="vyro"] .sign {
+  background: linear-gradient(90deg, #6d28d9, #8b5cf6);
+  color: #fff;
+}
+
+.paper[data-brand="vanta"] .sign {
+  background: #0a0a0b;
+  color: #fff;
+}
+
+.sign:hover,
+.sign:focus-visible {
+  filter: brightness(1.15);
+  outline: 3px solid #f2c21b;
+}
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 52px;
+}
+
+.foot p {
+  margin: 0;
+  font-size: 16px;
+  color: #efe9df;
+}
+
+.go,
+.decline {
+  padding: 10px 22px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.go {
+  border: 0;
+  background: #f2c21b;
+  color: #111;
+  font-family: var(--family-display);
+  font-size: 22px;
+  letter-spacing: 0.08em;
+}
+
+.decline {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #d6d0c6;
+}
+
+@media (max-width: 900px) {
+  .table {
+    grid-template-columns: minmax(0, 520px);
+  }
+  .shoe {
+    grid-template-columns: 140px 1fr;
+  }
+}

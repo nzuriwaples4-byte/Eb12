@@ -42,7 +42,7 @@ export default function CityRoute() {
   const cityRef = useRef<City | null>(null);
   const [prompt, setPrompt] = useState<Poi | null>(null);
   const [zone, setZone] = useState(theme.city);
-  const [shop, setShop] = useState(false);
+  const [shop, setShop] = useState<false | "vyro" | "vanta">(false);
   const [ready, setReady] = useState(false);
   const look = kairoLook(progress);
   const lookKey = JSON.stringify(look);
@@ -84,6 +84,16 @@ export default function CityRoute() {
         z: PLACES.shop.z,
         r: 5,
         color: "#8b5cf6",
+      },
+      {
+        id: "vanta",
+        kind: "vanta",
+        label: "VANTA",
+        action: "Shop VANTA: Built different.",
+        x: PLACES.vanta.x,
+        z: PLACES.vanta.z,
+        r: 5,
+        color: "#f4f4f6",
       },
       {
         id: "crib",
@@ -141,7 +151,8 @@ export default function CityRoute() {
       const c = COURTS.find((x) => `court-${x.ballerId}` === p.id)!;
       navigate(`/play?opp=${c.ballerId}&venue=${c.venueId}&auto=1&from=city`);
     } else if (p.kind === "story") navigate(`/story/${next.id}`);
-    else if (p.kind === "shop") setShop(true);
+    else if (p.kind === "shop") setShop("vyro");
+    else if (p.kind === "vanta") setShop("vanta");
     else if (p.kind === "crib") navigate("/crib");
     else if (p.kind === "arena") navigate("/career");
     else if (p.kind === "online") navigate("/online");
@@ -178,7 +189,7 @@ export default function CityRoute() {
   }, [lookKey]);
 
   useEffect(() => {
-    if (cityRef.current) cityRef.current.paused = shop;
+    if (cityRef.current) cityRef.current.paused = !!shop;
   }, [shop]);
 
   return (
@@ -216,7 +227,7 @@ export default function CityRoute() {
         </button>
       )}
       <p className={styles.help}>WASD move · Shift sprint · drag / Q R to turn camera · E interact</p>
-      {shop && <VyroStore onClose={() => setShop(false)} />}
+      {shop && <VyroStore brand={shop} onClose={() => setShop(false)} />}
     </main>
   );
 }

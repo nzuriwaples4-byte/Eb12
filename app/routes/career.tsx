@@ -11,6 +11,10 @@ import type { Attrs } from "~/data/attributes";
 import type { MyPlayer } from "~/data/career";
 import { Dialogue } from "~/components/dialogue/dialogue";
 import { Flight } from "~/components/flight/flight";
+import { ShoeDealContracts } from "~/components/shoe-deal/shoe-deal";
+import { SneakerArt, VantaLogo, VyroLogo } from "~/components/vyro-store/vyro-store";
+import { BRANDS, TIER_LABEL, dealExpired, dealIntro, dealOffers, dealSigned, royaltyCheck } from "~/data/deals";
+import { GEAR } from "~/data/gear";
 import { cityFor } from "~/data/cities";
 import { GameView } from "~/components/game-view/game-view";
 import { MenuButton } from "~/components/menu-button/menu-button";
@@ -185,7 +189,15 @@ export default function CareerRoute() {
     if (college && (c.stage === "college" || c.stage === "draft")) return [college.primary, college.secondary];
     return ["#f2f4f8", "#8ec3ee"];
   }, [c.stage, team, college]);
-  if (c.me && c.attrs) registerMyBaller(c.me, applyBadges(toRatings(c.attrs), c.badges), jersey[0], jersey[1]);
+  const deal = c.shoeDeal ?? null;
+  if (c.me && c.attrs)
+    registerMyBaller(
+      c.me,
+      applyBadges(toRatings(c.attrs), c.badges),
+      jersey[0],
+      jersey[1],
+      deal ? [deal.shoeColors[0], deal.shoeColors[2]] : undefined,
+    );
 
   const scene = (
     title: string,
@@ -413,7 +425,9 @@ export default function CareerRoute() {
     });
     setProgress((p) => ({
       ...p,
-      crowns: (p.crowns ?? 0) + (c.stage === "pro" ? salary + (win ? 200 : 0) : win ? 60 : 20),
+      crowns:
+        (p.crowns ?? 0) +
+        (c.stage === "pro" ? salary + (deal?.perGame ?? 0) + (win ? 200 : 0) : win ? 60 : 20),
     }));
     if (c.stage === "hs") {
       const game = c.hsGame;
@@ -584,6 +598,51 @@ export default function CareerRoute() {
         team={getTeam(c.flight.to)}
         tag={c.flight.tag}
         onDone={() => setCareer((x) => ({ ...x, flight: null }))}
+      />
+    );
+  }
+
+  /* ---------------------------------------------------------- shoe deal */
+  // Week 2 of your rookie year (and whenever a deal runs out) the brands come calling
+  if (c.stage === "pro" && team && c.week >= 2 && dealExpired(deal, season) && c.dealSeen !== season && !overlay) {
+    if (!c.seen.includes(`deal-intro-${season}`))
+      return (
+        <Dialogue
+          key={`deal-intro-${season}`}
+          lines={dealIntro(me.name.split(" ")[0], deal)}
+          title="The Shoe Deal · VYRO vs VANTA"
+          stage={staged(sceneSet("proIntro", { team }))}
+          background="city-aerial"
+          backgroundTint={team.primary}
+          chooser="me"
+          names={names}
+          onDone={() => setCareer((x) => ({ ...x, seen: [...x.seen, `deal-intro-${season}`] }))}
+        />
+      );
+    return (
+      <ShoeDealContracts
+        offers={dealOffers(me, {
+          fans: c.fans,
+          ovr,
+          season,
+          champion: c.flags.includes("champion"),
+          current: deal,
+        })}
+        athlete={{ name: me.name, number: me.number, team: `${team.city} ${team.name}` }}
+        season={season}
+        onDecline={() => setCareer((x) => ({ ...x, dealSeen: season }))}
+        onSign={(d) => {
+          const brandGear = GEAR.filter((g) => g.brand === BRANDS[d.brand].gearBrand && g.slot === "shoes").map(
+            (g) => g.id,
+          );
+          setProgress((p) => ({
+            ...p,
+            crowns: (p.crowns ?? 0) + d.bonus,
+            owned: [...new Set([...(p.owned ?? []), ...brandGear])],
+          }));
+          setCareer((x) => ({ ...x, shoeDeal: d, dealSeen: season, earnings: x.earnings + d.bonus, fans: x.fans + 5 }));
+          scene("Shoe Deal", dealSigned(d));
+        }}
       />
     );
   }
@@ -766,14 +825,19 @@ export default function CareerRoute() {
         backgroundTint={team?.primary}
         chooser="me"
         names={names}
-        onDone={() =>
+        onDone={() => {
+          // Signature-shoe royalties are paid once a season
+          const check = deal ? royaltyCheck(deal, c.fans) : 0;
+          if (check) setProgress((p) => ({ ...p, crowns: (p.crowns ?? 0) + check }));
           setCareer((x) => ({
             ...x,
             stage: "offseason",
             history: x.history?.length ? x.history : [lastRec],
             seen: [...x.seen, `awards-${lastRec.season}`],
-          }))
-        }
+            earnings: x.earnings + check,
+            royalties: (x.royalties ?? 0) + check,
+          }));
+        }}
       />
     );
   }
@@ -909,8 +973,12 @@ export default function CareerRoute() {
       const pay = 250 + c.fans * 8;
       setProgress((p) => ({ ...p, crowns: (p.crowns ?? 0) + pay }));
       setCareer((x) => done({ ...x, fans: x.fans + 3, earnings: x.earnings + pay }));
+      const brand = deal ? BRANDS[deal.brand].name : "A local car dealership";
       scene("Endorsement Shoot", [
-        { who: "agent", text: `Harbor Kicks commercial shoot. Smile, dunk, smile again. That's ₵${pay} in the bank.` },
+        {
+          who: "agent",
+          text: `${brand} commercial shoot${deal?.shoe ? ` for the ${deal.shoe}` : ""}. Smile, dunk, smile again. That's ₵${pay} in the bank.`,
+        },
         { who: "imani", text: "I'm on set too. Try not to blink in every take." },
       ]);
     } else if (kind === "press") {
@@ -1092,6 +1160,38 @@ export default function CareerRoute() {
           </MenuButton>
           <p className={styles.small}>Wins +14 SP · losses +6 · practice +12</p>
         </article>
+
+        {(c.stage === "pro" || offseason || c.flags.includes("retired")) && (
+          <article className={styles.card} data-deal={deal?.brand ?? "none"}>
+            <h2>Shoe Deal</h2>
+            {deal ? (
+              <>
+                <div className={styles.dealHead}>
+                  {deal.brand === "vanta" ? <VantaLogo size={40} /> : <VyroLogo size={40} />}
+                  <div>
+                    <strong>{BRANDS[deal.brand].name}</strong>
+                    <small>{TIER_LABEL[deal.tier]}</small>
+                  </div>
+                </div>
+                <SneakerArt colors={deal.shoeColors} mark={deal.brand} />
+                <p className={styles.label}>{deal.shoe ?? "Player Edition"}</p>
+                <p className={styles.small}>
+                  ₵{deal.perGame}/game · {deal.royalty ? `${deal.royalty}% royalty · ` : ""}
+                  {deal.years >= 99
+                    ? "Lifetime"
+                    : `${Math.max(0, deal.signed + deal.years - season)} season${deal.signed + deal.years - season === 1 ? "" : "s"} left`}
+                  {(c.royalties ?? 0) > 0 && ` · ₵${(c.royalties ?? 0).toLocaleString()} in royalties`}
+                </p>
+              </>
+            ) : (
+              <p className={styles.small}>
+                {c.stage === "pro" && c.week < 2
+                  ? "VYRO and VANTA scouts are at your games. Your agent expects offers by week 2."
+                  : "No sneaker deal. Win games and grow your fans; the brands will call back next season."}
+              </p>
+            )}
+          </article>
+        )}
 
         <article className={styles.card}>
           <h2>This week</h2>

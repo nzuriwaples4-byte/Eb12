@@ -16,7 +16,7 @@ import { createRenderer, environmentFor, fitToParent, skyTexture } from "./stage
  * stays data-driven.
  */
 
-export type PoiKind = "court" | "story" | "shop" | "crib" | "arena" | "online" | "roster" | "door";
+export type PoiKind = "court" | "story" | "shop" | "vanta" | "crib" | "arena" | "online" | "roster" | "door";
 
 export interface Poi {
   id: string;
@@ -393,11 +393,12 @@ export class City {
   private buildStorefront(p: Poi) {
     const place = {
       shop: PLACES.shop,
+      vanta: PLACES.shop,
       crib: PLACES.crib,
       online: PLACES.rec,
       roster: PLACES.fame,
       arena: PLACES.arena,
-    }[p.kind as "shop" | "crib" | "online" | "roster" | "arena"];
+    }[p.kind as "shop" | "vanta" | "crib" | "online" | "roster" | "arena"];
     if (!place) return;
     const l = place.lot;
     const cx = (l.minX + l.maxX) / 2;
@@ -407,7 +408,7 @@ export class City {
     // Front face is the lot edge closest to the POI
     const frontZ = Math.abs(p.z - l.minZ) < Math.abs(p.z - l.maxZ) ? l.minZ : l.maxZ;
     const out = frontZ === l.minZ ? -1 : 1;
-    if (p.kind !== "arena") {
+    if (p.kind !== "arena" && p.kind !== "vanta") {
       // The VYRO flagship is black glass; everything else is masonry
       const kind = p.kind === "shop" ? "glass" : p.kind === "roster" ? "concrete" : "brick";
       const h = p.kind === "crib" ? 16 : p.kind === "roster" ? 14 : 12;
@@ -441,7 +442,9 @@ export class City {
         map:
           p.kind === "shop"
             ? signTexture(["VYRO", "ATHLETICS  ·  BUILT FOR MORE"], "#07050c", "#e9e2ff", "#8b5cf6")
-            : signTexture([p.label.toUpperCase()], "#0b0d12", p.color, p.color),
+            : p.kind === "vanta"
+              ? signTexture(["VANTA", "BUILT  DIFFERENT."], "#030303", "#f4f4f6", "#ffffff")
+              : signTexture([p.label.toUpperCase()], "#0b0d12", p.color, p.color),
         toneMapped: false,
       }),
     );
@@ -474,9 +477,12 @@ export class City {
         g.add(step);
       }
     }
-    if (p.kind === "shop") {
-      // Waples colorways in the window
-      const cols = ["#2f6bff", "#8b5cf6", "#e2b23a", "#f2f3f7", "#c21d2a", "#7c3aed"];
+    if (p.kind === "shop" || p.kind === "vanta") {
+      // Waples colorways in the VYRO window; VANTA's five colorways next door
+      const cols =
+        p.kind === "vanta"
+          ? ["#0d0d0f", "#f2f2f4", "#7b3fe4", "#b6ff1a", "#d6202f", "#d4a93a"]
+          : ["#2f6bff", "#8b5cf6", "#e2b23a", "#f2f3f7", "#c21d2a", "#7c3aed"];
       cols.forEach((c, i) => {
         const shoe = new THREE.Mesh(
           new THREE.BoxGeometry(0.5, 0.25, 0.9),
@@ -487,7 +493,11 @@ export class City {
         g.add(shoe);
         const ped = new THREE.Mesh(
           new THREE.CylinderGeometry(0.35, 0.35, 1.1, 16),
-          new THREE.MeshStandardMaterial({ color: "#14101f", emissive: "#6d28d9", emissiveIntensity: 0.6 }),
+          new THREE.MeshStandardMaterial(
+            p.kind === "vanta"
+              ? { color: "#101012", emissive: "#e8e8ee", emissiveIntensity: 0.35 }
+              : { color: "#14101f", emissive: "#6d28d9", emissiveIntensity: 0.6 },
+          ),
         );
         ped.position.set(shoe.position.x, 0.55, 0.5);
         g.add(ped);

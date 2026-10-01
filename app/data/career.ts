@@ -430,7 +430,14 @@ export function collegeGamesFor(myCollegeId?: string) {
 export const COLLEGE_GAMES = collegeGamesFor();
 
 /** Build (or refresh) the player's Baller so the engine can use it */
-export function registerMyBaller(p: MyPlayer, ratings: Ratings, jersey: string, trim: string): Baller {
+export function registerMyBaller(
+  p: MyPlayer,
+  ratings: Ratings,
+  jersey: string,
+  trim: string,
+  /** Your shoe deal's signature colors (upper, sole) */
+  shoes?: [string, string],
+): Baller {
   const height = p.heightIn * 0.0254;
   const base = BALLERS[0];
   const look: Look = {
@@ -442,8 +449,8 @@ export function registerMyBaller(p: MyPlayer, ratings: Ratings, jersey: string, 
     number: p.number,
     shorts: jersey,
     shortsStripe: trim,
-    shoes: "#101218",
-    soles: trim,
+    shoes: shoes?.[0] ?? "#101218",
+    soles: shoes?.[1] ?? trim,
     build: p.archetype === "big" ? 1.28 : p.archetype === "slasher" || p.archetype === "lockdown" ? 1.04 : 0.94,
   };
   const b: Baller = {
@@ -900,7 +907,7 @@ export const LIFE_EVENTS: { id: string; when(c: SceneCtx, week: number): boolean
     lines: () => [
       { who: "agent", text: "The fan vote just came in. You're an EBL All-Star. As a rookie." },
       { who: "mom", text: "I voted four hundred times. On three phones. Don't ask whose phones." },
-      { who: "agent", text: "Harbor Kicks wants you on a signature shoe. There's a ₵1,500 bonus." },
+      { who: "agent", text: "And every sneaker brand in the league just asked for your shoe size. Again." },
     ],
   },
   {

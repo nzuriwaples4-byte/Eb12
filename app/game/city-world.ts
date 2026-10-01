@@ -35,7 +35,9 @@ export const PLACES = {
   story: { x: -6, z: 22 },
   square: { x: 0, z: -80 },
   arena: { x: 30, z: -86.5, ry: 0, lot: { minX: 9, maxX: 51, minZ: -111, maxZ: -89 } },
-  shop: { x: -30, z: -73.5, ry: Math.PI, lot: { minX: -51, maxX: -9, minZ: -71, maxZ: -49 } },
+  shop: { x: -38, z: -73.5, ry: Math.PI, lot: { minX: -51, maxX: -9, minZ: -71, maxZ: -49 } },
+  /** VANTA shares the black-glass block with VYRO */
+  vanta: { x: -20, z: -73.5 },
   crib: { x: 90, z: 46.5, ry: Math.PI, lot: { minX: 69, maxX: 111, minZ: 49, maxZ: 71 } },
   rec: { x: -90, z: 6.5, ry: Math.PI, lot: { minX: -111, maxX: -69, minZ: 9, maxZ: 31 } },
   fame: { x: 90, z: -6.5, ry: 0, lot: { minX: 69, maxX: 111, minZ: -31, maxZ: -9 } },

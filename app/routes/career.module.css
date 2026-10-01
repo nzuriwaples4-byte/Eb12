@@ -226,3 +226,40 @@
   flex-direction: column;
   gap: var(--space-3);
 }
+
+.card[data-deal="vyro"] {
+  background:
+    radial-gradient(90% 70% at 100% 0%, rgba(139, 92, 246, 0.28), transparent 70%),
+    rgba(16, 20, 31, 0.9);
+}
+
+.card[data-deal="vanta"] {
+  background:
+    radial-gradient(90% 70% at 100% 0%, rgba(255, 255, 255, 0.12), transparent 70%),
+    #060606;
+}
+
+.card[data-deal] > svg {
+  max-width: 100%;
+}
+
+.dealHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dealHead strong {
+  display: block;
+  font-family: var(--family-display);
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+
+.dealHead small {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}

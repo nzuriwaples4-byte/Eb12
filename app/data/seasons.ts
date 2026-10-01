@@ -110,7 +110,7 @@ export function seasonIntro(c: SceneCtx): Line[] {
     3: [
       { who: "narrator", text: `Season three. Your jersey is the best seller in ${t.city}.` },
       { who: "coach", text: "You're not the young guy anymore. You're the guy. The locker room follows you now." },
-      { who: "agent", text: "Harbor Kicks wants a second signature shoe. The first one sold out in four minutes." },
+      { who: "agent", text: "Your shoe sold out in four minutes. The brand wants the next model on shelves by Christmas." },
     ],
     4: [
       { who: "narrator", text: "Season four. The MVP ladder has your name at the top in September." },

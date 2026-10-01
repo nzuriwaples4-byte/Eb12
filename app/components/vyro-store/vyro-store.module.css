@@ -10,18 +10,26 @@
 }
 
 .panel {
+  --v: #8b5cf6;
+  --v-rgb: 139, 92, 246;
+  --v-glow: 124, 58, 237;
+  --v-light: #a78bfa;
+  --v-pale: #ddd6fe;
+  --v-deep: #6d28d9;
+  --v-muted: #b5a9d9;
+  --v-ink: #f1edff;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   width: min(1280px, 100%);
   max-height: calc(100vh - 32px);
   padding: var(--space-5);
-  color: #f1edff;
+  color: var(--v-ink);
   background:
-    radial-gradient(80% 60% at 50% 0%, rgba(124, 58, 237, 0.28), transparent 70%),
+    radial-gradient(80% 60% at 50% 0%, rgba(var(--v-glow), 0.28), transparent 70%),
     linear-gradient(180deg, #0c0914, #050408);
-  border: 1px solid rgba(139, 92, 246, 0.45);
-  box-shadow: 0 0 60px rgba(124, 58, 237, 0.35);
+  border: 1px solid rgba(var(--v-rgb), 0.45);
+  box-shadow: 0 0 60px rgba(var(--v-glow), 0.35);
 }
 
 .head {
@@ -37,7 +45,7 @@
   font-style: italic;
   line-height: 0.9;
   letter-spacing: 0.02em;
-  background: linear-gradient(180deg, #ddd6fe, #8b5cf6);
+  background: linear-gradient(180deg, var(--v-pale), var(--v));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -48,8 +56,8 @@
   font-style: normal;
   letter-spacing: 0.45em;
   text-transform: uppercase;
-  color: #a78bfa;
-  -webkit-text-fill-color: #a78bfa;
+  color: var(--v-light);
+  -webkit-text-fill-color: var(--v-light);
 }
 
 .tag {
@@ -57,7 +65,7 @@
   font-size: var(--text-xs);
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: #b5a9d9;
+  color: var(--v-muted);
 }
 
 .wallet {
@@ -70,9 +78,9 @@
 .close {
   width: 40px;
   height: 40px;
-  border: 1px solid rgba(139, 92, 246, 0.5);
+  border: 1px solid rgba(var(--v-rgb), 0.5);
   background: transparent;
-  color: #f1edff;
+  color: var(--v-ink);
   font-size: 18px;
   cursor: pointer;
 }
@@ -81,7 +89,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-  border-bottom: 1px solid rgba(139, 92, 246, 0.35);
+  border-bottom: 1px solid rgba(var(--v-rgb), 0.35);
   padding-bottom: var(--space-2);
 }
 
@@ -89,7 +97,7 @@
   padding: 8px 16px;
   border: 0;
   background: transparent;
-  color: #b5a9d9;
+  color: var(--v-muted);
   font-family: var(--family-display);
   font-size: var(--text-lg);
   letter-spacing: 0.06em;
@@ -99,15 +107,15 @@
 
 .tabs button[data-on="true"] {
   color: #fff;
-  box-shadow: inset 0 -3px 0 #8b5cf6;
-  text-shadow: 0 0 14px rgba(139, 92, 246, 0.9);
+  box-shadow: inset 0 -3px 0 var(--v);
+  text-shadow: 0 0 14px rgba(var(--v-rgb), 0.9);
 }
 
 .msg {
   margin: 0;
   padding: 6px 12px;
-  border-left: 3px solid #8b5cf6;
-  background: rgba(139, 92, 246, 0.12);
+  border-left: 3px solid var(--v);
+  background: rgba(var(--v-rgb), 0.12);
 }
 
 .scroll {
@@ -123,8 +131,8 @@
   font-family: var(--family-display);
   font-size: var(--text-3xl, 40px);
   font-style: italic;
-  color: #a78bfa;
-  text-shadow: 0 0 18px rgba(139, 92, 246, 0.6);
+  color: var(--v-light);
+  text-shadow: 0 0 18px rgba(var(--v-rgb), 0.6);
 }
 
 .model small {
@@ -133,7 +141,7 @@
   font-style: normal;
   letter-spacing: 0.35em;
   text-transform: uppercase;
-  color: #b5a9d9;
+  color: var(--v-muted);
   text-shadow: none;
 }
 
@@ -149,12 +157,12 @@
   gap: 4px;
   padding: var(--space-3);
   background: linear-gradient(180deg, rgba(24, 18, 40, 0.9), rgba(10, 8, 18, 0.9));
-  border: 1px solid rgba(139, 92, 246, 0.25);
+  border: 1px solid rgba(var(--v-rgb), 0.25);
 }
 
 .card[data-on="true"] {
-  border-color: #8b5cf6;
-  box-shadow: 0 0 22px rgba(139, 92, 246, 0.45);
+  border-color: var(--v);
+  box-shadow: 0 0 22px rgba(var(--v-rgb), 0.45);
 }
 
 .card strong {
@@ -164,7 +172,7 @@
 }
 
 .card small {
-  color: #b5a9d9;
+  color: var(--v-muted);
   font-size: var(--text-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -173,7 +181,7 @@
 .sneaker {
   width: 100%;
   height: auto;
-  filter: drop-shadow(0 6px 14px rgba(124, 58, 237, 0.4));
+  filter: drop-shadow(0 6px 14px rgba(var(--v-glow), 0.4));
 }
 
 .goods {
@@ -189,7 +197,7 @@
   font-size: var(--text-xs);
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: #ddd6fe;
+  color: var(--v-pale);
 }
 
 .swatch {
@@ -212,16 +220,16 @@
 .card button {
   margin-top: auto;
   padding: 8px;
-  border: 1px solid rgba(139, 92, 246, 0.5);
+  border: 1px solid rgba(var(--v-rgb), 0.5);
   background: transparent;
-  color: #f1edff;
+  color: var(--v-ink);
   font-weight: 800;
   letter-spacing: 0.06em;
   cursor: pointer;
 }
 
 .card button[data-buy] {
-  background: linear-gradient(90deg, #6d28d9, #8b5cf6);
+  background: linear-gradient(90deg, var(--v-deep), var(--v));
   border-color: transparent;
 }
 
@@ -236,9 +244,34 @@
   flex-wrap: wrap;
   gap: var(--space-2);
   padding-top: var(--space-2);
-  border-top: 1px solid rgba(139, 92, 246, 0.35);
+  border-top: 1px solid rgba(var(--v-rgb), 0.35);
   font-size: var(--text-xs);
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: #b5a9d9;
+  color: var(--v-muted);
+}
+
+/* VANTA: monochrome, built different */
+.panel[data-brand="vanta"] {
+  --v: #f4f4f6;
+  --v-rgb: 244, 244, 246;
+  --v-glow: 160, 160, 170;
+  --v-light: #d9d9de;
+  --v-pale: #ffffff;
+  --v-deep: #2a2a30;
+  --v-muted: #a0a0a8;
+  --v-ink: #f4f4f6;
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(255, 255, 255, 0.08), transparent 70%),
+    linear-gradient(180deg, #0b0b0c, #030303);
+}
+
+.panel[data-brand="vanta"] .head h2 {
+  font-style: normal;
+  letter-spacing: 0.22em;
+}
+
+.panel[data-brand="vanta"] .card button[data-buy] {
+  background: #f4f4f6;
+  color: #0a0a0b;
 }

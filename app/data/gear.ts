@@ -205,6 +205,90 @@ export const VYRO: GearItem[] = [
 
 GEAR.push(...VYRO);
 
+/* ---------------------------------------------------------- VANTA */
+
+/** VANTA colorways from the catalog */
+const VANTA_COLORS: Record<string, [string, string, string]> = {
+  "Black/White": ["#0d0d0f", "#ffffff", "#f4f4f6"],
+  "Ice": ["#f2f2f4", "#0d0d0f", "#e8e8ec"],
+  "Raven": ["#0d0b14", "#7b3fe4", "#1a1424"],
+  "Volt": ["#b6ff1a", "#0d0d0f", "#0d0d0f"],
+  "Fire": ["#d6202f", "#1f4fff", "#1f4fff"],
+  "Black/Gold": ["#0b0b0c", "#d4a93a", "#d4a93a"],
+};
+
+const vantaShoe = (line: string, kind: string, price: number, colorway: keyof typeof VANTA_COLORS): GearItem => {
+  const [upper, accent, sole] = VANTA_COLORS[colorway];
+  return {
+    id: `vanta-${line.toLowerCase().replace(/\s+/g, "-")}-${colorway.toLowerCase().replace(/[^a-z]+/g, "-")}`,
+    slot: "shoes",
+    name: `${line} '${colorway}'`,
+    brand: "VANTA",
+    price,
+    swatch: [upper, accent, sole],
+    shoe: [upper, accent, sole],
+    line,
+    colorway,
+    kind,
+    apply: (l) => ({ ...l, shoes: upper, soles: sole === upper ? accent : sole }),
+  };
+};
+
+const vantaGoods = (id: string, name: string, kind: string, price: number, colors: string[]): GearItem => ({
+  id: `vanta-${id}`,
+  slot: "lifestyle",
+  name,
+  brand: "VANTA",
+  price,
+  swatch: colors,
+  kind,
+  line: name,
+  apply: (l) => l,
+});
+
+const ALL_WAYS = ["Black/White", "Ice", "Raven", "Volt", "Fire"] as const;
+
+/** VANTA: Built different. Prices are the catalog's dollars × 8 in Crowns. */
+export const VANTA: GearItem[] = [
+  ...ALL_WAYS.map((c) => vantaShoe("VANTA 01", "Signature Performance", 1040, c)),
+  ...ALL_WAYS.map((c) => vantaShoe("VANTA 02", "Everyday Hoops", 880, c)),
+  ...ALL_WAYS.map((c) => vantaShoe("VANTA 03", "Speed. Control. Flow.", 880, c)),
+  ...(["Black/Gold", "Ice", "Raven"] as const).map((c) => vantaShoe("VANTA 04", "Premium Signature", 1200, c)),
+  vantaShoe("VANTA Street", "Lifestyle Sneaker", 800, "Black/White"),
+  vantaShoe("VANTA Street", "Lifestyle Sneaker", 800, "Ice"),
+  vantaGoods("slides", "VANTA Slides", "Relax. Recharge.", 360, ["#0b0b0c", "#ffffff"]),
+  vantaGoods("hoodie", "VANTA Hoodie", "Hoodie", 640, ["#0b0b0c", "#d9d9de"]),
+  vantaGoods("tee", "VANTA Tee", "T-Shirt", 320, ["#0b0b0c", "#f4f4f6"]),
+  vantaGoods("shorts", "VANTA Shorts", "Shorts", 400, ["#0b0b0c", "#f4f4f6"]),
+  vantaGoods("socks", "VANTA Socks", "Socks", 120, ["#f4f4f6", "#0b0b0c"]),
+  vantaGoods("hat", "VANTA Hat", "Hat", 240, ["#0b0b0c", "#ffffff"]),
+  vantaGoods("bag", "VANTA Gear Bag", "Gear Bag", 480, ["#0b0b0c", "#8a8a92"]),
+  {
+    id: "vanta-jersey-23",
+    slot: "jersey",
+    name: "VANTA Jersey #23",
+    brand: "VANTA",
+    price: 560,
+    swatch: ["#0b0b0c", "#ffffff", "#0b0b0c"],
+    kind: "Jersey",
+    line: "VANTA Jersey",
+    apply: (l) => ({ ...l, jersey: "#0b0b0c", jerseyTrim: "#ffffff", shorts: "#0b0b0c", shortsStripe: "#ffffff" }),
+  },
+  {
+    id: "vanta-jersey-23-white",
+    slot: "jersey",
+    name: "VANTA Jersey #23 White",
+    brand: "VANTA",
+    price: 560,
+    swatch: ["#f4f4f6", "#0b0b0c", "#f4f4f6"],
+    kind: "Jersey",
+    line: "VANTA Jersey",
+    apply: (l) => ({ ...l, jersey: "#f4f4f6", jerseyTrim: "#0b0b0c", shorts: "#f4f4f6", shortsStripe: "#0b0b0c" }),
+  },
+];
+
+GEAR.push(...VANTA);
+
 export const STARTER_GEAR = ["volt-00", "home-00"];
 
 export function getGear(id: string) {

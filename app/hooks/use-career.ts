@@ -52,6 +52,12 @@ export interface Career {
   bp?: Record<BadgeCat, number>;
   /** Badge tiers (0-4) by badge id */
   badges?: Record<string, number>;
+  /** Your sneaker contract (VYRO or VANTA) */
+  shoeDeal?: import("~/data/deals").ShoeDeal | null;
+  /** Season the shoe-deal offers were last handled */
+  dealSeen?: number;
+  /** Lifetime signature-shoe royalties (₵) */
+  royalties?: number;
   /** Pending charter flight to a new home city (team ids) */
   flight?: { from: string; to: string; tag: string } | null;
 }
