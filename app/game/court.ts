@@ -1118,7 +1118,7 @@ export function buildCourt(v: Venue, opts: { shadows: boolean }): CourtScene {
         [-5, 10],
         [5, 10],
       ]) {
-        const l = new THREE.SpotLight("#ffffff", 900, 40, 0.7, 0.4, 1.6);
+        const l = new THREE.SpotLight("#ffffff", 45, 40, 0.7, 0.5, 1.6);
         l.position.set(x, 16, z);
         l.target.position.set(x * 0.3, 0, z);
         group.add(l, l.target);
