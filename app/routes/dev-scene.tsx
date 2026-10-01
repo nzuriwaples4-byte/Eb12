@@ -36,7 +36,7 @@ export default function DevScene() {
       hairColor: "#140f0c",
       number: "7",
     },
-    team: getTeam("hou"),
+    team: getTeam(q.get("team") ?? "hou"),
     college: COLLEGES[1],
     hsWins: 3,
     collegeWins: 3,
@@ -45,6 +45,7 @@ export default function DevScene() {
     losses: 3,
     fans: 40,
     love: 3,
+    flags: q.get("flags")?.split(",") ?? [],
   };
   const sk = q.get("s") ?? "";
   const colors =
@@ -120,6 +121,8 @@ export default function DevScene() {
                       ? SCENES.collegeIntro(ctx)
                       : s === "draft"
                         ? SCENES.draft(ctx)
+                        : s === "predraft"
+                          ? SCENES.predraft(ctx)
                         : s === "proIntro"
                           ? SCENES.proIntro(ctx)
                           : s === "champion"
@@ -135,7 +138,7 @@ export default function DevScene() {
       lines={lines}
       startAt={at}
       title={q.get("title") ?? s}
-      background={s === "draft" ? "key-art" : "city-aerial"}
+      background={s === "draft" || s === "predraft" ? "key-art" : "city-aerial"}
       backgroundTint={ctx.team!.primary}
       chooser="me"
       names={{ me: "Jordan" }}
@@ -150,7 +153,9 @@ export default function DevScene() {
                     ? "hsIntro"
                     : s === "collegeAfter"
                       ? "collegeIntro"
-                      : s,
+                      : s === "predraft"
+                        ? "draft"
+                        : s,
               ctx,
             )
           : undefined

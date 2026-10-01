@@ -66,7 +66,7 @@ castMember("cast-reporter", "Reporter", 1.78, "#a86f4c", "fade", "#1a1410", "#5a
 castMember("cast-commish", "Commissioner", 1.83, "#e2b894", "shaved", "#8f8a86", "#0c0c0f", "#0c0c0f", {
   beard: "#8f8a86",
 });
-// Jaailyah Carter: her own look (long honey-highlighted waves, Harbor Heights
+// Jaailyah Carter: her own look (long honey-highlighted waves, Peachtree Heights
 // letterman jacket, fitted jeans, VYRO Lifestyle 1s)
 castMember("cast-jaailyah", "Jaailyah", 1.68, "#7a4a33", "long-waves", "#1b120d", "#12203a", "#2e4a78", {
   hairTip: "#b87a3e",

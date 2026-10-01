@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { registerMyBaller } from "~/data/career";
+import { HOMETOWN, registerMyBaller } from "~/data/career";
 import { getAudio } from "~/game/audio";
 import { GymStage } from "./gym-stage";
 import styles from "./vitals.module.css";
@@ -111,6 +111,14 @@ export function Vitals({ initial, onContinue, onBack }: Props) {
         onFocus={() => setFocus(4)}
         onChange={(e) => set({ number: e.target.value.replace(/\D/g, "") })}
       />,
+    ],
+    [
+      "Hometown",
+      <div key="ht" className={styles.cycle} onClick={() => setFocus(5)}>
+        <span>
+          {HOMETOWN.city}, {HOMETOWN.state}
+        </span>
+      </div>,
     ],
   ];
 

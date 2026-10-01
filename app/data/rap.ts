@@ -30,12 +30,12 @@ export const RAP_QUEST: RapStep[] = [
     title: "Studio Session",
     venueId: "neon-alley",
     song: {
-      title: "Harbor Heights",
+      title: "Peachtree Heights",
       bpm: 88,
       bars: [
         "Came up",
         "off the",
-        "pier, nine",
+        "Peachtree",
         "concrete,",
         "Mama",
         "on the",
@@ -186,7 +186,7 @@ export const RAP_QUEST: RapStep[] = [
       bars: [
         "Hands up",
         "for the",
-        "Harbor,",
+        "A-Town,",
         "put the",
         "lights on,",
         "every",

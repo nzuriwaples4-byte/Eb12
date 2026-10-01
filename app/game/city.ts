@@ -48,7 +48,7 @@ export interface CityOptions {
   pois: Poi[];
   residents: Resident[];
   spawn?: { x: number; z: number; yaw: number };
-  /** Which map to build: New York (default) or the Harbor Heights campus */
+  /** Which map to build: New York (default) or the Peachtree Heights campus */
   world?: "nyc" | "campus";
   /** Home-city look (your EBL team's city) */
   theme?: import("~/data/cities").CityTheme;

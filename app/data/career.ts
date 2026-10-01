@@ -71,10 +71,15 @@ export interface College {
   venueId: string;
   /** Bonus Badge Points by category for finishing the season */
   bonus: Record<"finishing" | "shooting" | "playmaking" | "defense", number>;
+  /** Your hometown school (Atlanta) */
+  hometown?: boolean;
 }
 
+/** Where your created player grew up */
+export const HOMETOWN = { city: "Atlanta", state: "GA", teamId: "atl", school: "Peachtree Heights High" };
+
 const COLLEGE_STATES: Record<string, string> = {
-  "meridian-state": "NY",
+  "meridian-state": "GA",
   "coastal-tech": "NC",
   "kane-university": "NV",
   "silver-lake": "MT",
@@ -123,6 +128,7 @@ function college(
     needWins,
     venueId: `college-${id}`,
     bonus: COLLEGE_BONUS[id] ?? { finishing: 1, shooting: 1, playmaking: 1, defense: 1 },
+    hometown: COLLEGE_STATES[id] === HOMETOWN.state,
   };
 }
 
@@ -130,13 +136,13 @@ function college(
 export const COLLEGES: College[] = [
   college(
     "meridian-state",
-    "Brooklyn State",
-    "Mariners",
-    "BSU",
-    "#1f8fff",
-    "#f2f4f8",
+    "Five Points University",
+    "Firebirds",
+    "FPU",
+    "#d7263d",
+    "#16181f",
     0,
-    "Stay home. Play in front of your city. We'll run the offense through you on day one.",
+    "Stay home in the A. Your family courtside every night, and we run the offense through you on day one.",
   ),
   college(
     "coastal-tech",
@@ -263,7 +269,7 @@ function gymVenue(
 }
 
 const hsGym: Venue = {
-  ...gymVenue("hs-gym", "Harbor Heights High", "Home of the Harbor Heights Mariners", "#8ec3ee", "school", 70),
+  ...gymVenue("hs-gym", "Peachtree Heights High", "Home of the Peachtree Heights Panthers · Atlanta, GA", "#8ec3ee", "school", 70),
   floor: "#d9b27c",
   paint: "#d9b27c",
   line: "#6a4424",
@@ -447,7 +453,7 @@ export function registerMyBaller(p: MyPlayer, ratings: Ratings, jersey: string, 
     nickname: p.nickname.toUpperCase(),
     height,
     heightLabel: `${Math.floor(p.heightIn / 12)}'${p.heightIn % 12}"`,
-    from: "Harbor Heights",
+    from: "Atlanta, GA",
     tagline: "Road to the EBL.",
     bio: `${p.name} is on the road to the EBL.`,
     ratings,
@@ -495,7 +501,7 @@ export const SCENES = {
   hsIntro: (c: SceneCtx): Line[] => [
     {
       who: "narrator",
-      text: "Harbor Heights High. Senior year. The gym smells like popcorn and floor wax, and the bleachers are already full for a scrimmage.",
+      text: "Peachtree Heights High, Atlanta. Senior year. The gym smells like popcorn and floor wax, and the bleachers are already full for a scrimmage.",
     },
     { who: "mom", text: `${c.me.name.split(" ")[0]}, you forgot your lunch. Again. And your mouthguard. Again.` },
     {
@@ -550,7 +556,7 @@ export const SCENES = {
           { who: "mom", text: "I screamed so loud they asked me to sit down. I did NOT sit down." },
           {
             who: "imani",
-            text: "Your dunk is on the front page of the Harbor Herald. My photo. You owe me a milkshake.",
+            text: "Your dunk is on the front page of the Peachtree Herald. My photo. You owe me a milkshake.",
             choices: [
               {
                 text: "Friday. The diner on 4th.",
@@ -583,7 +589,7 @@ export const SCENES = {
         [
           {
             who: "narrator",
-            text: "Harbor Heights beats Northgate for the City Championship. The student section storms the floor.",
+            text: "Peachtree Heights beats Northgate for the Atlanta City Championship. The student section storms the floor.",
           },
           { who: "dre", text: "...Good game. Don't let it go to your head. I'll see you in college." },
           { who: "imani", text: "My brother just shook your hand. That has never happened. Ever." },
@@ -606,7 +612,7 @@ export const SCENES = {
   hsPregame: (c: SceneCtx): Line[] => [
     {
       who: "narrator",
-      text: "City Championship. Northgate vs Harbor Heights. The gym is so packed they opened the stage doors.",
+      text: "Atlanta City Championship. Northgate vs Peachtree Heights. The gym is so packed they opened the stage doors.",
     },
     { who: "dre", text: "Look at you. Mouthguard and everything. You remembered it for once?" },
     { who: "me", text: "Remembered it just for you, Zay. Figured you'd want something to look at while I score." },
@@ -746,12 +752,48 @@ export const SCENES = {
           },
         ]
       : [{ who: "collegecoach", text: "Tough one. Scouts watch how you bounce back, not just how you win." }],
+  predraft: (c: SceneCtx): Line[] => [
+    { who: "narrator", text: "Two weeks before the draft. Every team wants a workout." },
+    {
+      who: "agent",
+      text: "Twelve teams, twelve workouts. But I know which one you've been thinking about since you were six.",
+    },
+    { who: "mom", text: "The Titans play twenty minutes from our house. I'm just saying." },
+    {
+      who: "agent",
+      text: `Atlanta picks late. If you want to go home, I tell the Titans you'll only work out for them, and they trade up to get you.`,
+      choices: [
+        {
+          text: "Get me home. I want to be a Titan.",
+          effect: { flag: "hometown-draft", fans: 6 },
+          reply: [
+            { who: "agent", text: "Say less. I'm calling Atlanta." },
+            { who: "imani", text: `${c.me.name.split(" ")[0]} in Titans gold? My camera is ready.` },
+          ],
+        },
+        {
+          text: "Let the draft decide. I'll go where I'm wanted.",
+          effect: { chemistry: 4 },
+          reply: [{ who: "agent", text: "Respect. We go where the minutes are." }],
+        },
+      ],
+    },
+  ],
   draft: (c: SceneCtx): Line[] => [
     { who: "narrator", text: "EBL Draft Night. Meridian Grand Theater." },
     { who: "mom", text: "I bought a new dress for this. If they don't call your name, I'm walking on stage myself." },
     { who: "narrator", text: "The first picks go by. Kairo Vance goes early to a big ovation." },
     { who: "commish", text: `With pick number ${Math.max(1, c.pick - 1)}... Zay Carter!` },
     { who: "dre", text: "Hey. You're next. Don't trip on the stairs, future brother-in-law." },
+    ...(c.flags?.includes("hometown-draft") && c.team?.id === "atl"
+      ? [
+          {
+            who: "commish" as const,
+            text: `We have a trade: the Atlanta Titans have acquired pick number ${c.pick}.`,
+          },
+          { who: "mom" as const, text: "That's HOME! Baby, that's home!" },
+        ]
+      : []),
     { who: "commish", text: `With pick number ${c.pick}, the ${c.team!.city} ${c.team!.name} select...` },
     { who: "commish", text: `${c.me.name}!` },
     {
@@ -899,7 +941,7 @@ export const DATES: ((c: SceneCtx) => Line[])[] = [
     },
   ],
   () => [
-    { who: "narrator", text: "A gallery in the Harbor District. Half the photos on the walls are hers." },
+    { who: "narrator", text: "A gallery downtown. Half the photos on the walls are hers." },
     {
       who: "imani",
       text: "That one's you, senior year. I was in the stands at the City Championship.",

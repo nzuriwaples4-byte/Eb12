@@ -27,6 +27,7 @@ import {
   HS_GAMES,
   LIFE_EVENTS,
   PRESSERS,
+  HOMETOWN,
   SCENES,
   registerMyBaller,
   sceneSet,
@@ -593,7 +594,7 @@ export default function CareerRoute() {
       <Dialogue
         key="hs-intro"
         lines={SCENES.hsIntro(ctx!)}
-        title="Senior Year · Harbor Heights High"
+        title="Senior Year · Peachtree Heights High · Atlanta, GA"
         stage={sceneSet("hsIntro", {})}
         background="city-aerial"
         backgroundTint="#8ec3ee"
@@ -652,7 +653,23 @@ export default function CareerRoute() {
     const score = c.hsWins + c.collegeWins * 2 + Math.floor(ovr / 10);
     const pick = Math.max(1, Math.min(12, 14 - score));
     const order = [...EBL_TEAMS].sort((a, b) => a.rating - b.rating);
-    const drafted = order[pick - 1];
+    // Asked to go home? Atlanta trades up into your slot
+    const drafted = c.flags.includes("hometown-draft") ? getTeam(HOMETOWN.teamId) : order[pick - 1];
+    if (!c.seen.includes("predraft") && !overlay)
+      return (
+        <Dialogue
+          key="predraft"
+          lines={SCENES.predraft(ctx!)}
+          title={`Pre-Draft Workouts · Hometown: ${HOMETOWN.city}, ${HOMETOWN.state}`}
+          stage={{ set: "draft" }}
+          background="key-art"
+          backgroundTint={getTeam(HOMETOWN.teamId).primary}
+          chooser="me"
+          names={names}
+          onChoice={(e) => setCareer((x) => applyEffect(x, e))}
+          onDone={() => setCareer((x) => ({ ...x, seen: [...x.seen, "predraft"] }))}
+        />
+      );
     return (
       <Dialogue
         key="draft"
@@ -1023,7 +1040,7 @@ export default function CareerRoute() {
                 Play game
               </MenuButton>
               {c.stage === "hs" && (
-                <MenuButton onClick={() => navigate("/campus")} hint="Explore Harbor Heights High before the game">
+                <MenuButton onClick={() => navigate("/campus")} hint="Explore Peachtree Heights High before the game">
                   Walk the campus
                 </MenuButton>
               )}

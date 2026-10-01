@@ -406,7 +406,7 @@ export function contractOffers(
   const offers: Offer[] = [
     { teamId, salary: base, pitch: "Stay home. The city built this team around you.", resign: true },
   ];
-  const others = EBL_TEAMS.filter((t) => t.id !== teamId && t.id !== dreTeamId && t.id !== "lva");
+  const others = EBL_TEAMS.filter((t) => t.id !== teamId && t.id !== dreTeamId && t.id !== "lva" && t.id !== "atl");
   const pickN = (n: number) => others[(season * 7 + n * 5 + ovr) % others.length];
   const a = pickN(1);
   let b = pickN(2);
@@ -421,6 +421,13 @@ export function contractOffers(
     salary: Math.round((base * 1.2) / 10) * 10,
     pitch: `The ${b.name} are one star away from a title. You're the star.`,
   });
+  // Your hometown always calls
+  if (teamId !== "atl" && dreTeamId !== "atl")
+    offers.push({
+      teamId: "atl",
+      salary: Math.round((base * 1.05) / 10) * 10,
+      pitch: "Come home. The Titans want Atlanta's own in gold and black, in front of the whole family.",
+    });
   if (season >= 2 && teamId !== "lva" && dreTeamId !== "lva")
     offers.push({
       teamId: "lva",

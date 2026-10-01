@@ -16,12 +16,12 @@ import type { Route } from "./+types/campus";
 import styles from "./city.module.css";
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: "Harbor Heights High — EBL 2" }];
+  return [{ title: "Peachtree Heights High — EBL 2" }];
 }
 
 const D = CAMPUS.doors;
 
-/** Free-roam Harbor Heights High between games in the high-school chapter */
+/** Free-roam Peachtree Heights High (Atlanta) between games in the high-school chapter */
 export default function CampusRoute() {
   const navigate = useNavigate();
   const [career] = useCareer();
@@ -31,11 +31,11 @@ export default function CampusRoute() {
   const mapRef = useRef<HTMLCanvasElement>(null);
   const cityRef = useRef<City | null>(null);
   const [prompt, setPrompt] = useState<Poi | null>(null);
-  const [zone, setZone] = useState("Harbor Heights High");
+  const [zone, setZone] = useState("Peachtree Heights High");
   const [ready, setReady] = useState(false);
   const [talk, setTalk] = useState<{ title: string; lines: Line[] } | null>(null);
 
-  // Your created player in the Mariners' home whites
+  // Your created player in the Panthers' home whites
   const me = career.me;
   if (me && career.attrs) registerMyBaller(me, toRatings(career.attrs), "#f2f4f8", "#8ec3ee");
   const look = me ? getBaller("me").look : null;
@@ -48,7 +48,7 @@ export default function CampusRoute() {
       {
         id: "gym",
         kind: "door",
-        label: "Mariners Gymnasium",
+        label: "Panthers Gymnasium",
         action: career.hsGame < HS_GAMES.length ? `Play: ${game.label}` : "Season's over. Shoot around",
         ...D.gym,
         r: 5,
@@ -184,13 +184,13 @@ export default function CampusRoute() {
   return (
     <main className={styles.page}>
       <canvas ref={canvasRef} className={styles.canvas} />
-      {!ready && <div className={styles.loading}>Loading Harbor Heights High…</div>}
+      {!ready && <div className={styles.loading}>Loading Peachtree Heights High…</div>}
       <header className={styles.top}>
         <Link to="/career" className={styles.menu}>
           ← Career
         </Link>
         <div className={styles.zone}>
-          <span>Harbor Heights High · New York, NY</span>
+          <span>Peachtree Heights High · Atlanta, GA</span>
           <strong>{zone}</strong>
         </div>
         <div className={styles.wallet}>₵ {(progress.crowns ?? 0).toLocaleString()}</div>

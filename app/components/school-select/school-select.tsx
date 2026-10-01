@@ -60,7 +60,11 @@ export function SchoolSelect({ colleges, hsWins, rivalId, onSign }: Props) {
                   </span>
                   <span className={styles.logo}>{col.short}</span>
                   {!open && <span className={styles.stamp}>No offer</span>}
-                  {col.id === rivalId && <span className={styles.rival}>Zay Carter's pick</span>}
+                  {col.id === rivalId ? (
+                    <span className={styles.rival}>Zay Carter's pick</span>
+                  ) : (
+                    col.hometown && <span className={styles.home}>★ Hometown · Atlanta</span>
+                  )}
                 </button>
               );
             })}

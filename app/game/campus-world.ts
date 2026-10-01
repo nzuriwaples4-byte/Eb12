@@ -4,8 +4,8 @@ import { rand } from "./math";
 import { skyTexture } from "./stage";
 
 /**
- * Harbor Heights High: a walkable campus for the high-school chapter of
- * MyCareer. Main building, the Mariners gym, outdoor courts, the football
+ * Peachtree Heights High (Atlanta, GA): a walkable campus for the high-school chapter of
+ * MyCareer. Main building, the Panthers gym, outdoor courts, the football
  * field and track, the student lot and a quad full of students.
  */
 
@@ -210,7 +210,7 @@ export function buildCampusWorld(
     const sign = new THREE.Mesh(
       new THREE.PlaneGeometry(18, 2.4),
       new THREE.MeshBasicMaterial({
-        map: signTex(["HARBOR HEIGHTS HIGH SCHOOL", "EST. 1962 · HOME OF THE MARINERS"], "#12203a", "#f4efe6"),
+        map: signTex(["PEACHTREE HEIGHTS HIGH SCHOOL", "ATLANTA, GA · HOME OF THE PANTHERS"], "#12203a", "#f4efe6"),
         toneMapped: false,
       }),
     );
@@ -267,7 +267,7 @@ export function buildCampusWorld(
           g.fillStyle = "#8ec3ee";
           g.font = "900 44px Impact, sans-serif";
           g.textAlign = "center";
-          g.fillText("HH", 64, 54);
+          g.fillText("PH", 64, 54);
         }),
         side: THREE.DoubleSide,
       }),
@@ -314,7 +314,7 @@ export function buildCampusWorld(
     const mural = new THREE.Mesh(
       new THREE.PlaneGeometry(d * 0.8, 4.2),
       new THREE.MeshBasicMaterial({
-        map: signTex(["MARINERS", "HARBOR HEIGHTS GYMNASIUM"], "#12203a", "#8ec3ee"),
+        map: signTex(["PANTHERS", "PEACHTREE HEIGHTS GYMNASIUM"], "#12203a", "#8ec3ee"),
         toneMapped: false,
       }),
     );
@@ -451,7 +451,7 @@ export function buildCampusWorld(
       g.fillStyle = "#8ec3ee";
       g.font = "900 70px Impact, sans-serif";
       g.textAlign = "center";
-      g.fillText("MARINERS", 512, 280);
+      g.fillText("PANTHERS", 512, 280);
     });
     const fm = new THREE.MeshStandardMaterial({ map: fieldTex, roughness: 1 });
     disposables.push(fm);
@@ -472,7 +472,7 @@ export function buildCampusWorld(
     const sb = new THREE.Mesh(
       new THREE.PlaneGeometry(9.6, 3.1),
       new THREE.MeshBasicMaterial({
-        map: signTex(["HOME 21  ·  GUEST 14", "MARINERS"], "#0b0f18", "#ffb347", 512, 170),
+        map: signTex(["HOME 21  ·  GUEST 14", "PANTHERS"], "#0b0f18", "#ffb347", 512, 170),
         toneMapped: false,
       }),
     );
@@ -541,22 +541,25 @@ export function buildCampusWorld(
   {
     const stone = std("#c9c2b4", 0.8);
     box(3, 1.2, 3, stone, 0, 0.6, 8, true);
-    const bronze = std("#6d8fa8", 0.35, 0.8);
-    const anchor = new THREE.Group();
-    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 3, 10), bronze);
-    shaft.position.y = 1.5;
-    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 1.8, 10), bronze);
-    bar.rotation.z = Math.PI / 2;
-    bar.position.y = 2.6;
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.08, 8, 20), bronze);
-    ring.position.y = 3.2;
-    const hook = new THREE.Mesh(new THREE.TorusGeometry(1, 0.13, 8, 24, Math.PI), bronze);
-    hook.rotation.z = Math.PI;
-    hook.position.y = 0.9;
-    anchor.add(shaft, bar, ring, hook);
-    anchor.position.set(0, 1.2, 8);
-    anchor.traverse((o) => ((o as THREE.Mesh).castShadow = true));
-    scene.add(anchor);
+    // The Peachtree peach: Atlanta's landmark on the quad
+    const peach = new THREE.Group();
+    const fruit = new THREE.Mesh(new THREE.SphereGeometry(1.2, 28, 20), std("#f49a5e", 0.45, 0.15));
+    fruit.scale.set(1.05, 1, 1);
+    fruit.position.y = 1.15;
+    const blush = new THREE.Mesh(new THREE.SphereGeometry(1.21, 28, 20, 0, Math.PI * 0.9), std("#e0563f", 0.5, 0.1));
+    blush.scale.set(1.05, 1, 1);
+    blush.position.y = 1.15;
+    blush.rotation.y = -0.6;
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.09, 0.45, 8), std("#5a3b22"));
+    stem.position.y = 2.45;
+    const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.5, 12, 8), std("#3f8a3a", 0.6));
+    leaf.scale.set(1, 0.14, 0.45);
+    leaf.position.set(0.42, 2.48, 0);
+    leaf.rotation.z = 0.35;
+    peach.add(fruit, blush, stem, leaf);
+    peach.position.set(0, 1.2, 8);
+    peach.traverse((o) => ((o as THREE.Mesh).castShadow = true));
+    scene.add(peach);
     const wood = std("#6b4e36");
     for (const [bx, bz] of [
       [-8, 2],
@@ -606,7 +609,7 @@ export function buildCampusWorld(
     sun,
     greens,
     bound: CAMPUS.bound,
-    name: "Harbor Heights High",
+    name: "Peachtree Heights High",
     ground: () => 0,
     update(t, dt, player) {
       for (const u of updaters) u(t, dt);

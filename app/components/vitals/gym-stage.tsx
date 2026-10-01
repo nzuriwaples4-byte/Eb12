@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { CutsceneStage } from "~/game/cutscene";
 
-/** Your player standing alone in the Harbor Heights practice gym */
+/** Your player standing alone in the Peachtree Heights practice gym */
 export function GymStage({ actorKey }: { actorKey: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {

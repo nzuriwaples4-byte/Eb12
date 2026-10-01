@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { HOMETOWN } from "~/data/career";
 import type { CityTheme } from "~/data/cities";
 import type { EblTeam } from "~/data/ebl";
 import type { FlightPhase, FlightScene } from "~/game/flight";
@@ -104,7 +105,7 @@ export function Flight({ from, to, team, tag = "Rookie", at, onDone }: Props) {
           <>
             <small>{to.tagline}</small>
             <h2>
-              Welcome to {to.city}, {to.state}
+              {to.teamId === HOMETOWN.teamId ? "Welcome home to" : "Welcome to"} {to.city}, {to.state}
             </h2>
             <p>
               Home of the {team.city} {team.name} — and home for the rest of your career.
