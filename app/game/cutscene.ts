@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { getBaller } from "~/data/characters";
+import { cityFor } from "~/data/cities";
 import { getVenue } from "~/data/venues";
 import "~/data/cast";
 import { idle } from "./animator";
@@ -9,7 +10,7 @@ import { damp, dampAngle } from "./math";
 import { createPose } from "./rig";
 import { createRenderer, environmentFor, fitToParent } from "./stage";
 
-export type CutsceneSet = "court" | "draft" | "faceoff";
+export type CutsceneSet = "court" | "draft" | "faceoff" | "home";
 
 interface Actor {
   id: string;
@@ -49,6 +50,7 @@ export class CutsceneStage {
     const faceoff = opts.set === "faceoff";
     this.faceoff = faceoff;
     if (opts.set === "draft") this.buildDraftStage();
+    else if (opts.set === "home") this.buildHomeStage(opts.venueId ?? "atl:3");
     else {
       // (court and faceoff both stand on a venue)
       const v = getVenue(opts.venueId ?? "pier-9");
@@ -185,6 +187,181 @@ export class CutsceneStage {
     const conf = new THREE.Points(cg, new THREE.PointsMaterial({ size: 0.08, color: "#ffd24a" }));
     conf.name = "confetti";
     s.add(conf);
+  }
+
+  /** Your living room: "<teamId>:<tier>" picks the city view and how fancy it is */
+  private buildHomeStage(id: string) {
+    const [teamId, tierStr, newborn] = id.split(":");
+    const tier = Number(tierStr) || 3;
+    const city = cityFor(teamId);
+    const s = this.scene;
+    s.background = new THREE.Color("#0c0a09");
+    const mat = (color: string, rough = 0.8, metal = 0, emissive?: string, ei = 1) =>
+      new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal, emissive: emissive ?? "#000", emissiveIntensity: ei });
+    const box = (w: number, h: number, d: number, m: THREE.Material, x: number, y: number, z: number) => {
+      const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
+      b.position.set(x, y, z);
+      b.castShadow = b.receiveShadow = true;
+      s.add(b);
+      return b;
+    };
+    const canvas = (w: number, h: number, draw: (g: CanvasRenderingContext2D) => void) => {
+      const c = document.createElement("canvas");
+      c.width = w;
+      c.height = h;
+      draw(c.getContext("2d")!);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    };
+    const Z = 7.5;
+    // Hardwood floor
+    const planks = canvas(256, 256, (g) => {
+      for (let i = 0; i < 8; i++) {
+        g.fillStyle = ["#8a5a36", "#7d5131", "#94633d", "#80542f"][i % 4];
+        g.fillRect(0, i * 32, 256, 32);
+        g.fillStyle = "rgba(0,0,0,0.25)";
+        g.fillRect(0, i * 32 + 31, 256, 1);
+        g.fillRect(((i * 97) % 200) + 20, i * 32, 1, 32);
+      }
+    });
+    planks.wrapS = planks.wrapT = THREE.RepeatWrapping;
+    planks.repeat.set(4, 4);
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(18, 14), new THREE.MeshStandardMaterial({ map: planks, roughness: 0.55 }));
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.set(0, 0, Z);
+    floor.receiveShadow = true;
+    s.add(floor);
+    // Walls
+    const wallColor = tier >= 4 ? "#ece6dc" : tier >= 2 ? "#d9d2c6" : "#c9ccd2";
+    const wall = mat(wallColor, 0.95);
+    const backZ = Z - 4.2;
+    box(18, 5, 0.3, wall, 0, 2.5, backZ - 0.15);
+    box(0.3, 5, 14, wall, -7.5, 2.5, Z);
+    box(0.3, 5, 14, wall, 7.5, 2.5, Z);
+    // Big window onto the city
+    const view = canvas(1024, 384, (g) => {
+      const grd = g.createLinearGradient(0, 0, 0, 384);
+      grd.addColorStop(0, city.sky[0]);
+      grd.addColorStop(1, city.sky[1]);
+      g.fillStyle = grd;
+      g.fillRect(0, 0, 1024, 384);
+      let seed = 3;
+      const r = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+      if (tier >= 4) {
+        // Hills and trees from the big house
+        g.fillStyle = "#5f7d4a";
+        g.beginPath();
+        g.moveTo(0, 300);
+        for (let x = 0; x <= 1024; x += 64) g.lineTo(x, 270 + Math.sin(x * 0.01) * 26);
+        g.lineTo(1024, 384);
+        g.lineTo(0, 384);
+        g.fill();
+      }
+      g.fillStyle = "rgba(40,48,66,0.85)";
+      for (let x = 0; x < 1024; x += 30 + r() * 30) {
+        const h = 80 + r() * (tier >= 4 ? 90 : 220);
+        g.fillRect(x, 384 - h - (tier >= 4 ? 70 : 0), 26 + r() * 30, h);
+      }
+      g.fillStyle = "rgba(255,220,150,0.55)";
+      for (let i = 0; i < 260; i++) g.fillRect(r() * 1024, 160 + r() * 200, 3, 4);
+    });
+    const win = new THREE.Mesh(new THREE.PlaneGeometry(9, 3.4), new THREE.MeshBasicMaterial({ map: view, toneMapped: false }));
+    win.position.set(0, 2.3, backZ + 0.02);
+    s.add(win);
+    const frameM = mat("#2a2622", 0.4, 0.3);
+    for (const x of [-4.5, -1.5, 1.5, 4.5]) box(0.12, 3.5, 0.12, frameM, x, 2.3, backZ + 0.06);
+    box(9.1, 0.14, 0.14, frameM, 0, 4.05, backZ + 0.06);
+    box(9.1, 0.14, 0.14, frameM, 0, 0.55, backZ + 0.06);
+    // Sectional couch
+    const fabric = mat(tier >= 4 ? "#efe8dc" : tier >= 2 ? "#4a5a6e" : "#6b6f78", 0.9);
+    box(6.4, 0.5, 1.2, fabric, 0, 0.45, Z - 2.4);
+    box(6.4, 0.9, 0.35, fabric, 0, 0.9, Z - 3.0);
+    box(1.2, 0.5, 2.6, fabric, -3.4, 0.45, Z - 1.6);
+    for (const x of [-2.2, 0, 2.2]) box(1.9, 0.18, 1.05, mat(tier >= 4 ? "#f7f2e9" : "#56677c", 0.95), x, 0.79, Z - 2.35);
+    // Rug and coffee table
+    const rug = new THREE.Mesh(new THREE.CircleGeometry(3.2, 48), mat(tier >= 4 ? "#b9a27c" : "#7d4e5b", 1));
+    rug.rotation.x = -Math.PI / 2;
+    rug.position.set(0.3, 0.01, Z - 0.6);
+    rug.receiveShadow = true;
+    s.add(rug);
+    box(2.2, 0.08, 1.0, mat("#1c1a18", 0.3, 0.2), 0.4, 0.42, Z - 1.1).castShadow = false;
+    for (const [x, z] of [[-0.6, -1.5], [1.4, -1.5], [-0.6, -0.7], [1.4, -0.7]]) box(0.07, 0.4, 0.07, mat("#1c1a18"), x, 0.2, Z + z);
+    // TV wall on the right
+    box(0.12, 1.5, 2.6, mat("#0a0a0c", 0.2, 0.6, "#2a5bd7", 0.35), 7.3, 2.1, Z - 0.5);
+    box(0.4, 0.5, 3.4, mat("#2b2724", 0.6), 7.1, 0.25, Z - 0.5);
+    // Lamp + plants
+    box(0.08, 2.2, 0.08, mat("#222"), -5.6, 1.1, Z - 3.1);
+    const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.5, 0.5, 20, 1, true), mat("#f3e6c8", 0.9, 0, "#ffd9a0", 0.8));
+    shade.position.set(-5.6, 2.35, Z - 3.1);
+    s.add(shade);
+    for (const [x, z] of [[5.4, -3.2], [-6.6, 1.5]]) {
+      box(0.6, 0.6, 0.6, mat("#e9e4da", 0.6), x, 0.3, Z + z);
+      const leaves = new THREE.Mesh(new THREE.IcosahedronGeometry(0.6, 1), mat("#3f7a3a", 0.8));
+      leaves.position.set(x, 1.15, Z + z);
+      leaves.castShadow = true;
+      s.add(leaves);
+    }
+    // Family photos (and trophies once you can afford a trophy room)
+    const photo = (x: number, c: string) => {
+      const t = canvas(64, 80, (g) => {
+        g.fillStyle = "#f4efe6";
+        g.fillRect(0, 0, 64, 80);
+        g.fillStyle = c;
+        g.fillRect(6, 6, 52, 68);
+        g.fillStyle = "rgba(255,255,255,0.5)";
+        g.beginPath();
+        g.arc(24, 36, 9, 0, Math.PI * 2);
+        g.arc(42, 40, 7, 0, Math.PI * 2);
+        g.fill();
+      });
+      const p = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.88), new THREE.MeshStandardMaterial({ map: t }));
+      p.position.set(x, 2.6, backZ + 0.03);
+      s.add(p);
+    };
+    photo(-6, "#c98a5a");
+    photo(-5.1, city.accent);
+    photo(5.4, "#5a7ac9");
+    if (tier >= 4)
+      for (let i = 0; i < 3; i++) {
+        const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.08, 0.5, 16), mat("#e2b23a", 0.25, 0.9));
+        cup.position.set(5.0 + i * 0.5, 1.45, backZ + 0.35);
+        cup.castShadow = true;
+        s.add(cup);
+      }
+    if (tier >= 4) box(1.8, 0.08, 0.5, mat("#3a2f26", 0.5), 5.5, 1.16, backZ + 0.3);
+    // A newborn sleeps in the bassinet by the couch
+    if (newborn === "g" || newborn === "b") {
+      const wood = mat("#e9dfcf", 0.7);
+      box(1.0, 0.5, 0.6, wood, 3.3, 0.75, Z - 0.9);
+      for (const [x, z] of [[-0.42, -0.24], [0.42, -0.24], [-0.42, 0.24], [0.42, 0.24]])
+        box(0.05, 0.5, 0.05, wood, 3.3 + x, 0.25, Z - 0.9 + z);
+      box(0.9, 0.06, 0.5, mat("#ffffff", 0.9), 3.3, 1.0, Z - 0.9);
+      const swaddle = new THREE.Mesh(new THREE.CapsuleGeometry(0.13, 0.3, 6, 12), mat(newborn === "g" ? "#f5a3c7" : "#7bc4f2", 0.9));
+      swaddle.rotation.z = Math.PI / 2;
+      swaddle.position.set(3.25, 1.12, Z - 0.9);
+      s.add(swaddle);
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 12), mat("#734732", 0.7));
+      head.position.set(3.53, 1.14, Z - 0.9);
+      s.add(head);
+      const bow = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.02, 6, 12), mat(newborn === "g" ? "#e0567f" : "#2f6bff"));
+      bow.position.set(3.56, 1.25, Z - 0.9);
+      s.add(bow);
+    }
+    // Light: warm room plus daylight through the window
+    s.add(new THREE.HemisphereLight("#fff1dc", "#5a4030", 0.9));
+    const sun = new THREE.DirectionalLight(city.sun, 2.2);
+    sun.position.set(-3, 7, backZ - 6);
+    sun.target.position.set(0, 0, Z);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1024, 1024);
+    s.add(sun, sun.target);
+    const lamp = new THREE.PointLight("#ffd9a0", 6, 9, 1.6);
+    lamp.position.set(-5.6, 2.3, Z - 2.6);
+    s.add(lamp);
+    const fill = new THREE.PointLight("#fff3e0", 10, 16, 1.4);
+    fill.position.set(0, 4, Z + 3);
+    s.add(fill);
   }
 
   /** Cut the camera to this actor (null = wide shot) */

@@ -25,6 +25,9 @@ export type SpeakerId =
   | "hscoach"
   | "collegecoach"
   | "me"
+  | "kid1"
+  | "kid2"
+  | "kid3"
   | "narrator"
   | "announcer";
 
@@ -59,6 +62,9 @@ export const SPEAKERS: Record<SpeakerId, Speaker> = {
   hscoach: { name: "Coach Bell", accent: "#6ddc9a" },
   collegecoach: { name: "Coach Okafor", accent: "#9fb4ff" },
   me: { name: "You", accent: "#3ad7ff" },
+  kid1: { name: "Kid", accent: "#ffd166" },
+  kid2: { name: "Kid", accent: "#7bdff2" },
+  kid3: { name: "Kid", accent: "#b8f2a6" },
   narrator: { name: "", accent: "#c9d3e8" },
   announcer: { name: "Announcer", accent: "#ff5a5a" },
 };

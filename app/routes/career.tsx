@@ -11,6 +11,10 @@ import type { Attrs } from "~/data/attributes";
 import type { MyPlayer } from "~/data/career";
 import { Dialogue } from "~/components/dialogue/dialogue";
 import { Flight } from "~/components/flight/flight";
+import { BabyName } from "~/components/baby-name/baby-name";
+import { HouseArt, RealEstate } from "~/components/real-estate/real-estate";
+import { registerKids } from "~/data/cast";
+import { babyNews, bedsFor, familyTime, homeName, kidAge, roomForKids, type Kid } from "~/data/homes";
 import { ShoeDealContracts } from "~/components/shoe-deal/shoe-deal";
 import { SneakerArt, VantaLogo, VyroLogo } from "~/components/vyro-store/vyro-store";
 import { BRANDS, TIER_LABEL, dealExpired, dealIntro, dealOffers, dealSigned, royaltyCheck } from "~/data/deals";
@@ -90,8 +94,16 @@ type Overlay =
   | { kind: "builder" }
   | { kind: "badges" }
   | { kind: "rap"; step: number }
+  | { kind: "homes" }
+  | { kind: "baby"; girl: boolean }
   | { kind: "game"; oppId: string; venueId: string; label: string; target: number }
   | null;
+
+/** Average two hex colors (kids take after both parents) */
+function mixHex(a: string, b: string) {
+  const p = (h: string, i: number) => parseInt(h.slice(1 + i * 2, 3 + i * 2), 16);
+  return `#${[0, 1, 2].map((i) => Math.round((p(a, i) + p(b, i)) / 2).toString(16).padStart(2, "0")).join("")}`;
+}
 
 function applyEffect(c: Career, e?: Effect): Career {
   if (!e) return c;
@@ -135,7 +147,7 @@ export default function CareerRoute() {
   const [params, setParams] = useSearchParams();
   const go = params.get("go");
   const [career, setCareer] = useCareer();
-  const [, setProgress] = useProgress();
+  const [progress, setProgress] = useProgress();
   const [settings] = useSettings();
   const [overlay, setOverlay] = useState<Overlay>(null);
   const [create, setCreate] = useState<{
@@ -176,7 +188,20 @@ export default function CareerRoute() {
         flags: c.flags,
       }
     : null;
-  const names = c.me ? { me: c.me.name.split(" ")[0] } : undefined;
+  const kids: Kid[] = c.kids ?? [];
+  const house = c.house ?? null;
+  const together = ["together", "engaged", "married"].some((f) => c.flags.includes(f));
+  registerKids(kids, season);
+  const names = c.me
+    ? { me: c.me.name.split(" ")[0], kid1: kids[0]?.name, kid2: kids[1]?.name, kid3: kids[2]?.name }
+    : undefined;
+  /** Scene key for the family living room */
+  const homeSet = (h = house, n = kids.length, newborn?: "g" | "b") => {
+    if (!h) return undefined;
+    const youngest = kids[n - 1];
+    const nb = newborn ?? (youngest && kidAge(youngest, season) === 0 ? (youngest.girl ? "g" : "b") : "");
+    return `home:${h.teamId}:${h.tier}:${n}${nb ? `:${nb}` : ""}`;
+  };
   // In the pros, Zay shows up in his EBL uniform in every scene
   const proEra = (c.stage === "pro" || offseason || c.flags.includes("retired")) && !!dreTeam;
   if (proEra) dreEbl(dreTeam!, season);
@@ -275,6 +300,70 @@ export default function CareerRoute() {
             return n;
           });
           setOverlay(overlay.next ?? null);
+        }}
+      />
+    );
+  }
+  if (overlay?.kind === "homes" && team) {
+    return (
+      <RealEstate
+        teamId={team.id}
+        owned={house}
+        crowns={progress.crowns ?? 0}
+        onClose={() => setOverlay(null)}
+        onBuy={(l) => {
+          const h = { tier: l.tier, name: `${l.neighborhood} ${l.name}`, teamId: team.id, bought: season };
+          setProgress((p) => ({ ...p, crowns: (p.crowns ?? 0) - l.price }));
+          setCareer((x) => ({ ...x, house: h, fans: x.fans + 2 }));
+          const city = cityFor(team.id);
+          scene(
+            "New Home",
+            [
+              { who: "narrator", text: `Keys to the ${l.neighborhood} ${l.name}. ${city.city}, ${city.state}. Yours.` },
+              together
+                ? { who: "imani", text: "We have a house. A real one. With a door that locks and a wall for my photos." }
+                : { who: "mom", text: "My baby bought a house. I'm crying. I'm not crying. I'm crying." },
+              ...(l.tier >= 3
+                ? [{ who: "mom" as const, text: "So which bedroom is mine? I'm kidding. Mostly." }]
+                : []),
+            ],
+            undefined,
+            undefined,
+            homeSet(h),
+          );
+        }}
+      />
+    );
+  }
+  if (overlay?.kind === "baby" && house) {
+    return (
+      <BabyName
+        girl={overlay.girl}
+        last={me.name.split(" ").slice(-1)[0]}
+        taken={kids.map((k) => k.name)}
+        onDone={(name) => {
+          const girl = overlay.girl;
+          const kid: Kid = {
+            name,
+            girl,
+            born: season,
+            skin: mixHex(me.skin, "#7a4a33"),
+            hair: girl ? (kids.length % 2 ? "braids" : "afro-puff") : kids.length % 2 ? "twists" : "fade",
+          };
+          setCareer((x) => ({ ...x, kids: [...(x.kids ?? []), kid], love: x.love + 1, fans: x.fans + 10 }));
+          const city = cityFor(house.teamId);
+          scene(
+            `Welcome, ${name}`,
+            [
+              { who: "narrator", text: `${name} ${me.name.split(" ").slice(-1)[0]}. Born in ${city.city}, ${city.state}.` },
+              { who: "imani", text: "Look at those hands. Point guard. Definitely a point guard." },
+              { who: "mom", text: `Grandma's got you, ${name}. Grandma's always got you.` },
+              { who: "me", text: "Hey. I'm your dad. We're going to have so much fun." },
+            ],
+            undefined,
+            undefined,
+            homeSet(house, kids.length + 1, girl ? "g" : "b"),
+          );
         }}
       />
     );
@@ -647,6 +736,37 @@ export default function CareerRoute() {
     );
   }
 
+  /* ---------------------------------------------------------- family */
+  const lastKid = kids[kids.length - 1];
+  const babyDue =
+    (c.stage === "pro" || offseason) &&
+    !!house &&
+    together &&
+    c.love >= 4 &&
+    season >= 2 &&
+    kids.length < roomForKids(house) &&
+    (!lastKid || season - lastKid.born >= 2) &&
+    (c.stage !== "pro" || c.week >= 4) &&
+    !c.seen.includes(`baby-${season}`);
+  if (babyDue && house && !overlay) {
+    return (
+      <Dialogue
+        key={`baby-${season}`}
+        lines={babyNews(me.name.split(" ")[0], kids, c.flags.includes("married"))}
+        title="Big News"
+        stage={staged(sceneSet(homeSet()!, { team }))}
+        background="city-aerial"
+        backgroundTint={cityFor(house.teamId).accent}
+        chooser="me"
+        names={names}
+        onDone={() => {
+          setCareer((x) => ({ ...x, seen: [...x.seen, `baby-${season}`] }));
+          setOverlay({ kind: "baby", girl: (season + kids.length) % 2 === 0 });
+        }}
+      />
+    );
+  }
+
   /* ---------------------------------------------------------- stage intros */
   if (c.stage === "hs" && !c.seen.includes("hs-intro") && !overlay) {
     return (
@@ -951,7 +1071,7 @@ export default function CareerRoute() {
     } else startGame(n.oppId, n.venueId, n.label, n.target);
   }
 
-  const activity = (kind: "practice" | "date" | "endorse" | "press" | "rest" | "studio") => {
+  const activity = (kind: "practice" | "date" | "endorse" | "press" | "rest" | "studio" | "family") => {
     if (c.activityDone) return;
     const done = (x: Career): Career => ({ ...x, activityDone: true });
     if (kind === "studio") {
@@ -981,6 +1101,14 @@ export default function CareerRoute() {
         },
         { who: "imani", text: "I'm on set too. Try not to blink in every take." },
       ]);
+    } else if (kind === "family" && house) {
+      scene(
+        "Family Time",
+        familyTime(me.name.split(" ")[0], kids, season, homeName(house)),
+        (x) => done({ ...x, love: x.love + 1, chemistry: Math.min(100, x.chemistry + 3) }),
+        undefined,
+        homeSet(),
+      );
     } else if (kind === "press") {
       scene("Press Conference", PRESSERS[c.week % PRESSERS.length](ctx!), done);
     } else {
@@ -1193,6 +1321,42 @@ export default function CareerRoute() {
           </article>
         )}
 
+        {(c.stage === "pro" || offseason || c.flags.includes("retired")) && team && (
+          <article className={styles.card} data-home>
+            <h2>Home &amp; Family</h2>
+            {house ? (
+              <>
+                <HouseArt tier={house.tier} accent={cityFor(house.teamId).accent} />
+                <p className={styles.label}>{homeName(house)}</p>
+                <p className={styles.small}>
+                  {cityFor(house.teamId).city}, {cityFor(house.teamId).state} · {bedsFor(house.tier)} bedrooms
+                </p>
+              </>
+            ) : (
+              <p className={styles.small}>Still renting. Buy a place in {cityFor(team.id).city} and make it home.</p>
+            )}
+            <ul className={styles.family}>
+              {together && (
+                <li>
+                  ❤ Jaailyah{" "}
+                  {c.flags.includes("married") ? "(wife)" : c.flags.includes("engaged") ? "(fiancée)" : "(girlfriend)"}
+                </li>
+              )}
+              {kids.map((k) => (
+                <li key={k.name}>
+                  {k.girl ? "👧" : "👦"} {k.name} · {kidAge(k, season) === 0 ? "newborn" : `age ${kidAge(k, season)}`}
+                </li>
+              ))}
+              {house && together && kids.length < roomForKids(house) && kids.length === 0 && (
+                <li className={styles.hint}>Room for kids. Keep the love strong…</li>
+              )}
+            </ul>
+            <MenuButton onClick={() => setOverlay({ kind: "homes" })}>
+              {house ? "Upgrade your home" : "Browse homes"}
+            </MenuButton>
+          </article>
+        )}
+
         <article className={styles.card}>
           <h2>This week</h2>
           {c.activityDone ? (
@@ -1208,6 +1372,7 @@ export default function CareerRoute() {
               )}
               {c.stage === "pro" && <button onClick={() => activity("endorse")}>📸 Endorsement shoot</button>}
               {c.stage === "pro" && <button onClick={() => activity("press")}>🎤 Press conference</button>}
+              {house && <button onClick={() => activity("family")}>🏠 Family time at home</button>}
               <button onClick={() => activity("rest")}>🛋 Rest day</button>
             </div>
           )}

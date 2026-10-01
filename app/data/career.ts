@@ -1079,8 +1079,16 @@ export function eblTeam(id: string) {
 export function sceneSet(
   key: string,
   ctx: { college?: College; team?: EblTeam },
-): { set: "court" | "draft" | "faceoff"; venueId?: string; lead?: string[]; alias?: Record<string, string> } {
+): { set: "court" | "draft" | "faceoff" | "home"; venueId?: string; lead?: string[]; alias?: Record<string, string> } {
   if (key === "draft") return { set: "draft" };
+  if (key.startsWith("home:")) {
+    // "home:<teamId>:<tier>:<kids>[:g|b]" — the family's living room; a
+    // trailing g/b means the youngest is a newborn, asleep in the bassinet
+    const [, teamId, tier, kids, newborn] = key.split(":");
+    const standing = (Number(kids) || 0) - (newborn ? 1 : 0);
+    const lead = ["me", "cast-jaailyah", ...Array.from({ length: standing }, (_, i) => `kid-${i + 1}`)];
+    return { set: "home", venueId: `${teamId}:${tier}${newborn ? `:${newborn}` : ""}`, lead };
+  }
   if (key.startsWith("eblPregame"))
     return {
       set: "faceoff",

@@ -103,6 +103,7 @@ export function actorFor(who: SpeakerId): string | null {
   ];
   if (direct.includes(who)) return who;
   if (who === "dre") return "rival-dre";
+  if (who === "kid1" || who === "kid2" || who === "kid3") return `kid-${who.slice(3)}`;
   if (who === "imani") return "cast-jaailyah";
   if (
     [
@@ -125,4 +126,24 @@ export function actorFor(who: SpeakerId): string | null {
 
 export function castExists(id: string) {
   return getBaller(id).id === id;
+}
+
+/** Your kids as 3D cast members: they grow a little every season */
+export function registerKids(
+  kids: { name: string; girl: boolean; born: number; skin: string; hair: HairStyle }[],
+  season: number,
+) {
+  kids.forEach((k, i) => {
+    const age = Math.max(0, (season - k.born) * 2);
+    const height = Math.min(1.55, 0.78 + age * 0.07);
+    const tops = ["#ffd166", "#7bdff2", "#b8f2a6"];
+    const b = castMember(`kid-${i + 1}`, k.name, height, k.skin, k.hair, "#140e0a", tops[i % 3], "#2b3a55", {
+      build: 0.62,
+      figure: k.girl ? "feminine" : undefined,
+      earrings: k.girl,
+    });
+    // castMember appends; keep one entry per kid
+    const all = EXTRA_BALLERS.filter((x) => x.id === b.id);
+    if (all.length > 1) EXTRA_BALLERS.splice(EXTRA_BALLERS.indexOf(all[0]), 1);
+  });
 }

@@ -1,0 +1,122 @@
+.root {
+  --tone: #7bc4f2;
+  position: fixed;
+  inset: 0;
+  z-index: 46;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background:
+    radial-gradient(60% 50% at 50% 40%, color-mix(in srgb, var(--tone) 35%, transparent), transparent 70%),
+    #0b0d12;
+}
+
+.root[data-girl="true"] {
+  --tone: #f5a3c7;
+}
+
+.card {
+  width: min(560px, 100%);
+  padding: 30px 32px;
+  border-radius: 18px;
+  text-align: center;
+  color: #1c1a17;
+  background:
+    radial-gradient(circle at 12% 10%, color-mix(in srgb, var(--tone) 40%, transparent) 0 40px, transparent 41px),
+    radial-gradient(circle at 92% 88%, color-mix(in srgb, var(--tone) 40%, transparent) 0 54px, transparent 55px),
+    #fbf8f2;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+}
+
+.kicker {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--tone) 70%, #000);
+}
+
+.card h1 {
+  margin: 4px 0 0;
+  font-family: var(--family-display);
+  font-size: 46px;
+  font-weight: 400;
+}
+
+.name {
+  margin: 8px 0 2px;
+  font-family: "Caveat", cursive;
+  font-size: 58px;
+  font-weight: 600;
+  line-height: 1;
+  color: #22305f;
+}
+
+.meta {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #6a6256;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+
+.field span {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.field input {
+  width: 220px;
+  padding: 8px 12px;
+  border: 2px solid #1c1a17;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.ideas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 14px 0 18px;
+}
+
+.ideas button {
+  padding: 6px 14px;
+  border: 1px solid #c9c0b0;
+  border-radius: 999px;
+  background: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ideas button[data-on="true"] {
+  border-color: transparent;
+  background: var(--tone);
+}
+
+.go {
+  padding: 12px 26px;
+  border: 0;
+  border-radius: 999px;
+  background: #1c1a17;
+  color: #fff;
+  font-family: var(--family-display);
+  font-size: 24px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.go:disabled {
+  opacity: 0.4;
+}

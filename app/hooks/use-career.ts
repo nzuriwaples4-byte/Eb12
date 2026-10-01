@@ -58,6 +58,10 @@ export interface Career {
   dealSeen?: number;
   /** Lifetime signature-shoe royalties (₵) */
   royalties?: number;
+  /** The house you bought in your team's city */
+  house?: import("~/data/homes").OwnedHome | null;
+  /** Your kids with Jaailyah */
+  kids?: import("~/data/homes").Kid[];
   /** Pending charter flight to a new home city (team ids) */
   flight?: { from: string; to: string; tag: string } | null;
 }
